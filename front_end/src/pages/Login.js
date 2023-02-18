@@ -1,35 +1,27 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import BreadCrumb from "../components/BreadCrumb";
+import Container from "../components/Container";
 import MetaData from "../components/MetaData";
+import CustomInput from "../components/CustomInput";
 
 const Login = () => {
   return (
     <React.Fragment>
       <MetaData title="Login" />
       <BreadCrumb title="login" />
-      <div className="login-wrapper home-wrapper-2">
+      <Container classProp="login-wrapper home-wrapper-2">
         <div className="row">
           <div className="col-12">
             <div className="login-card">
               <h3 className="text-center mb-3">Login</h3>
               <form className="d-flex flex-column gap-15">
-                <div>
-                  <input
-                    className="form-control"
-                    type="email"
-                    name="email"
-                    placeholder="email"
-                  />
-                </div>
-                <div>
-                  <input
-                    className="form-control"
-                    type="password"
-                    name="password"
-                    placeholder="password"
-                  />
-                </div>
+                <CustomInput type="email" name="email" placeholder="email" />
+                <CustomInput
+                  type="password"
+                  name="password"
+                  placeholder="password"
+                />
                 <Link to="/forgot-password">Forgot Password</Link>
                 <div className="d-flex align-items-center justify-content-center gap-15">
                   <button className="button border-0" type="submit">
@@ -43,7 +35,7 @@ const Login = () => {
             </div>
           </div>
         </div>
-      </div>
+      </Container>
     </React.Fragment>
   );
 };

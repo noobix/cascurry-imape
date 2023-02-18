@@ -53,7 +53,10 @@ const Header = () => {
                     to="/compare-product"
                     className="d-flex align-items-center gap-10 text-white"
                   >
-                    <img src="assets/images/compare.svg" alt="..." />
+                    <img
+                      src={process.env.PUBLIC_URL + "assets/images/compare.svg"}
+                      alt="..."
+                    />
                     <p className="mb-0">
                       Compare <br /> Products
                     </p>
@@ -64,7 +67,12 @@ const Header = () => {
                     to="/wishlist"
                     className="d-flex align-items-center gap-10 text-white"
                   >
-                    <img src="assets/images/wishlist.svg" alt="..." />
+                    <img
+                      src={
+                        process.env.PUBLIC_URL + "assets/images/wishlist.svg"
+                      }
+                      alt="..."
+                    />
                     <p className="mb-0">
                       Favorite <br /> Wishlist
                     </p>
@@ -75,7 +83,10 @@ const Header = () => {
                     to="/login"
                     className="d-flex align-items-center gap-10 text-white"
                   >
-                    <img src="assets/images/user.svg" alt="..." />
+                    <img
+                      src={process.env.PUBLIC_URL + "assets/images/user.svg"}
+                      alt="..."
+                    />
                     <p className="mb-0">
                       Login <br /> My Account
                     </p>
@@ -86,7 +97,10 @@ const Header = () => {
                     to="/cart"
                     className="d-flex align-items-center gap-10 text-white"
                   >
-                    <img src="assets/images/cart.svg" alt="..." />
+                    <img
+                      src={process.env.PUBLIC_URL + "assets/images/cart.svg"}
+                      alt="..."
+                    />
                     <div className="d-flex flex-column gap-10">
                       <span className="badge bg-white text-dark">0</span>
                       <p className="mb-0">&#36;0.00</p>

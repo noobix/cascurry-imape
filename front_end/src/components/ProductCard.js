@@ -6,11 +6,14 @@ const ProductCard = ({ grid }) => {
   const location = useLocation();
   return (
     <div className={location.pathname === "/store" ? `gr-${grid}` : "col-3"}>
-      <Link className="product-card position-relative">
+      <Link
+        to="/store/product-view/:id"
+        className="product-card position-relative"
+      >
         <div className="wishlist-icon position-absolute">
-          <Link>
+          <button className="border-0 bg-transparent">
             <img src="/assets/images/wish.svg" alt="..." />
-          </Link>
+          </button>
         </div>
         <div className="product-image">
           <img className="img-fluid" src="assets/images/watch.jpg" alt="..." />
@@ -32,15 +35,15 @@ const ProductCard = ({ grid }) => {
         </div>
         <div className="action-bar position-absolute">
           <div className="d-flex flex-column gap-15">
-            <Link>
+            <button className="border-0 bg-transparent">
               <img src="assets/images/view.svg" alt="..." />
-            </Link>
-            <Link>
+            </button>
+            <button className="border-0 bg-transparent">
               <img src="assets/images/prodcompare.svg" alt="..." />
-            </Link>
-            <Link>
+            </button>
+            <button className="border-0 bg-transparent">
               <img src="assets/images/add-cart.svg" alt="..." />
-            </Link>
+            </button>
           </div>
         </div>
       </Link>

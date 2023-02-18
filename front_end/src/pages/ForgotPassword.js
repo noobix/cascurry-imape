@@ -1,14 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import BreadCrumb from "../components/BreadCrumb";
+import Container from "../components/Container";
 import MetaData from "../components/MetaData";
+import CustomInput from "../components/CustomInput";
 
 const ForgotPassword = () => {
   return (
     <React.Fragment>
       <MetaData title="Forgot password" />
       <BreadCrumb title="forgot-password" />
-      <div className="forgot-password-wrapper home-wrapper-2 py-5">
+      <Container classProp="forgot-password-wrapper home-wrapper-2 py-5">
         <div className="row">
           <div className="col-12">
             <div className="reset-card">
@@ -17,14 +19,7 @@ const ForgotPassword = () => {
                 We will send you a reset link to your email
               </p>
               <form className="d-flex flex-column gap-15">
-                <div>
-                  <input
-                    className="form-control"
-                    type="email"
-                    name="email"
-                    placeholder="email"
-                  />
-                </div>
+                <CustomInput type="email" name="email" placeholder="email" />
                 <div className="d-flex align-items-center flex-column justify-content-center gap-15">
                   <button className="button border-0" type="submit">
                     Login
@@ -35,7 +30,7 @@ const ForgotPassword = () => {
             </div>
           </div>
         </div>
-      </div>
+      </Container>
     </React.Fragment>
   );
 };

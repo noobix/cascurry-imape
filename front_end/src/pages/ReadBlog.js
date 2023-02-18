@@ -24,7 +24,7 @@ const ReadBlog = () => {
                 </h3>
                 <img
                   className="img-fluid w-100 my-4"
-                  src="/assets/images/blog-1.jpg"
+                  src={process.env.PUBLIC_URL + "/assets/images/blog-1.jpg"}
                   alt=""
                 />
                 <p>
