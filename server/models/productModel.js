@@ -39,9 +39,9 @@ var productSchema = new mongoose.Schema(
       required: true,
     },
     color: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
-      enum: ["Red", "Green", "Yellow", "Blue", "Black", "White", "Grey"],
+      ref: "Color",
     },
     ratings: [
       {

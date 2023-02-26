@@ -5,6 +5,7 @@ const uploadToCloudinay = require("../utils/cloudinary");
 const Product = require("../models/productModel");
 const Category = require("../models/categoryModel");
 const Coupon = require("../models/couponModel");
+const Color = require("../models/colorModel");
 const User = require("../models/userModel");
 const Brand = require("../models/brandModel");
 
@@ -20,12 +21,17 @@ const addProduct = asyncHandler(async (requestObject, responseObject) => {
   const id_brand = await Brand.findOne({
     name: format(requestObject.body.brand),
   });
+  const id_color = await Color.findOne({
+    name: format(requestObject.body.color),
+  });
   if (!id_cart)
     throw new Error(
       "Product Category not found In the system, please create it"
     );
   if (!id_brand)
     throw new Error("Product brand not found in the system please create it");
+  if (!id_cart)
+    throw new Error("Product color not found in the system, please create it");
   const newProduct = await Product.create({
     title: requestObject.body.title,
     slug: requestObject.body.slug,
@@ -33,7 +39,7 @@ const addProduct = asyncHandler(async (requestObject, responseObject) => {
     category: id_cart._id,
     brand: id_brand._id,
     quantity: requestObject.body.quantity,
-    color: requestObject.body.color,
+    color: id_color,
   });
   responseObject.status(201).json(newProduct);
 });
@@ -41,7 +47,8 @@ const findProduct = asyncHandler(async (requestObject, responseObject) => {
   const { id } = requestObject.params;
   const item = await Product.findById(id)
     .populate("category")
-    .populate("brand");
+    .populate("brand")
+    .populate("color");
   item
     ? responseObject.status(200).json({ item })
     : responseObject.status(400).json({ message: "Could not find product" });

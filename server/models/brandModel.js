@@ -23,10 +23,14 @@ var brandSchema = new mongoose.Schema(
       required: true,
       ref: "Category",
     },
-    supplier: {
-      type: String,
-      default: "Malcom & Vicdan logistics",
-    },
+    supplier: [
+      {
+        name: String,
+        phone: Number,
+        email: String,
+        address: String,
+      },
+    ],
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
