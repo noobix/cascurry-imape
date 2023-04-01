@@ -1,10 +1,19 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import BreadCrumb from "../components/BreadCrumb";
 import MetaData from "../components/MetaData";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
+import { getBlog } from "../features/blogs/blogslice";
 
 const ReadBlog = () => {
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const { blog = {} } = useSelector((state) => state.blog) ?? {};
+  const extractId = location.pathname.split("/")[2];
+  React.useEffect(() => {
+    dispatch(getBlog({ id: extractId }));
+  }, [dispatch]);
   return (
     <React.Fragment>
       <MetaData title="Read Blog" />
@@ -19,20 +28,22 @@ const ReadBlog = () => {
                   Go back&nbsp;
                   <HiOutlineArrowNarrowLeft size={30} />
                 </Link>
-                <h3 className="title">
-                  Cheaper gadgets for the the price of nothing
-                </h3>
-                <img
-                  className="img-fluid w-100 my-4"
-                  src={process.env.PUBLIC_URL + "/assets/images/blog-1.jpg"}
-                  alt=""
+                <h3 className="title">{blog.title}</h3>
+                {blog.images.length &&
+                  blog.images
+                    .slice(0, 1)
+                    .map((image, index) => (
+                      <img
+                        className="img-fluid w-50 my-4"
+                        src={image.image}
+                        alt=""
+                      />
+                    ))}
+                <p
+                  dangerouslySetInnerHTML={{
+                    __html: blog.description,
+                  }}
                 />
-                <p>
-                  Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                  Recusandae doloremque voluptas non quia ducimus harum natus
-                  maiores velit, tenetur eveniet nisi asperiores distinctio
-                  aperiam? Exercitationem laudantium vero dolorum esse porro!
-                </p>
               </div>
             </div>
           </div>

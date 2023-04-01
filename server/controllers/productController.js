@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const format = require("capitalize-string");
+const fs = require("fs");
 const uploadToCloudinay = require("../utils/cloudinary");
 const Product = require("../models/productModel");
 const Category = require("../models/categoryModel");
@@ -16,13 +17,13 @@ const addProduct = asyncHandler(async (requestObject, responseObject) => {
     );
   }
   const id_cart = await Category.findOne({
-    name: format(requestObject.body.category),
+    name: requestObject.body.category,
   });
   const id_brand = await Brand.findOne({
-    name: format(requestObject.body.brand),
+    name: requestObject.body.brand,
   });
   const id_color = await Color.findOne({
-    name: format(requestObject.body.color),
+    name: requestObject.body.color,
   });
   if (!id_cart)
     throw new Error(
@@ -40,8 +41,43 @@ const addProduct = asyncHandler(async (requestObject, responseObject) => {
     brand: id_brand._id,
     quantity: requestObject.body.quantity,
     color: id_color,
+    images: requestObject.body.images?.map((image) => {
+      return { image };
+    }),
   });
+  //tags for products (featured,thrending,special)
+  newProduct.tags = requestObject.body.tags?.map((tag) => {
+    return { tag };
+  });
+  await newProduct.save();
   responseObject.status(201).json(newProduct);
+});
+const addImage = asyncHandler(async (requestObject, responseObject) => {
+  const uploader = (path) => uploadToCloudinay(path, "images");
+  const urls = [];
+  const files = requestObject.files;
+  for (const file of files) {
+    const { path } = file;
+    const newpath = await uploader(path);
+    urls.push(newpath);
+    fs.unlinkSync(path);
+  }
+  const images = urls.map((file) => file.url);
+  if (images.length === 0)
+    responseObject
+      .status(417)
+      .json({ message: "Unable to complete image upload please try again" });
+  responseObject.status(200).json(images);
+});
+const getImages = asyncHandler(async (requestObject, responseObject) => {
+  const { id } = requestObject.params;
+  const data = await Product.findById(id);
+  const images = data ? data.images : [];
+  if (images) responseObject.status(200).json(images);
+  else
+    responseObject
+      .status(404)
+      .json({ message: "No images found, please try again" });
 });
 const findProduct = asyncHandler(async (requestObject, responseObject) => {
   const { id } = requestObject.params;
@@ -49,9 +85,8 @@ const findProduct = asyncHandler(async (requestObject, responseObject) => {
     .populate("category")
     .populate("brand")
     .populate("color");
-  item
-    ? responseObject.status(200).json({ item })
-    : responseObject.status(400).json({ message: "Could not find product" });
+  if (item) responseObject.status(200).json(item);
+  else responseObject.status(400).json({ message: "Could not find product" });
 });
 const enumProducts = asyncHandler(async (requestObject, responseObject) => {
   const match = {};
@@ -103,7 +138,11 @@ const enumProducts = asyncHandler(async (requestObject, responseObject) => {
   if (skip) {
     query = query.skip(skip);
   }
-  const items = await query.populate("category").populate("brand").exec(); //.populate("category").exec();
+  const items = await query
+    .populate("category")
+    .populate("brand")
+    .populate("color")
+    .exec(); //.populate("category").exec();
   if (items) {
     responseObject.status(200).json(items);
   } else {
@@ -114,15 +153,15 @@ const enumProducts = asyncHandler(async (requestObject, responseObject) => {
 });
 const updateProduct = asyncHandler(async (requestObject, responseObject) => {
   const id = requestObject.params.id;
-  if (requestObject.body.title) {
-    if (!requestObject.body.slug)
-      throw new Error(
-        "You need the product type to update the name of the product"
-      );
+  const { slug, title } = await Product.findById(id);
+  if (title !== requestObject.body.title || slug !== requestObject.body.slug) {
     requestObject.body.slug = slugify(
       requestObject?.body?.slug + " " + requestObject.body.title
     );
   }
+  const id_color = await Color.findOne({
+    name: requestObject.body.color,
+  });
   const id_cart = await Category.findOne({
     name: requestObject.body.category,
   });
@@ -138,8 +177,11 @@ const updateProduct = asyncHandler(async (requestObject, responseObject) => {
       price: requestObject.body.price || undefined,
       brand: id_brand || undefined,
       quantity: requestObject.body.quantity || undefined,
-      color: requestObject.body.color || undefined,
+      color: id_color || undefined,
       cartegory: id_cart || undefined,
+      images: requestObject.body.images?.map((image) => {
+        return { image };
+      }),
     },
     { new: true, runValidators: true }
   );
@@ -274,6 +316,8 @@ module.exports = {
   deleteProduct: deleteProduct,
   addToWishlist: addToWishlist,
   rating: rating,
+  addImage: addImage,
+  getImages: getImages,
   redeemCoupon: redeemCoupon,
   makeCatalogue: makeCatalogue,
 };

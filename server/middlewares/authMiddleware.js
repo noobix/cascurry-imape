@@ -4,18 +4,29 @@ const User = require("../models/userModel");
 
 const approveAuth = asyncHandler(
   async (requestObject, responseObject, next) => {
-    const token = requestObject.headers.authorization;
+    const token =
+      requestObject.headers.authorization || requestObject.cookies.refreshToken;
     if (!token) {
       throw new Error("Token not found, please login again");
     }
-    const tokenString = token.split(" ")[1];
-    const verified = jwt.verify(tokenString, process.env.JWT_SECRET_STRING);
-    if (!verified) {
-      throw new Error("Token expired, you are required to login");
+    if (requestObject.cookies.refreshToken) {
+      const verified = jwt.verify(token, process.env.JWT_SECRET_STRING);
+      if (!verified) {
+        throw new Error("Token expired, you are required to login");
+      }
+      const user = await User.findById(verified.id);
+      requestObject.user = user;
+      next();
+    } else {
+      const tokenString = token.split(" ")[1];
+      const verified = jwt.verify(tokenString, process.env.JWT_SECRET_STRING);
+      if (!verified) {
+        throw new Error("Token expired, you are required to login");
+      }
+      const user = await User.findById(verified.id);
+      requestObject.user = user;
+      next();
     }
-    const user = await User.findById(verified.id);
-    requestObject.user = user;
-    next();
   }
 );
 const getPrivileges = asyncHandler(

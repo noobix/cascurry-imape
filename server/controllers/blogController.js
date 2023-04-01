@@ -2,15 +2,17 @@ const asyncHandler = require("express-async-handler");
 const validateId = require("../utils/validateId");
 const uploadToCloudinay = require("../utils/cloudinary");
 const Blog = require("../models/blogModel");
-const User = require("../models/userModel");
 const Category = require("../models/categoryModel");
 
 const createBlog = asyncHandler(async (requestObject, responseObject) => {
   const { id } = await Category.findOne({ name: requestObject.body.category });
   const newBlog = await Blog.create({
     title: requestObject.body.title,
-    decription: requestObject.body.decription,
+    description: requestObject.body.description,
     category: id,
+    images: requestObject.body?.images?.map((image) => {
+      return { image };
+    }),
   });
   if (!newBlog)
     throw new Error(
@@ -20,13 +22,16 @@ const createBlog = asyncHandler(async (requestObject, responseObject) => {
 });
 const updateBlog = asyncHandler(async (requestObject, responseObject) => {
   const id = requestObject.params.id;
-  const { id1 } = await Category.findOne({ name: requestObject.body.category });
+  const { _id } = await Category.findOne({ name: requestObject.body.category });
   const update = await Blog.findByIdAndUpdate(
     id,
     {
       title: requestObject.body.title || undefined,
-      decription: requestObject.body.decription || undefined,
-      category: id1 || undefined,
+      description: requestObject.body.description || undefined,
+      category: _id || undefined,
+      images: requestObject.body?.images?.map((image) => {
+        return { image };
+      }),
     },
     { new: true, runValidators: true }
   );
@@ -36,9 +41,22 @@ const updateBlog = asyncHandler(async (requestObject, responseObject) => {
       message: "An error occurred while updating blog post please try again.",
     });
 });
+const getImages = asyncHandler(async (requestObject, responseObject) => {
+  const { id } = requestObject.params;
+  const data = await Blog.findById(id);
+  const images = data ? data.images : [];
+  if (images) responseObject.status(200).json(images);
+  else
+    responseObject
+      .status(404)
+      .json({ message: "No images found, please try again" });
+});
 const getBlogPost = asyncHandler(async (requestObject, responseObject) => {
   const id = requestObject.params.id;
-  const blog = await Blog.findById(id).populate("likes").populate("disLikes");
+  const blog = await Blog.findById(id)
+    .populate("likes")
+    .populate("disLikes")
+    .populate("category");
   const count = await Blog.findByIdAndUpdate(
     id,
     { $inc: { numberOfViews: 1 } },
@@ -52,7 +70,10 @@ const getBlogPost = asyncHandler(async (requestObject, responseObject) => {
     });
 });
 const enumBlogs = asyncHandler(async (requestObject, responseObject) => {
-  const blogs = await Blog.find().populate("likes").populate("disLikes");
+  const blogs = await Blog.find()
+    .populate("likes")
+    .populate("disLikes")
+    .populate("category");
   if (!blogs)
     throw new Error(
       "Something went wrong, May be connection interupted, please try again"
@@ -178,4 +199,5 @@ module.exports = {
   likeBlog: likeBlog,
   disLikeBlog: disLikeBlog,
   addBlogAssets: addBlogAssets,
+  getImages: getImages,
 };

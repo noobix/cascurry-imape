@@ -29,7 +29,7 @@ var productSchema = new mongoose.Schema(
       required: true,
       ref: "Brand",
     },
-    quantity: Number,
+    quantity: { type: Number, required: true },
     sold: {
       type: Number,
       default: 0,
@@ -43,6 +43,7 @@ var productSchema = new mongoose.Schema(
       required: true,
       ref: "Color",
     },
+    tags: { type: Array, required: true },
     ratings: [
       {
         star: Number,

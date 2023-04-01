@@ -10,13 +10,29 @@ var orderSchema = new mongoose.Schema(
         color: String,
       },
     ],
-    paymentIntent: {},
+    paymentIntent: {
+      method: {
+        type: String,
+        default: "Cash On Delivery",
+        enum: [
+          "Cash On Delivery",
+          "Credit Card",
+          "Voucher",
+          "Cheque",
+          "MoMo On Delivery",
+          "MoMo At Checkout",
+        ],
+      },
+      id: { type: String, required: true },
+      amount: { type: Number, required: true },
+      date: { type: Date, required: true },
+      currency: { type: String, required: true, default: "USD" },
+    },
     orderStatus: {
       type: String,
       default: "Not Processed",
       enum: [
         "Not Processed",
-        "Cash On Delivery",
         "Processing",
         "Dispatched",
         "Cancelled",
@@ -28,7 +44,7 @@ var orderSchema = new mongoose.Schema(
       ref: "User",
     },
   },
-  { timestamps: true }
+  { toJSON: { virtuals: true }, toObject: { virtuals: true }, timestamps: true }
 );
 
 //Export the model

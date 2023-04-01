@@ -1,12 +1,57 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Marquee from "react-fast-marquee";
+import jwt_decode from "jwt-decode";
+import { useDispatch, useSelector } from "react-redux";
 import BlogCard from "../components/BlogCard";
+import { getBlogs } from "../features/blogs/blogslice";
 import ProductCard from "../components/ProductCard";
 import SpecialProducts from "../components/SpecialProducts";
 import Container from "../components/Container";
+import { logoutUser } from "../features/auth/authSlice";
+import { getProducts } from "../features/items/itemSlice";
 
 const Home = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { blogs = [] } = useSelector((state) => state.blog) ?? {};
+  const { product = [] } = useSelector((state) => state.item) ?? {};
+  const threndingProducts = product
+    .filter((item) => item.tags.some((tag) => tag.tag === "Thrending"))
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 4);
+  const specialProducts = product
+    .filter((item) => item.tags.some((tag) => tag.tag === "Specials"))
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 4);
+  const featuredProducts = product
+    .filter((item) => item.tags.some((tag) => tag.tag === "Featured"))
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 4);
+  const { user, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.auth
+  );
+  React.useEffect(() => {
+    dispatch(getBlogs());
+    dispatch(getProducts(user?.refreshToken));
+  }, [dispatch]);
+  async function verify() {
+    if (user && user.refreshToken) {
+      const { refreshToken } = user;
+      const { exp } = await jwt_decode(refreshToken);
+      const expirationTime = exp * 1000 - 60000;
+      if (Date.now() >= expirationTime) {
+        localStorage.removeItem("user");
+        dispatch(logoutUser());
+        return false;
+      } else return true;
+    } else return false;
+  }
+  React.useEffect(() => {
+    if (!user || verify() === false) {
+      navigate("/login");
+    }
+  }, []);
   return (
     <React.Fragment>
       <Container classProp="home-wrapper-1 py-5">
@@ -229,10 +274,7 @@ const Home = () => {
           <div className="col-12">
             <h4 className="section-heading">Featured Collection</h4>
           </div>
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
+          <ProductCard data={featuredProducts} />
         </div>
       </Container>
       <Container classProp="famous-wrapper pb-5 home-wrapper-2">
@@ -308,10 +350,7 @@ const Home = () => {
           </div>
         </div>
         <div className="row">
-          <SpecialProducts />
-          <SpecialProducts />
-          <SpecialProducts />
-          <SpecialProducts />
+          <SpecialProducts data={specialProducts} />
         </div>
       </Container>
       <Container classProp="popular-wrapper py-5 home-wrapper-2">
@@ -321,10 +360,7 @@ const Home = () => {
           </div>
         </div>
         <div className="row">
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
+          <ProductCard data={threndingProducts} />
         </div>
       </Container>
       <Container classProp="marquee-wrapper py-5 home-wrapper-2">
@@ -392,16 +428,20 @@ const Home = () => {
           </div>
           <div className="row">
             <div className="col-3">
-              <BlogCard />
-            </div>
-            <div className="col-3">
-              <BlogCard />
-            </div>
-            <div className="col-3">
-              <BlogCard />
-            </div>
-            <div className="col-3">
-              <BlogCard />
+              {blogs &&
+                blogs.length > 0 &&
+                blogs.map((blog, index) => (
+                  <BlogCard
+                    key={index}
+                    id={blog._id}
+                    title={blog.title}
+                    category={blog.category.name}
+                    images={blog.images}
+                    author={blog.author}
+                    date={blog.createdAt}
+                    description={blog.description}
+                  />
+                ))}
             </div>
           </div>
         </div>

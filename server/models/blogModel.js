@@ -7,13 +7,14 @@ var blogSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    decription: {
+    description: {
       type: String,
       required: true,
     },
     category: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: "Category",
     },
     numberOfViews: {
       type: Number,
@@ -42,16 +43,13 @@ var blogSchema = new mongoose.Schema(
     images: {
       type: Array,
       required: true,
-      default:
-        "https://www.google.com/imgres?imgurl=https%3A%2F%2Fimg.freepik." +
-        "com%2Ffree-vector%2Fblogging-fun-content-creation-online-streaming" +
-        "-video-blog-young-girl-making-selfie-social-network-sharing-feedback" +
-        "-self-promotion-strategy-vector-isolated-concept-metaphor-" +
-        "illustration_335657-855.jpg%3Fw%3D2000&imgrefurl=https%3A%2F%2Fwww" +
-        ".freepik.com%2Ffree-photos-vectors%2Fblogging&tbnid=e3LWL_CrAVddoM&vet" +
-        "=12ahUKEwjh7piV__L8AhVooScCHYS3A3IQMygBegUIARDdAQ.." +
-        "i&docid=QE5flp-NuuI7tM&w=2000&h=2000&q=blog%20images&client=" +
-        "firefox-b-d&ved=2ahUKEwjh7piV__L8AhVooScCHYS3A3IQMygBegUIARDdAQ",
+      default: {
+        image:
+          "https://img.freepik.com/free-vector/blogging-fun-content" +
+          "-creation-online-streaming-video-blog-young-girl-making" +
+          "-selfie-social-network-sharing-feedback-self-promotion" +
+          "-strategy_335657-2386.jpg?w=2000",
+      },
     },
     author: {
       type: String,

@@ -14,6 +14,6 @@ router.get("/get_brands", enumBrand);
 router.delete("/remove_brand/:id", approveAuth, getPrivileges, removeBrand);
 router.get("/get_brand/:id", findBrand);
 router.post("/add_brand", approveAuth, getPrivileges, addbrand);
-router.post("/update_brand/:id", approveAuth, getPrivileges, editBrand);
+router.put("/update_brand/:id", approveAuth, getPrivileges, editBrand);
 
 module.exports = router;

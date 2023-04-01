@@ -5,6 +5,9 @@ const CustomInput = ({
   type,
   name,
   placeholder,
+  onBlur,
+  onChange,
+  value,
 }) => {
   return (
     <div>
@@ -13,6 +16,9 @@ const CustomInput = ({
         type={type}
         name={name}
         placeholder={placeholder}
+        onChange={onChange}
+        onBlur={onBlur}
+        value={value}
       />
     </div>
   );

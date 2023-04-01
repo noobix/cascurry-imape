@@ -8,6 +8,7 @@ const {
   likeBlog,
   disLikeBlog,
   addBlogAssets,
+  getImages,
 } = require("../controllers/blogController");
 const { approveAuth, getPrivileges } = require("../middlewares/authMiddleware");
 const { upload, blogImageFormat } = require("../middlewares/uploadImages");
@@ -15,6 +16,7 @@ const { upload, blogImageFormat } = require("../middlewares/uploadImages");
 const router = express.Router();
 router.post("/new_blog_post", approveAuth, getPrivileges, createBlog);
 router.put("/update_blog/:id", approveAuth, getPrivileges, updateBlog);
+router.get("/get_blog_images/:id", getImages);
 router.get("/fetch_blog/:id", getBlogPost);
 router.get("/fetch_blog_all", enumBlogs);
 router.put(

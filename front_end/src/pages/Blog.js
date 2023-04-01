@@ -1,10 +1,18 @@
 import React from "react";
+import { useSelector, useDispatch } from "react-redux";
 import BlogCard from "../components/BlogCard";
 import BreadCrumb from "../components/BreadCrumb";
 import Container from "../components/Container";
 import MetaData from "../components/MetaData";
+import { getBlogs } from "../features/blogs/blogslice";
 
 const Blog = () => {
+  const dispatch = useDispatch();
+  const { blogs = [] } = useSelector((state) => state.blog) ?? {};
+  const { user } = useSelector((state) => state.auth);
+  React.useEffect(() => {
+    dispatch(getBlogs());
+  }, [dispatch]);
   return (
     <React.Fragment>
       <MetaData title="Blogs" />
@@ -28,10 +36,20 @@ const Blog = () => {
             <div className="d-flex gap-10">
               <div className="row">
                 <div className="col-6 mb-3">
-                  <BlogCard />
-                </div>
-                <div className="col-6 mb-3">
-                  <BlogCard />
+                  {blogs &&
+                    blogs.length > 0 &&
+                    blogs.map((blog, index) => (
+                      <BlogCard
+                        key={index}
+                        id={blog._id}
+                        title={blog.title}
+                        category={blog.category.name}
+                        images={blog.images}
+                        author={blog.author}
+                        date={blog.createdAt}
+                        description={blog.description}
+                      />
+                    ))}
                 </div>
               </div>
             </div>

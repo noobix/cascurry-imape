@@ -26,6 +26,12 @@ import { Link, Outlet } from "react-router-dom";
 import { Breadcrumb, Layout, Menu, theme } from "antd";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import jwt_decode from "jwt-decode";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { logout } from "../feature/auth/authSlice";
+
 const { Header, Content, Footer, Sider } = Layout;
 function getItem(label, key, icon, children) {
   return {
@@ -52,8 +58,6 @@ const items = [
   getItem("Blogs", "blogs", <NotificationOutlined />, [
     getItem("Blog", "add-blog", <AppstoreAddOutlined />),
     getItem("Blog List", "all-blogs", <ProfileOutlined />),
-    getItem("Add Blog class", "blog-cartegory", <DatabaseOutlined />),
-    getItem("Blog class List", "blog-cartegory-list", <CompressOutlined />),
   ]),
   getItem("Coupons", "coupons", <SnippetsOutlined />, [
     getItem("Add Coupon", "add-coupon", <PlusSquareOutlined />),
@@ -64,10 +68,36 @@ const items = [
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = React.useState(false);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+  const { user, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.auth
+  );
+  function handleLogout() {
+    dispatch(logout());
+    localStorage.removeItem("user");
+    navigate("/");
+  }
+  function verify() {
+    if (user) {
+      const { refreshToken } = user;
+      const { exp } = jwt_decode(refreshToken);
+      const expirationTime = exp * 1000 - 60000;
+      if (Date.now() >= expirationTime) {
+        localStorage.removeItem("user");
+        dispatch(logout());
+        return false;
+      } else return true;
+    } else return false;
+  }
+  React.useEffect(() => {
+    if (!user || verify() === false) {
+      navigate("/");
+    }
+  }, []);
   return (
     <Layout
       style={{
@@ -160,7 +190,7 @@ const MainLayout = () => {
                 <Link
                   className="dropdown-item"
                   style={{ height: "auto", lineHeight: "20px" }}
-                  to="/admin"
+                  onClick={() => handleLogout()}
                 >
                   Signout
                 </Link>
@@ -181,6 +211,15 @@ const MainLayout = () => {
             <Breadcrumb.Item>User</Breadcrumb.Item>
             <Breadcrumb.Item>Bill</Breadcrumb.Item>
           </Breadcrumb>
+          <ToastContainer
+            position="top-right"
+            autoClose={2500}
+            hideProgressBar={false}
+            newestOnTop={true}
+            closeOnClick
+            rtl={false}
+            theme="light"
+          />
           <Outlet />
         </Content>
         <Footer

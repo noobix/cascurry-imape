@@ -1,103 +1,298 @@
 import React from "react";
 import CustomInput from "../Components/CustomInput";
-import { message, Upload } from "antd";
-import { InboxOutlined } from "@ant-design/icons";
-
-const { Dragger } = Upload;
-const props = {
-  name: "file",
-  multiple: true,
-  action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
-  onChange(info) {
-    const { status } = info.file;
-    if (status !== "uploading") {
-      console.log(info.file, info.fileList);
-    }
-    if (status === "done") {
-      message.success(`${info.file.name} file uploaded successfully.`);
-    } else if (status === "error") {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  },
-  onDrop(e) {
-    console.log("Dropped files", e.dataTransfer.files);
-  },
-};
+import { Select } from "antd";
+import { useFormik } from "formik";
+import { array, number, object, string } from "yup";
+import { useDispatch, useSelector } from "react-redux";
+import Dropzone from "react-dropzone";
+import { toast } from "react-toastify";
+import { getCartegory } from "../feature/cartegory/cartegorySlice";
+import { getColors } from "../feature/color/colorSlice";
+import { getBrands } from "../feature/brand/brandSlice";
+import {
+  clearUploadData,
+  getProductImages,
+  uploadImages,
+} from "../feature/upload/uploadSlice";
+import {
+  clearState,
+  createProduct,
+  fetchProduct,
+  reviseProduct,
+} from "../feature/item/itemSlice";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const AddProduct = () => {
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [tags, settags] = React.useState([]);
+  const productTags = [
+    { label: "Thrending", value: "Thrending" },
+    { label: "Specials", value: "Specials" },
+    { label: "Featured", value: "Featured" },
+  ];
+  const extractId = location.pathname.split("/")[3];
+  const { user } = useSelector((state) => state.auth);
+  const { cartegories } = useSelector((state) => state.cartegory);
+  const { brands } = useSelector((state) => state.brands);
+  const { colors } = useSelector((state) => state.color);
+  const { images } = useSelector((state) => state.upload);
+  const { isError, isSuccess } = useSelector((state) => state.items);
+  const { products } = useSelector((state) => state.items);
+  React.useEffect(() => {
+    dispatch(getCartegory(user?.refreshToken));
+    dispatch(getColors(user?.refreshToken));
+    dispatch(getBrands(user?.refreshToken));
+  }, [dispatch]);
+  React.useEffect(() => {
+    formik.setFieldValue("images", images.length ? images : undefined);
+  }, [images]);
+  React.useEffect(() => {
+    if (isSuccess) toast.success("Product sucessfully added");
+    if (isError) toast.error("Unable to create product, please try again");
+  }, [isError, isSuccess]);
+  React.useEffect(() => {
+    if (extractId) {
+      dispatch(fetchProduct({ token: user.refreshToken, id: extractId }));
+      dispatch(getProductImages({ token: user.refreshToken, id: extractId }));
+    }
+  }, [extractId]);
+  let productSchema = object({
+    title: string().required(),
+    slug: string().required(),
+    price: number().required(),
+    category: string().required(),
+    brand: string().required(),
+    quantity: number().required(),
+    color: string().required(),
+    images: array().required(),
+    tags: array(),
+  });
+  function handleOption(values) {
+    formik.setFieldValue("tags", values);
+    settags(values);
+  }
+  const formik = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      title: products?.title || "",
+      slug: products?.slug || "",
+      price: products?.price || 0,
+      category: products?.category?.name || "",
+      brand: products?.brand?.name || "",
+      quantity: products?.quantity || 0,
+      color: products?.color?.name || "",
+      images: products?.images?.map((image) => image.image) || [],
+      tags: products?.tags?.map((tag) => tag.tag) || [],
+    },
+    validationSchema: productSchema,
+    onSubmit: (values) => {
+      values = {
+        data: values,
+        id: extractId || undefined,
+        token: user.refreshToken,
+      };
+      if (!extractId) {
+        dispatch(createProduct(values));
+        !isError && formik.resetForm();
+        settags([]);
+        dispatch(clearUploadData());
+      } else {
+        dispatch(reviseProduct(values));
+        !isError && formik.resetForm();
+        dispatch(clearState());
+        settags([]);
+        dispatch(clearUploadData());
+        navigate("/admin/product-list");
+      }
+    },
+  });
   return (
     <div>
-      <h3 className="mb-4">Add Product</h3>
+      <h3 className="mb-4">{extractId ? "Edit" : "Add"} Product</h3>
       <div>
-        <form>
+        <form onSubmit={formik.handleSubmit}>
           <CustomInput
             type="text"
             placeholder="Title"
             id="prod-name"
             label="Product Name"
+            name="title"
+            onChange={formik.handleChange("title")}
+            value={formik.values.title}
+            onBlur={formik.handleChange("title")}
           />
+          {formik.touched.title && formik.errors.title ? (
+            <div className="mb-2 mt-0">{formik.errors.title}</div>
+          ) : (
+            <span></span>
+          )}
           <CustomInput
             type="text"
             placeholder="Slug eg: stove or laptop"
             id="prod-slug"
             label="Slug"
+            name="slug"
+            onChange={formik.handleChange("slug")}
+            value={formik.values.slug}
+            onBlur={formik.handleChange("slug")}
           />
+          {formik.touched.slug && formik.errors.slug ? (
+            <div className="mb-2 mt-0">{formik.errors.slug}</div>
+          ) : (
+            <span></span>
+          )}
+          <Select
+            mode="multiple"
+            allowClear
+            className="w-100 mb-3"
+            onChange={(value) => handleOption(value)}
+            value={formik.values.tags}
+            options={productTags}
+            defaultValue={tags}
+            placeholder="Select product tags..."
+          />
+          {formik.touched.tags && formik.errors.tags ? (
+            <div className="mb-2 mt-0">{formik.errors.tags}</div>
+          ) : (
+            <span></span>
+          )}
           <CustomInput
             type="number"
             placeholder="Price"
             id="prod-price"
             label="Price"
+            name="price"
+            onChange={formik.handleChange("price")}
+            value={formik.values.price}
+            onBlur={formik.handleChange("price")}
           />
+          {formik.touched.price && formik.errors.price ? (
+            <div className="mb-2 mt-0">{formik.errors.price}</div>
+          ) : (
+            <span></span>
+          )}
           <select
             className="form-select mb-3"
             aria-label="Default select example"
+            name="category"
+            value={formik.values.category}
+            onChange={formik.handleChange("category")}
+            onBlur={formik.handleChange("category")}
           >
             <option defaultValue>Select Product Cartegory</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
+            {cartegories.map((cartegory, index) => (
+              <option key={index} value={cartegory.name}>
+                {cartegory.name}
+              </option>
+            ))}
           </select>
+          {formik.touched.category && formik.errors.category ? (
+            <div className="mb-2 mt-0">{formik.errors.category}</div>
+          ) : (
+            <span></span>
+          )}
           <select
             className="form-select mb-3"
             aria-label="Default select example"
+            name="brand"
+            value={formik.values.brand}
+            onChange={formik.handleChange("brand")}
+            onBlur={formik.handleChange("brand")}
           >
             <option defaultValue>Select Product Brand</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
+            {brands.map((brand, index) => (
+              <option key={index} value={brand.name}>
+                {brand.name}
+              </option>
+            ))}
           </select>
+          {formik.touched.brand && formik.errors.brand ? (
+            <div className="mb-2 mt-0">{formik.errors.brand}</div>
+          ) : (
+            <span></span>
+          )}
           <CustomInput
             type="number"
             placeholder="Quantity"
             id="prod-quantity"
             label="Quantity"
+            name="quantity"
+            onChange={formik.handleChange("quantity")}
+            value={formik.values.quantity}
+            onBlur={formik.handleChange("quantity")}
           />
+          {formik.touched.quantity && formik.errors.quantity ? (
+            <div className="mb-2 mt-0">{formik.errors.quantity}</div>
+          ) : (
+            <span></span>
+          )}
           <select
             className="form-select mb-3"
             aria-label="Default select example"
+            name="color"
+            value={formik.values.color}
+            onChange={formik.handleChange("color")}
+            onBlur={formik.handleChange("color")}
           >
             <option defaultValue>Select Product Color</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
+            {colors.map((color, index) => (
+              <option key={index} value={color.name}>
+                {color.name}
+              </option>
+            ))}
           </select>
-          <Dragger {...props}>
-            <p className="ant-upload-drag-icon">
-              <InboxOutlined />
-            </p>
-            <p className="ant-upload-text">
-              Click or drag file to this area to upload
-            </p>
-            <p className="ant-upload-hint">
-              Support for a single or bulk upload. Strictly prohibit from
-              uploading company data or other band files
-            </p>
-          </Dragger>
+          {formik.touched.color && formik.errors.color ? (
+            <div className="mb-2 mt-0">{formik.errors.color}</div>
+          ) : (
+            <span></span>
+          )}
+          <div className="bg-white border-1 p-5 text-center">
+            <Dropzone
+              onDrop={(acceptedFiles) =>
+                dispatch(
+                  uploadImages({
+                    images: acceptedFiles,
+                    token: user.refreshToken,
+                  })
+                )
+              }
+            >
+              {({ getRootProps, getInputProps }) => (
+                <section>
+                  <div {...getRootProps()}>
+                    <input {...getInputProps()} />
+                    <p>
+                      Drag 'n' drop some files here, or click to select files
+                    </p>
+                  </div>
+                </section>
+              )}
+            </Dropzone>
+          </div>
+          <div className="show-image d-flex gap-10 flex-wrap my-3">
+            {images.map((image, index) => (
+              <div key={index} className="position-relative">
+                <button
+                  className="btn-close position-absolute"
+                  style={{ top: "0", right: "0" }}
+                  type="button"
+                />
+                <img
+                  className="mx-2 my-2"
+                  width="200px"
+                  src={typeof image === "object" ? image.image : image}
+                  alt="..."
+                />
+              </div>
+            ))}
+          </div>
           <button
             type="submit"
             className="btn btn-success border-0 rounded-3 my-3"
           >
-            Add Product
+            {extractId ? "Save Edit" : "Add Product"}
           </button>
         </form>
       </div>

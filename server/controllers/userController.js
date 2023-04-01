@@ -5,6 +5,7 @@ const uniqid = require("uniqid");
 const User = require("../models/userModel");
 const Product = require("../models/productModel");
 const Cart = require("../models/cartModel");
+const Color = require("../models/colorModel");
 const Coupon = require("../models/couponModel");
 const Order = require("../models/orderModel");
 const { genToken } = require("../config/tokenGenerator");
@@ -77,11 +78,11 @@ const loginAdmin = asyncHandler(async (requestObject, responseObject) => {
         }
       }
     ).clone();
-    saveToken
-      ? responseObject.status(200).json(saveToken)
-      : responseObject.status(417).json({
-          message: "Server error, Could not save token, please try again",
-        });
+    if (saveToken) responseObject.status(200).json(saveToken);
+    else
+      responseObject.status(417).json({
+        message: "Server error, Could not save token, please try again",
+      });
   } else {
     throw new Error("Credentials not found, Please try again");
   }
@@ -264,7 +265,10 @@ const resetPassword = asyncHandler(async (requestObject, responseObject) => {
 });
 const getWishlist = asyncHandler(async (requestObject, responseObject) => {
   const id = requestObject.user._id;
-  const user = await User.findById(id).populate("wishlist");
+  const user = await User.findById(id).populate({
+    path: "wishlist",
+    model: "Product",
+  });
   if (user) responseObject.status(200).json(user);
   else
     responseObject
@@ -378,7 +382,7 @@ const makeOrder = asyncHandler(async (requestObject, responseObject) => {
   const userCart = await Cart.findOne({ orderBy: id });
   let totals = [];
   let grandTotal = 0;
-  if (userCart.totalAfterDiscount === 0) {
+  if (!userCart.totalAfterDiscount || userCart.totalAfterDiscount === 0) {
     for (let i = 0; i < userCart.product.length; i++) {
       let object = {};
       object.price = userCart.product[i].price;
@@ -397,9 +401,8 @@ const makeOrder = asyncHandler(async (requestObject, responseObject) => {
     product: userCart.product,
     paymentIntent: {
       id: uniqid(),
-      method: "COD",
+      method: "Cash On Delivery",
       amount: grandTotal,
-      status: "Cash On Delivery",
       date: Date.now(),
       currency: "USD",
     },
@@ -423,9 +426,37 @@ const makeOrder = asyncHandler(async (requestObject, responseObject) => {
 });
 const getOrder = asyncHandler(async (requestObject, responseObject) => {
   const id = requestObject.user._id;
-  const order = await Order.findOne({ orderBy: id }).populate(
-    "product.product"
-  );
+  const order = await Order.findOne({ orderBy: id })
+    .populate("product.product")
+    .populate("orderBy");
+  if (order) responseObject.status(200).json(order);
+  else
+    responseObject
+      .status(400)
+      .json({ message: "Could not find any orders, please try again" });
+});
+const fetchOrder = asyncHandler(async (requestObject, responseObject) => {
+  const id = requestObject.params.id;
+  const userOrder = await Order.findById(id)
+    .populate({
+      path: "product.product",
+      populate: {
+        path: "brand",
+        model: "Brand",
+      },
+    })
+    .populate("orderBy");
+  // userOrder = { ...userOrder, color: userOrder.product[0].color };
+  if (userOrder) responseObject.status(200).json(userOrder);
+  else
+    responseObject.status(400).json({
+      message: "Could not find any matching orders, please try again.",
+    });
+});
+const getAllOrder = asyncHandler(async (requestObject, responseObject) => {
+  const order = await Order.find()
+    .populate("product.product")
+    .populate("orderBy");
   if (order) responseObject.status(200).json(order);
   else
     responseObject
@@ -473,5 +504,7 @@ module.exports = {
   redeemCoupon: redeemCoupon,
   makeOrder: makeOrder,
   getOrder: getOrder,
+  getAllOrder: getAllOrder,
   updateOrderStatus: updateOrderStatus,
+  fetchOrder: fetchOrder,
 };

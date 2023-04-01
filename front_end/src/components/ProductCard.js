@@ -1,52 +1,80 @@
 import React from "react";
 import { Rating } from "@smastrom/react-rating";
 import { Link, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { addWishlist } from "../features/items/itemSlice";
 
-const ProductCard = ({ grid }) => {
+const ProductCard = ({ grid, data = [] }) => {
   const location = useLocation();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
   return (
-    <div className={location.pathname === "/store" ? `gr-${grid}` : "col-3"}>
-      <Link
-        to="/store/product-view/:id"
-        className="product-card position-relative"
-      >
-        <div className="wishlist-icon position-absolute">
-          <button className="border-0 bg-transparent">
-            <img src="/assets/images/wish.svg" alt="..." />
-          </button>
-        </div>
-        <div className="product-image">
-          <img className="img-fluid" src="assets/images/watch.jpg" alt="..." />
-          <img className="img-fluid" src="assets/images/watch2.jpg" alt="..." />
-        </div>
-        <div className="product-details">
-          <h6 className="brand">apple</h6>
-          <h5 className="product-title">
-            Kids watches suitable for students color varities
-          </h5>
-          <Rating style={{ maxWidth: 90 }} value={3} />
-          <p className={`description ${grid === 12 ? "d-block" : "d-none"}`}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Libero
-            dignissimos, iusto veniam fuga architecto qui cumque! Eos debitis
-            iusto, qui excepturi ab quam necessitatibus non distinctio
-            voluptates?
-          </p>
-          <p className="price">&#36;250</p>
-        </div>
-        <div className="action-bar position-absolute">
-          <div className="d-flex flex-column gap-15">
-            <button className="border-0 bg-transparent">
-              <img src="assets/images/view.svg" alt="..." />
-            </button>
-            <button className="border-0 bg-transparent">
-              <img src="assets/images/prodcompare.svg" alt="..." />
-            </button>
-            <button className="border-0 bg-transparent">
-              <img src="assets/images/add-cart.svg" alt="..." />
-            </button>
+    <div className="row">
+      {data &&
+        data.length > 0 &&
+        data.map((item, index) => (
+          <div
+            key={index}
+            className={location.pathname === "/store" ? `gr-${grid}` : "col-3"}
+          >
+            <Link
+              to="/store/product-view/:id"
+              className="product-card position-relative"
+            >
+              <div className="wishlist-icon position-absolute">
+                <button
+                  className="border-0 bg-transparent"
+                  onClick={() =>
+                    dispatch(
+                      addWishlist({
+                        token: user.refreshToken,
+                        data: { item: item._id },
+                      })
+                    )
+                  }
+                >
+                  <img src="/assets/images/wish.svg" alt="..." />
+                </button>
+              </div>
+              <div className="product-image">
+                {item.images.slice(0, 2).map((image, index) => (
+                  <img
+                    key={index}
+                    className="img-fluid"
+                    src={image.image}
+                    alt="..."
+                  />
+                ))}
+              </div>
+              <div className="product-details">
+                <h6 className="brand">{item.brand.name}</h6>
+                <h5 className="product-title">{item.title}</h5>
+                <Rating style={{ maxWidth: 90 }} value={item.totalRatings} />
+                <p
+                  className={`description ${
+                    grid === 12 ? "d-block" : "d-none"
+                  }`}
+                >
+                  {item.category.description}
+                </p>
+                <p className="price">&#36;&nbsp;{item.price}</p>
+              </div>
+              <div className="action-bar position-absolute">
+                <div className="d-flex flex-column gap-15">
+                  <button className="border-0 bg-transparent">
+                    <img src="assets/images/view.svg" alt="..." />
+                  </button>
+                  <button className="border-0 bg-transparent">
+                    <img src="assets/images/prodcompare.svg" alt="..." />
+                  </button>
+                  <button className="border-0 bg-transparent">
+                    <img src="assets/images/add-cart.svg" alt="..." />
+                  </button>
+                </div>
+              </div>
+            </Link>
           </div>
-        </div>
-      </Link>
+        ))}
     </div>
   );
 };

@@ -1,13 +1,21 @@
 import { Rating } from "@smastrom/react-rating";
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import BreadCrumb from "../components/BreadCrumb";
 import Color from "../components/Color";
 import Container from "../components/Container";
 import MetaData from "../components/MetaData";
 import ProductCard from "../components/ProductCard";
+import { getProducts } from "../features/items/itemSlice";
 
 const OurStore = () => {
   const [grid, setGrid] = React.useState(4);
+  const dispatch = useDispatch();
+  const { product = [] } = useSelector((state) => state.item) ?? {};
+  const { user } = useSelector((state) => state.auth);
+  React.useEffect(() => {
+    dispatch(getProducts(user.refreshToken));
+  }, [dispatch]);
   return (
     <React.Fragment>
       <MetaData title="Our Store" />
@@ -218,7 +226,7 @@ const OurStore = () => {
             </div>
             <div className="product-list pb-5">
               <div className="d-flex flex-wrap gap-10">
-                <ProductCard grid={grid} />
+                <ProductCard grid={grid} data={product} />
               </div>
             </div>
           </div>

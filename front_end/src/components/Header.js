@@ -1,8 +1,17 @@
 import React from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { BsSearch } from "react-icons/bs";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "../features/auth/authSlice";
 
 const Header = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  function handleLogout() {
+    dispatch(logoutUser());
+    localStorage.removeItem("user");
+    navigate("/login");
+  }
   return (
     <React.Fragment>
       <header className="header-top-strip py-3">
@@ -161,6 +170,13 @@ const Header = () => {
                     <NavLink to="/contact">Contact</NavLink>
                   </div>
                 </div>
+                <a
+                  className="text-white fs-9"
+                  role="button"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </a>
               </div>
             </div>
           </div>

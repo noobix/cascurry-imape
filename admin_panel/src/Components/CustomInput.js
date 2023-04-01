@@ -8,6 +8,9 @@ const CustomInput = ({
   onChange,
   className = "form-control",
   placeholder,
+  name,
+  onBlur,
+  maxLength,
 }) => {
   return (
     <div className="form-floating mb-3">
@@ -18,6 +21,9 @@ const CustomInput = ({
         id={id}
         placeholder={placeholder}
         onChange={onChange}
+        name={name}
+        onBlur={onBlur}
+        maxLength={maxLength}
       />
       <label htmlFor={id}>{label}</label>
     </div>

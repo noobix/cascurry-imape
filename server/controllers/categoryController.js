@@ -1,8 +1,14 @@
 const asyncHandler = require("express-async-handler");
+const format = require("capitalize-string");
 const Category = require("../models/categoryModel");
 
 const addCategory = asyncHandler(async (requestObject, responseObject) => {
-  const newCategory = await Category.create(requestObject.body);
+  const newCategory = await Category.create({
+    name: format(requestObject.body.name),
+    department: requestObject.body.department,
+    description: requestObject.body.description,
+    officerInCharge: requestObject.body.officerInCharge,
+  });
   if (!newCategory)
     responseObject
       .status(417)

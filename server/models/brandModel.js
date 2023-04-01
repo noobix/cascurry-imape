@@ -7,6 +7,10 @@ var brandSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    manufacturer: {
+      type: String,
+      required: true,
+    },
     madeIn: {
       type: String,
       required: true,
@@ -26,7 +30,7 @@ var brandSchema = new mongoose.Schema(
     supplier: [
       {
         name: String,
-        phone: Number,
+        phone: String,
         email: String,
         address: String,
       },

@@ -1,11 +1,46 @@
 import React from "react";
 import BreadCrumb from "../components/BreadCrumb";
 import MetaData from "../components/MetaData";
+import { string, object } from "yup";
+import { useFormik } from "formik";
 import { GoHome, GoMail } from "react-icons/go";
 import { IoMdCall, IoMdInformationCircleOutline } from "react-icons/io";
 import Container from "../components/Container";
+import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { makeEnquiry } from "../features/contact/contactSlice";
 
 const Contact = () => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const { isError, isSuccess } = useSelector((state) => state.enquiry);
+  React.useEffect(() => {
+    if (isSuccess) toast.success("Coupon sucessfully added");
+    if (isError) toast.error("Unable to create coupon, please try again");
+  }, [isError, isSuccess]);
+  let contactSchema = object({
+    name: string().required(),
+    email: string().required(),
+    mobile: string().required(),
+    comment: string().required(),
+  });
+  const formik = useFormik({
+    initialValues: {
+      name: user.firstname + " " + user.lastname || "",
+      email: user.email || "",
+      mobile: user.mobile || "",
+      comment: "",
+    },
+    validationSchema: contactSchema,
+    enableReinitialize: true,
+    onSubmit: (values) => {
+      values = { data: values, token: user.refreshToken };
+      dispatch(makeEnquiry(values));
+      setTimeout(() => {
+        !isError && formik.resetForm();
+      }, 300);
+    },
+  });
   return (
     <React.Fragment>
       <MetaData title="Contact" />
@@ -27,27 +62,60 @@ const Contact = () => {
             <div className="contact-inner-wrapper d-flex justify-content-between">
               <div>
                 <h3 className="contact-title mb-4">Contact</h3>
-                <form className="d-flex flex-column gap-15">
+                <form
+                  onSubmit={formik.handleSubmit}
+                  className="d-flex flex-column gap-15"
+                >
                   <div>
                     <input
                       type="text"
                       placeholder="Name"
                       className="form-control"
+                      readOnly
+                      name="name"
+                      onChange={formik.handleChange("name")}
+                      value={formik.values.name}
+                      onBlur={formik.handleChange("name")}
                     />
+                    {formik.touched.name && formik.errors.name ? (
+                      <div className="mb-2 mt-0">{formik.errors.name}</div>
+                    ) : (
+                      <span></span>
+                    )}
                   </div>
                   <div>
                     <input
                       type="tel"
                       placeholder="Number"
                       className="form-control"
+                      readOnly
+                      name="mobile"
+                      onChange={formik.handleChange("mobile")}
+                      value={formik.values.mobile}
+                      onBlur={formik.handleChange("mobile")}
                     />
+                    {formik.touched.mobile && formik.errors.mobile ? (
+                      <div className="mb-2 mt-0">{formik.errors.mobile}</div>
+                    ) : (
+                      <span></span>
+                    )}
                   </div>
                   <div>
                     <input
                       type="email"
                       placeholder="Email"
                       className="form-control"
+                      readOnly
+                      name="email"
+                      onChange={formik.handleChange("email")}
+                      value={formik.values.email}
+                      onBlur={formik.handleChange("email")}
                     />
+                    {formik.touched.email && formik.errors.email ? (
+                      <div className="mb-2 mt-0">{formik.errors.email}</div>
+                    ) : (
+                      <span></span>
+                    )}
                   </div>
                   <div>
                     <textarea
@@ -56,7 +124,16 @@ const Contact = () => {
                       id=""
                       cols="30"
                       rows="5"
+                      name="comment"
+                      onChange={formik.handleChange("comment")}
+                      value={formik.values.comment}
+                      onBlur={formik.handleChange("comment")}
                     ></textarea>
+                    {formik.touched.comment && formik.errors.comment ? (
+                      <div className="mb-2 mt-0">{formik.errors.comment}</div>
+                    ) : (
+                      <span></span>
+                    )}
                   </div>
                   <div>
                     <button className="button border-0" type="submit">
