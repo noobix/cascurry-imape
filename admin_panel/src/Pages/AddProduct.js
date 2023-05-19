@@ -5,7 +5,6 @@ import { useFormik } from "formik";
 import { array, number, object, string } from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import Dropzone from "react-dropzone";
-import { toast } from "react-toastify";
 import { getCartegory } from "../feature/cartegory/cartegorySlice";
 import { getColors } from "../feature/color/colorSlice";
 import { getBrands } from "../feature/brand/brandSlice";
@@ -13,6 +12,8 @@ import {
   clearUploadData,
   getProductImages,
   uploadImages,
+  deleteImage,
+  updateCatlogue,
 } from "../feature/upload/uploadSlice";
 import {
   clearState,
@@ -37,27 +38,74 @@ const AddProduct = () => {
   const { cartegories } = useSelector((state) => state.cartegory);
   const { brands } = useSelector((state) => state.brands);
   const { colors } = useSelector((state) => state.color);
-  const { images } = useSelector((state) => state.upload);
-  const { isError, isSuccess } = useSelector((state) => state.items);
-  const { products } = useSelector((state) => state.items);
+  const { images = [] } = useSelector((state) => state.upload) ?? {};
+  const { products, isError } = useSelector((state) => state.items);
   React.useEffect(() => {
     dispatch(getCartegory(user?.refreshToken));
     dispatch(getColors(user?.refreshToken));
     dispatch(getBrands(user?.refreshToken));
   }, [dispatch]);
   React.useEffect(() => {
-    formik.setFieldValue("images", images.length ? images : undefined);
+    formik.setFieldValue(
+      "images",
+      images.length && !extractId
+        ? images
+        : extractId
+        ? images.map((image) => image.image)
+        : undefined
+    );
   }, [images]);
-  React.useEffect(() => {
-    if (isSuccess) toast.success("Product sucessfully added");
-    if (isError) toast.error("Unable to create product, please try again");
-  }, [isError, isSuccess]);
   React.useEffect(() => {
     if (extractId) {
       dispatch(fetchProduct({ token: user.refreshToken, id: extractId }));
       dispatch(getProductImages({ token: user.refreshToken, id: extractId }));
     }
   }, [extractId]);
+  React.useEffect(() => {
+    if (!extractId) {
+      formik.setValues({
+        title: "",
+        slug: "",
+        price: 0,
+        category: "",
+        brand: "",
+        quantity: 0,
+        color: "",
+        images: [],
+        tags: [],
+      });
+      dispatch(clearUploadData());
+    }
+  }, [location]);
+  function handleDelete(url) {
+    const parts =
+      typeof url === "object" ? url.image.split("/") : url.split("/");
+    const filename = parts[parts.length - 1].split(".")[0];
+    dispatch(
+      deleteImage({
+        img_pub_id: filename,
+        token: user.refreshToken,
+      })
+    );
+  }
+  function handleUpload(acceptedFiles) {
+    if (extractId) {
+      dispatch(
+        updateCatlogue({
+          images: acceptedFiles,
+          token: user.refreshToken,
+          id: extractId,
+        })
+      );
+    } else {
+      dispatch(
+        uploadImages({
+          images: acceptedFiles,
+          token: user.refreshToken,
+        })
+      );
+    }
+  }
   let productSchema = object({
     title: string().required(),
     slug: string().required(),
@@ -66,7 +114,7 @@ const AddProduct = () => {
     brand: string().required(),
     quantity: number().required(),
     color: string().required(),
-    images: array().required(),
+    images: array(),
     tags: array(),
   });
   function handleOption(values) {
@@ -95,12 +143,12 @@ const AddProduct = () => {
       };
       if (!extractId) {
         dispatch(createProduct(values));
-        !isError && formik.resetForm();
+        setTimeout(() => !isError && formik.resetForm(), 200);
         settags([]);
         dispatch(clearUploadData());
       } else {
         dispatch(reviseProduct(values));
-        !isError && formik.resetForm();
+        setTimeout(() => !isError && formik.resetForm(), 200);
         dispatch(clearState());
         settags([]);
         dispatch(clearUploadData());
@@ -249,16 +297,7 @@ const AddProduct = () => {
             <span></span>
           )}
           <div className="bg-white border-1 p-5 text-center">
-            <Dropzone
-              onDrop={(acceptedFiles) =>
-                dispatch(
-                  uploadImages({
-                    images: acceptedFiles,
-                    token: user.refreshToken,
-                  })
-                )
-              }
-            >
+            <Dropzone onDrop={(acceptedFiles) => handleUpload(acceptedFiles)}>
               {({ getRootProps, getInputProps }) => (
                 <section>
                   <div {...getRootProps()}>
@@ -272,21 +311,24 @@ const AddProduct = () => {
             </Dropzone>
           </div>
           <div className="show-image d-flex gap-10 flex-wrap my-3">
-            {images.map((image, index) => (
-              <div key={index} className="position-relative">
-                <button
-                  className="btn-close position-absolute"
-                  style={{ top: "0", right: "0" }}
-                  type="button"
-                />
-                <img
-                  className="mx-2 my-2"
-                  width="200px"
-                  src={typeof image === "object" ? image.image : image}
-                  alt="..."
-                />
-              </div>
-            ))}
+            {images &&
+              images.length > 0 &&
+              images?.map((image, index) => (
+                <div key={index} className="position-relative">
+                  <button
+                    className="btn-close position-absolute"
+                    style={{ top: "0", right: "0" }}
+                    type="button"
+                    onClick={() => handleDelete(image)}
+                  />
+                  <img
+                    className="mx-2 my-2"
+                    width="200px"
+                    src={typeof image === "object" ? image.image : image}
+                    alt="..."
+                  />
+                </div>
+              ))}
           </div>
           <button
             type="submit"

@@ -50,3 +50,42 @@ export const removeProduct = async ({ token, id }) => {
   });
   return response.data;
 };
+export const configurePagination = async ({ token, page }) => {
+  const response = await axios.get(
+    `/api/products/stock/items/pagination?page=${page}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};
+export const fetchProductPaginated = async ({ token, page, limit, skip }) => {
+  const response = await axios.get(
+    `/api/products/stock/items?page=${page}&limit=${limit}&skip=${skip}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};
+export const queryProduct = async ({ token, search }) => {
+  const response = await axios.get(
+    `/api/products/stock/items/search?query=${search}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};

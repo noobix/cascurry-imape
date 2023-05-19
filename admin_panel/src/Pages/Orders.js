@@ -23,7 +23,7 @@ const Orders = () => {
                 <th scope="col">Email</th>
                 <th scope="col">No. items</th>
                 <th scope="col">Quantity</th>
-                <th scope="col">Dispatch</th>
+                <th scope="col">Status</th>
               </tr>
             </thead>
             <tbody>

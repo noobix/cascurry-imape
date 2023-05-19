@@ -13,8 +13,12 @@ const enquiryRouter = require("./routes/enquiryRoute");
 const couponRouter = require("./routes/couponRoute");
 const productRouter = require("./routes/productRoute");
 const categoryRouter = require("./routes/categoryRoute");
+const paymentRouter = require("./routes/paymentRoute");
+const bodyFormat = require("./middlewares/bodyFormatMiddleware");
+const accessMiddleware = require("./middlewares/accessControlMiddleware");
 const { errorHandler, notFound } = require("./middlewares/errorMiddleware");
 const { approveAuth, getPrivileges } = require("./middlewares/authMiddleware");
+// const setupProxy = require("./middlewares/setupProxy");
 const {
   blogImageFormat,
   productImageFormat,
@@ -31,24 +35,13 @@ const corsOptions = {
   credentials: true,
   methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD"],
 };
+// setupProxy(server);
 server.use(cors(corsOptions));
 server.use(morgan("common"));
-server.use(cookieParser(corsOptions));
-server.use(bodyparser.json());
+server.use(cookieParser());
+server.use(bodyFormat);
 server.use(bodyparser.urlencoded({ extended: false }));
-server.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Credentials", true);
-  res.header("Access-Control-Allow-Origin", req.headers.origin);
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET,PUT,POST,DELETE,UPDATE,OPTIONS"
-  );
-  res.header(
-    "Access-Control-Allow-Headers",
-    "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept"
-  );
-  next();
-});
+server.use(accessMiddleware);
 
 server.use("/api/users", authRouter);
 server.use("/api/products/stock", productRouter);
@@ -58,6 +51,7 @@ server.use("/api/products/enquiries", enquiryRouter);
 server.use("/api/products/brand", brandRouter);
 server.use("/api/products/coupons", couponRouter);
 server.use("/api/users/blog", blogRouter);
+server.use("/api/users/payment", paymentRouter);
 
 server.use(getPrivileges);
 server.use(errorHandler);

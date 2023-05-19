@@ -17,9 +17,13 @@ var cartSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    status: { type: String, default: "open", required: true },
   },
   { timestamps: true }
 );
+cartSchema.virtual("cartId").get(function () {
+  return this._id;
+});
 
 //Export the model
 module.exports = mongoose.model("Cart", cartSchema);

@@ -60,3 +60,37 @@ export const removeCartegory = async ({ token, id }) => {
   );
   return response.data;
 };
+export const configurePagination = async ({ token, page }) => {
+  const response = await axios.get(
+    `/api/products/category/pagination?page=${page}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};
+export const fetchCategoryPaginated = async ({
+  token,
+  page,
+  limit,
+  skip,
+  search,
+}) => {
+  const response = await axios.get(
+    `/api/products/category/list_categories?page=${page || ""}&limit=${
+      limit || ""
+    }&skip=${skip || ""}&search=${search || ""}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};

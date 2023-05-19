@@ -13,13 +13,7 @@ import { useNavigate } from "react-router-dom";
 const SignUp = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isError, isSuccess, isLoading, user } = useSelector(
-    (state) => state.auth
-  );
-  React.useEffect(() => {
-    if (isSuccess) toast.success("Registered sucessfully added");
-    if (isError) toast.error("Unable to register, please try again");
-  }, [isError, isSuccess]);
+  const { isError } = useSelector((state) => state.auth);
   let signUpSchema = object({
     firstname: string().required(),
     lastname: string().required(),
@@ -39,7 +33,7 @@ const SignUp = () => {
     onSubmit: (values) => {
       dispatch(registerUser(values));
       !isError && formik.resetForm();
-      navigate("/");
+      setTimeout(() => navigate("/"), 500);
     },
   });
   return (

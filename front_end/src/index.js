@@ -4,6 +4,9 @@ import { Provider } from "react-redux";
 import { store } from "./app/store";
 import App from "./App";
 import "@smastrom/react-rating/style.css";
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap/dist/js/bootstrap.bundle.min";
+import "./App.css";
 import reportWebVitals from "./reportWebVitals";
 import "./index.css";
 

@@ -6,16 +6,99 @@ import Color from "../components/Color";
 import Container from "../components/Container";
 import MetaData from "../components/MetaData";
 import ProductCard from "../components/ProductCard";
-import { getProducts } from "../features/items/itemSlice";
+import {
+  fetchItemsCartegory,
+  getProducts,
+  getproductsPaginated,
+  productPagination,
+  searchProductByColor,
+} from "../features/items/itemSlice";
 
 const OurStore = () => {
   const [grid, setGrid] = React.useState(4);
+  const [showOutOfStock, setshowOutOfStock] = React.useState(false);
+  const [showInStock, setshowInStock] = React.useState(false);
+  const [inStockCount, setinStockCount] = React.useState(0);
+  const [outOfstockCount, setoutOfStockCount] = React.useState(0);
+  const [currentCategory, setCurrentCategory] = React.useState([]);
+  const [price, setPrice] = React.useState({ from: "", to: "" });
+  const [filteredbyPrice, setfilteredByPrice] = React.useState([]);
+  const [productcolors, setproductcolors] = React.useState([]);
+  const [productTags, setproductTags] = React.useState([]);
+  const [randomProduct, setrandomProduct] = React.useState([]);
   const dispatch = useDispatch();
-  const { product = [] } = useSelector((state) => state.item) ?? {};
+  const { product = [], pagination } = useSelector((state) => state.item) ?? {};
   const { user } = useSelector((state) => state.auth);
   React.useEffect(() => {
-    dispatch(getProducts(user.refreshToken));
+    dispatch(productPagination({ token: user?.refreshToken, page: 1 }));
   }, [dispatch]);
+  React.useEffect(() => {
+    const data =
+      product &&
+      product.length > 0 &&
+      product.map((item) => item.category.description);
+    if (data) setCurrentCategory([...new Set(data)]);
+  }, [product]);
+  React.useEffect(() => {
+    const outOfStock = showOutOfStock
+      ? product &&
+        product.length > 0 &&
+        product.filter((item) => item.quantity === 0)
+      : [];
+    setoutOfStockCount(outOfStock.length);
+  }, [showOutOfStock]);
+  React.useEffect(() => {
+    const inStock = showInStock
+      ? product &&
+        product.length > 0 &&
+        product.filter((item) => item.quantity >= 1)
+      : [];
+    setinStockCount(inStock.length);
+  }, [showInStock]);
+  React.useEffect(() => {
+    const priceFilter =
+      product &&
+      product.length > 0 &&
+      product.filter(
+        (item) => item.price >= price.from && item.price <= price.to
+      );
+    setfilteredByPrice(priceFilter);
+  }, [price]);
+  React.useEffect(() => {
+    const colors =
+      product && product.length > 0 && product.map((item) => item.color.color);
+    if (colors) setproductcolors([...new Set(colors)]);
+  }, [product]);
+  React.useEffect(() => {
+    const tags =
+      product &&
+      product.length > 0 &&
+      product.map((item) => item.tags.map((tag) => tag.tag));
+    if (tags) setproductTags([...new Set(tags.flat())]);
+  }, [product]);
+  React.useEffect(() => {
+    const random =
+      product &&
+      product.length > 0 &&
+      product
+        .slice()
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 2)
+        .map(({ title, price, totalRatings, images }) => {
+          return { title, price, totalRatings, images };
+        });
+    setrandomProduct(random);
+  }, [product]);
+  React.useEffect(() => {
+    dispatch(
+      getproductsPaginated({
+        token: user?.refreshToken,
+        page: pagination.currentPage,
+        limit: pagination.itemCount,
+        skip: pagination.startIndex,
+      })
+    );
+  }, [pagination]);
   return (
     <React.Fragment>
       <MetaData title="Our Store" />
@@ -27,10 +110,34 @@ const OurStore = () => {
               <h3 className="filter-title">Shop By Cartegories</h3>
               <div>
                 <ul className="ps-0">
-                  <li>Mobile Phones</li>
-                  <li>Laptops</li>
-                  <li>Televisions</li>
-                  <li>Camera</li>
+                  <li
+                    onClick={() =>
+                      dispatch(
+                        getProducts({
+                          token: user.refreshToken,
+                        })
+                      )
+                    }
+                  >
+                    All Items
+                  </li>
+                  {currentCategory &&
+                    currentCategory.length > 0 &&
+                    currentCategory.map((category, index) => (
+                      <li
+                        onClick={() =>
+                          dispatch(
+                            fetchItemsCartegory({
+                              token: user.refreshToken,
+                              str: category,
+                            })
+                          )
+                        }
+                        key={index}
+                      >
+                        {category}
+                      </li>
+                    ))}
                 </ul>
               </div>
             </div>
@@ -44,11 +151,13 @@ const OurStore = () => {
                       <input
                         type="checkbox"
                         className="form-check-input"
-                        name=""
-                        id=""
+                        checked={showInStock}
+                        name="showInStock"
+                        id="inStock"
                         value="checkedValue"
+                        onChange={(e) => setshowInStock(e.target.checked)}
                       />
-                      In-stock (1)
+                      In-stock ({inStockCount})
                     </label>
                   </div>
                   <div className="form-check">
@@ -56,11 +165,13 @@ const OurStore = () => {
                       <input
                         type="checkbox"
                         className="form-check-input"
-                        name=""
-                        id=""
+                        checked={showOutOfStock}
+                        name="showOutOfStock"
+                        id="outOfstock"
                         value="checkedValue"
+                        onChange={(e) => setshowOutOfStock(e.target.checked)}
                       />
-                      Out of stock (0)
+                      Out of stock ({outOfstockCount})
                     </label>
                   </div>
                 </div>
@@ -72,6 +183,10 @@ const OurStore = () => {
                       className="form-control"
                       id="floatingInput"
                       placeholder="from"
+                      value={price.from}
+                      onChange={(e) =>
+                        setPrice({ ...price, from: e.target.value })
+                      }
                     />
                     <label htmlFor="floatingInput">From</label>
                   </div>
@@ -81,14 +196,33 @@ const OurStore = () => {
                       className="form-control"
                       id="floatingInput"
                       placeholder="to"
+                      value={price.to}
+                      onChange={(e) =>
+                        setPrice({ ...price, to: e.target.value })
+                      }
                     />
                     <label htmlFor="floatingInput">To</label>
                   </div>
                 </div>
                 <h5 className="sub-title">Colors</h5>
                 <div>
-                  <div>
-                    <Color />
+                  <div className="d-flex flex-wrap gap-1">
+                    {productcolors &&
+                      productcolors.length > 0 &&
+                      productcolors.map((item, index) => (
+                        <Color
+                          onClick={() =>
+                            dispatch(
+                              searchProductByColor({
+                                token: user.refreshToken,
+                                search: item,
+                              })
+                            )
+                          }
+                          key={index}
+                          color={item}
+                        />
+                      ))}
                   </div>
                 </div>
                 <h5 className="sub-title">Size</h5>
@@ -122,61 +256,61 @@ const OurStore = () => {
             </div>
             <div className="filter-card mb-3">
               <h3 className="filter-title">Product Tags</h3>
-              <div>
-                <div className="product-tags d-flex align-align-items-center flex-wrap gap-10">
-                  <span className="badge bg-light text-secondary rounded-3 py-2 px-3">
-                    Headphone
-                  </span>
-                  <span className="badge bg-light text-secondary rounded-3 py-2 px-3">
-                    Television
-                  </span>
-                  <span className="badge bg-light text-secondary rounded-3 py-2 px-3">
-                    Mobile Phone
-                  </span>
-                  <span className="badge bg-light text-secondary rounded-3 py-2 px-3">
-                    Wire
-                  </span>
-                </div>
+              <div className="product-tags d-flex align-align-items-center flex-wrap gap-10">
+                {productTags &&
+                  productTags.length > 0 &&
+                  productTags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="badge bg-light text-secondary rounded-3 py-2 px-3"
+                    >
+                      {tag}
+                    </span>
+                  ))}
               </div>
             </div>
             <div className="filter-card mb-3">
               <h3 className="filter-title">Random Products</h3>
-              <div className="random-products d-flex mb-3">
-                <div className="w-35">
-                  <img
-                    src="assets/images/watch.jpg"
-                    className="img-fluid"
-                    alt="..."
-                  />
-                </div>
-                <div className="w-65">
-                  <h5>Kids watchs variety of colors suitable for students</h5>
-                  <Rating style={{ maxWidth: 60 }} value={3} />
-                  <p>&#36;400</p>
-                </div>
-              </div>
-              <div className="random-products d-flex">
-                <div className="w-35">
-                  <img
-                    src="assets/images/watch.jpg"
-                    className="img-fluid"
-                    alt="..."
-                  />
-                </div>
-                <div className="w-65">
-                  <h5>Kids watchs variety of colors suitable for students</h5>
-                  <Rating style={{ maxWidth: 90 }} value={3} />
-                  <p>&#36;400</p>
-                </div>
-              </div>
+              {randomProduct &&
+                randomProduct.length > 0 &&
+                randomProduct.map((item, index) => (
+                  <div key={index} className="random-products d-flex mb-3">
+                    <div className="w-35">
+                      {item.images &&
+                        item.images
+                          .slice(0, 1)
+                          .map((image, index) => (
+                            <img
+                              key={index}
+                              src={image.image}
+                              className="img-fluid"
+                              alt="..."
+                              width={80}
+                            />
+                          ))}
+                    </div>
+                    <div className="w-65">
+                      <h5>{item.title}</h5>
+                      <Rating
+                        style={{ maxWidth: 60 }}
+                        value={item.totalRatings}
+                      />
+                      <p>&#36;{item.price}</p>
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
           <div className="col-9">
             <div className="filter-sort-grid mb-4">
               <div className="d-flex align-items-center justify-content-between">
                 <div className="d-flex align-items-center gap-10">
-                  <p className="mb-0 w-100">Sort By</p>
-                  <select className="form-control form-select" name="" id="">
+                  <p className="mb-0 text-nowrap">Sort By</p>
+                  <select
+                    className="form-control form-select w-100"
+                    name=""
+                    id=""
+                  >
                     <option value="manual">Featured</option>
                     <option value="best-selling" default>
                       Best Selling
@@ -194,7 +328,12 @@ const OurStore = () => {
                   </select>
                 </div>
                 <div className="d-flex align-items-center gap-10">
-                  <p className="total-products mb-0">22 Products</p>
+                  <p className="total-products mb-0">
+                    {product &&
+                      product.length > 0 &&
+                      product.reduce((acc) => acc + 1, 0)}
+                    &nbsp; items
+                  </p>
                   <div className="d-flex align-items-center gap-10 grid">
                     <img
                       src="assets/images/gr4.svg"
@@ -226,11 +365,83 @@ const OurStore = () => {
             </div>
             <div className="product-list pb-5">
               <div className="d-flex flex-wrap gap-10">
-                <ProductCard grid={grid} data={product} />
+                <ProductCard
+                  grid={grid}
+                  data={filteredbyPrice.length ? filteredbyPrice : product}
+                />
               </div>
             </div>
           </div>
         </div>
+        <nav aria-label="..." className="row justify-content-end">
+          <ul className="pagination">
+            <li
+              className={`page-item ${
+                parseInt(pagination.currentPage) === 1 && "disabled"
+              }`}
+            >
+              <a
+                role="button"
+                className="page-link"
+                onClick={() => {
+                  dispatch(
+                    productPagination({
+                      token: user?.refreshToken,
+                      page: parseInt(pagination.currentPage) - 1,
+                    })
+                  );
+                  window.scrollTo(0, 0);
+                }}
+              >
+                Previous
+              </a>
+            </li>
+            {pagination.pages &&
+              pagination.pages.length > 0 &&
+              pagination.pages.map((page, index) => (
+                <li
+                  key={index}
+                  className={`page-item ${
+                    parseInt(pagination.currentPage) === page && "active"
+                  }`}
+                  aria-current="page"
+                >
+                  <a
+                    role="button"
+                    className="page-link"
+                    onClick={() => {
+                      dispatch(
+                        productPagination({
+                          token: user?.refreshToken,
+                          page: page,
+                        })
+                      );
+                      window.scrollTo(0, 0);
+                    }}
+                  >
+                    {page}
+                  </a>
+                </li>
+              ))}
+            <li className="page-item">
+              <a
+                role="button"
+                className="page-link"
+                onClick={() => {
+                  dispatch(
+                    productPagination({
+                      token: user?.refreshToken,
+                      page: parseInt(pagination.currentPage) + 1,
+                    })
+                  );
+                  window.scrollTo(0, 0);
+                }}
+              >
+                Next
+              </a>
+            </li>
+          </ul>
+        </nav>
       </Container>
     </React.Fragment>
   );

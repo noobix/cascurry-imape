@@ -2,7 +2,7 @@ const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const format = require("capitalize-string");
 const fs = require("fs");
-const uploadToCloudinay = require("../utils/cloudinary");
+const { cloudinaryUpload, cloudinaryDelete } = require("../utils/cloudinary");
 const Product = require("../models/productModel");
 const Category = require("../models/categoryModel");
 const Coupon = require("../models/couponModel");
@@ -53,7 +53,7 @@ const addProduct = asyncHandler(async (requestObject, responseObject) => {
   responseObject.status(201).json(newProduct);
 });
 const addImage = asyncHandler(async (requestObject, responseObject) => {
-  const uploader = (path) => uploadToCloudinay(path, "images");
+  const uploader = (path) => cloudinaryUpload(path, "images");
   const urls = [];
   const files = requestObject.files;
   for (const file of files) {
@@ -69,6 +69,15 @@ const addImage = asyncHandler(async (requestObject, responseObject) => {
       .json({ message: "Unable to complete image upload please try again" });
   responseObject.status(200).json(images);
 });
+const removeImage = asyncHandler(async (requestObject, responseObject) => {
+  const { id } = requestObject.params;
+  const deleted = await cloudinaryDelete(id, "images");
+  if (deleted) responseObject.status(200).json(deleted);
+  else
+    responseObject
+      .status(404)
+      .json({ message: "Image not found, please try again" });
+});
 const getImages = asyncHandler(async (requestObject, responseObject) => {
   const { id } = requestObject.params;
   const data = await Product.findById(id);
@@ -80,6 +89,7 @@ const getImages = asyncHandler(async (requestObject, responseObject) => {
       .json({ message: "No images found, please try again" });
 });
 const findProduct = asyncHandler(async (requestObject, responseObject) => {
+  console.log(params);
   const { id } = requestObject.params;
   const item = await Product.findById(id)
     .populate("category")
@@ -90,16 +100,15 @@ const findProduct = asyncHandler(async (requestObject, responseObject) => {
 });
 const enumProducts = asyncHandler(async (requestObject, responseObject) => {
   const match = {};
-  let query = Product.find(match);
   if (requestObject.query.category) {
     const { _id } = await Category.findOne({
-      name: format(requestObject.query.category),
+      description: requestObject.query.category,
     });
     match.category = _id;
   }
   if (requestObject.query.brand) {
     const { _id } = await Brand.findOne({
-      name: format(requestObject.query.brand),
+      name: requestObject.query.brand,
     });
     match.brand = _id;
   }
@@ -112,23 +121,30 @@ const enumProducts = asyncHandler(async (requestObject, responseObject) => {
       [aggregate.slice(6, 10)]: aggregate.slice(12),
     };
   }
+  if (requestObject.query.color) {
+    const { _id } = await Color.findOne({ color: requestObject.query.color });
+    match.color = _id;
+  }
+  let query = Product.find(match);
+  if (requestObject.query.fields) {
+    const fields = requestObject.query.fields.split(",");
+    query = query.select(fields.join(" "));
+  } else {
+    query = query.select(
+      "title slug brand price category images tags quantity totalRatings"
+    );
+  }
   if (requestObject.query.sortBy) {
     const sort = {};
     const parts = requestObject.query.sortBy.split(":");
     sort[parts[0]] = parts[1] === "desc" ? -1 : 1;
     query = query.sort(sort);
   }
-  if (requestObject.query.fields) {
-    const fields = requestObject.query.fields.split(",");
-    query = query.select(fields);
-    /**const items = await Product.find(match).sort(sort).select("-__v");
-     *  //.populate("category").exec();**/
-  }
   const page = requestObject.query.page;
   const limit = requestObject.query.limit;
   const skip = requestObject.query.skip;
   if (page) {
-    const count = await Product.countDocuments();
+    const count = await Product.countDocuments(match);
     if (skip >= count)
       throw new Error("Page not found, This operation is invalid.");
   }
@@ -139,10 +155,10 @@ const enumProducts = asyncHandler(async (requestObject, responseObject) => {
     query = query.skip(skip);
   }
   const items = await query
-    .populate("category")
-    .populate("brand")
+    .populate("category", ["name", "description"])
+    .populate("brand", ["name", "madeIn"])
     .populate("color")
-    .exec(); //.populate("category").exec();
+    .exec();
   if (items) {
     responseObject.status(200).json(items);
   } else {
@@ -150,6 +166,25 @@ const enumProducts = asyncHandler(async (requestObject, responseObject) => {
       .status(400)
       .json({ message: "Could not find products, please try again" });
   }
+});
+const pagination = asyncHandler(async (requestObject, responseObject) => {
+  const ITEMS_PER_PAGE = 30;
+  const currentPage = requestObject.query.page || 1;
+  const totalItems = await Product.countDocuments();
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  if (currentPage < 1 || currentPage > totalPages) {
+    return responseObject.status(404).json({ message: "Invalid page number." });
+  }
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems - 1);
+  responseObject.status(200).json({
+    currentPage: currentPage,
+    endIndex: endIndex,
+    totalPages: totalPages,
+    startIndex: startIndex,
+    itemCount: ITEMS_PER_PAGE,
+    pages: [...Array(totalPages + 1).keys()].slice(1),
+  });
 });
 const updateProduct = asyncHandler(async (requestObject, responseObject) => {
   const id = requestObject.params.id;
@@ -267,6 +302,13 @@ const rating = asyncHandler(async (requestObject, responseObject) => {
   );
   responseObject.status(200).json(prt);
 });
+const getProductReview = asyncHandler(async (requestObject, responseObject) => {
+  const product = requestObject.params.product;
+  const prt = await Product.findById(product).populate("ratings.postedBy");
+  if (!prt) throw new Error("Product not found");
+  const { totalRatings, ratings } = prt;
+  responseObject.status(200).json({ totalRatings, ratings });
+});
 const redeemCoupon = asyncHandler(async (requestObject, responseObject) => {
   const id = requestObject.user._id;
   const couponCode = requestObject.body.coupon;
@@ -288,7 +330,7 @@ const redeemCoupon = asyncHandler(async (requestObject, responseObject) => {
 });
 const makeCatalogue = asyncHandler(async (requestObject, responseObject) => {
   const id = requestObject.params.id;
-  const uploader = (path) => uploadToCloudinay(path, "images");
+  const uploader = (path) => cloudinaryUpload(path, "images");
   const urls = new Array();
   const files = requestObject.files;
   for (const file of files) {
@@ -296,16 +338,39 @@ const makeCatalogue = asyncHandler(async (requestObject, responseObject) => {
     const newPath = await uploader(path);
     urls.push(newPath);
   }
-  const product = await Product.findByIdAndUpdate(
+  const product = await Product.findById(id);
+  const existingImages = product.images.map((image) => image.image);
+  const newImages = urls.filter((url) => !existingImages.includes(url));
+  const updatedImages = [
+    ...product.images,
+    ...newImages.map((url) => ({ image: url.url })),
+  ];
+  const updatedProduct = await Product.findByIdAndUpdate(
     id,
-    { images: urls.map((file) => file) },
+    {
+      $set: {
+        images: updatedImages,
+      },
+    },
     { new: true }
   );
-  if (!product)
+  if (!updatedProduct)
     responseObject
       .status(417)
       .json({ message: "Product images not updated, please try again" });
-  else responseObject.status(200).json(product);
+  else responseObject.status(200).json(updatedProduct.images);
+});
+const searchProduct = asyncHandler(async (requestObject, responseObject) => {
+  const { query } = requestObject.query;
+  const regex = new RegExp(`.*${query}.*`, "i");
+  const results = await Product.find({ title: regex })
+    .populate("brand")
+    .populate("category");
+  if (results.length) {
+    responseObject.status(200).json(results);
+  } else {
+    responseObject.status(404).send([]);
+  }
 });
 
 module.exports = {
@@ -316,8 +381,12 @@ module.exports = {
   deleteProduct: deleteProduct,
   addToWishlist: addToWishlist,
   rating: rating,
+  getProductReview: getProductReview,
   addImage: addImage,
+  removeImage: removeImage,
   getImages: getImages,
   redeemCoupon: redeemCoupon,
   makeCatalogue: makeCatalogue,
+  searchProduct: searchProduct,
+  pagination: pagination,
 };

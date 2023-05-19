@@ -1,8 +1,11 @@
 import { Rating } from "@smastrom/react-rating";
 import React from "react";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { addProductToCart } from "../features/auth/authSlice";
 
 const SpecialProducts = ({ data = [] }) => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
   return (
     <div className="row">
       {data &&
@@ -37,7 +40,7 @@ const SpecialProducts = ({ data = [] }) => {
                       <p>
                         <b>5</b>days
                       </p>
-                      <div className="d-flex gap-10 align-items-center">
+                      <div className="d-flex gap-10 mb-3 ml-3 align-items-center">
                         <span className="badge rounded-circle bg-danger p-2">
                           1
                         </span>
@@ -69,7 +72,23 @@ const SpecialProducts = ({ data = [] }) => {
                     >
                       <div className="progress-bar" style={{ width: 25 }}></div>
                     </div>
-                    <Link className="button my-3">Add to Cart</Link>
+                    <button
+                      onClick={() =>
+                        dispatch(
+                          addProductToCart({
+                            token: user.refreshToken,
+                            data: {
+                              _id: item._id,
+                              quantity: 1,
+                              color: item.color.name,
+                            },
+                          })
+                        )
+                      }
+                      className="button my-3"
+                    >
+                      Add to Cart
+                    </button>
                   </div>
                 </div>
               </div>

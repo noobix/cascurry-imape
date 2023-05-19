@@ -8,9 +8,35 @@ cloudinary.config({
 const cloudinaryUpload = async function (files) {
   return new Promise((resolve, reject) =>
     cloudinary.uploader.upload(files, (result) =>
-      resolve({ url: result.secure_url }, { resource_type: "auto" })
+      resolve(
+        {
+          url: result.secure_url,
+          asset_id: result.asset_id,
+          public_id: result.public_id,
+        },
+        { resource_type: "auto" }
+      )
     )
   );
 };
+const cloudinaryDelete = async (fileToDelete) => {
+  return new Promise((resolve) => {
+    cloudinary.uploader.destroy(fileToDelete, (result) => {
+      resolve(
+        {
+          url: result.secure_url,
+          asset_id: result.asset_id,
+          public_id: result.public_id,
+        },
+        {
+          resource_type: "auto",
+        }
+      );
+    });
+  });
+};
 
-module.exports = cloudinaryUpload;
+module.exports = {
+  cloudinaryUpload: cloudinaryUpload,
+  cloudinaryDelete: cloudinaryDelete,
+};

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, createAction } from "@reduxjs/toolkit";
 import { addColor, listColors } from "./colorService";
+import { toast } from "react-toastify";
 
 export const getColors = createAsyncThunk(
   "products/getColors",
@@ -69,12 +70,14 @@ export const colorSlice = createSlice({
         state.isSuccess = true;
         state.isError = false;
         state.colors = action.payload;
+        toast.success("Color created successfully");
       })
       .addCase(createColor.rejected, (state, action) => {
         state.isLoading = false;
         state.isSuccess = false;
         state.isError = true;
         state.message = action.error;
+        toast.error("Unable to create color, please try again");
       })
       .addCase(clearState, (state) => {
         state.brands = [];

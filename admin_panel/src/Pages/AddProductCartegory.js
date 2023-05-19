@@ -1,5 +1,4 @@
 import React from "react";
-import { toast } from "react-toastify";
 import { string, object } from "yup";
 import { useFormik } from "formik";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,26 +13,24 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 const AddProductCartegory = () => {
   const { user } = useSelector((state) => state.auth);
-  const { isError, isSuccess } = useSelector((state) => state.cartegory);
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const extractId = location.pathname.split("/")[3];
-  const { cartegories } = useSelector((state) => state.cartegory);
+  const { cartegories, isError } = useSelector((state) => state.cartegory);
   React.useEffect(() => {
-    if (isSuccess) toast.success("Cartegory sucessfully added");
-    if (isError) toast.error("Unable to create cartegory, please try again");
-  }, [isError, isSuccess]);
-  React.useEffect(() => {
-    if (extractId) {
+    if (extractId)
       dispatch(findCartegory({ token: user.refreshToken, id: extractId }));
-      const { name, department, description, officerInCharge } = cartegories;
-      formik.values.name = name;
-      formik.values.department = department;
-      formik.values.description = description;
-      formik.values.officerInCharge = officerInCharge;
-    }
   }, [extractId]);
+  React.useEffect(() => {
+    if (!extractId)
+      formik.setValues({
+        name: "",
+        department: "",
+        description: "",
+        officerInCharge: "",
+      });
+  }, [location]);
   let cartegorySchema = object({
     name: string().required(),
     department: string().required(),
@@ -57,10 +54,10 @@ const AddProductCartegory = () => {
       };
       if (!extractId) {
         dispatch(createCartegory(values));
-        !isError && formik.resetForm();
+        setTimeout(() => !isError && formik.resetForm(), 200);
       } else {
         dispatch(reviseCartegory(values));
-        !isError && formik.resetForm();
+        setTimeout(() => !isError && formik.resetForm(), 200);
         dispatch(clearState());
         navigate("/admin/section-list");
       }

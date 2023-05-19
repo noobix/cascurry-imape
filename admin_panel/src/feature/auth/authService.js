@@ -34,7 +34,49 @@ const getOrder = async ({ token, id }) => {
   });
   return response.data;
 };
+const getMonthlyOrderRevenue = async (token) => {
+  const response = await axios.get(`/api/users/data/revenuebyMonth`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    withCredentials: true,
+  });
+  return response.data;
+};
+const getYearlyOrderCount = async (token) => {
+  const response = await axios.get(`/api/users/data/countbyyear`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    withCredentials: true,
+  });
+  return response.data;
+};
+const ChangeOrderStatus = async ({ token, id, data }) => {
+  const response = await axios.put(
+    `/api/users/person/update_order/${id}`,
+    data,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};
 
-const authService = { login, logout, listOrders, getOrder };
+const authService = {
+  login,
+  logout,
+  listOrders,
+  getOrder,
+  getMonthlyOrderRevenue,
+  getYearlyOrderCount,
+  ChangeOrderStatus,
+};
 
 export default authService;

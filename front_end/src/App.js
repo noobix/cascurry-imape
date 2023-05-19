@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import "./App.css";
+import { ToastContainer } from "react-toastify";
 import Layout from "./components/Layout";
 import About from "./pages/About";
 import Blog from "./pages/Blog";
@@ -21,6 +21,9 @@ import ShippingPolicy from "./pages/ShippingPolicy";
 import SignUp from "./pages/SignUp";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import Wishlist from "./pages/Wishlist";
+import PaymentRecieved from "./pages/PaymentRecieved";
+import Orders from "./pages/Orders";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -36,13 +39,16 @@ function App() {
             <Route path="blog" element={<Blog />} />
             <Route path="/read-blog/:id" element={<ReadBlog />} />
             <Route path="cart" element={<Cart />} />
+            <Route path="order-history" element={<Orders />} />
             <Route path="checkout" element={<Checkout />} />
+            <Route path="payment-recieved" element={<PaymentRecieved />} />
             <Route path="compare-product" element={<CompareProduct />} />
             <Route path="wishlist" element={<Wishlist />} />
             <Route path="login" element={<Login />} />
             <Route path="forgot-password" element={<ForgotPassword />} />
             <Route path="signup" element={<SignUp />} />
-            <Route path="reset-password" element={<ResetPassword />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="reset-password/:token" element={<ResetPassword />} />
             <Route path="privicy-policy" element={<PrivicyPolicy />} />
             <Route path="refund-policy" element={<RefundPolicy />} />
             <Route path="shipping-policy" element={<ShippingPolicy />} />
@@ -53,6 +59,17 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      <ToastContainer
+        position="top-right"
+        autoClose={3800}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        pauseOnHover
+        theme="light"
+      />
     </React.Fragment>
   );
 }

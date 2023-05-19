@@ -1,17 +1,47 @@
 import React from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { BsSearch } from "react-icons/bs";
-import { useDispatch } from "react-redux";
-import { logoutUser } from "../features/auth/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { getCart } from "../features/auth/authSlice";
+import {
+  fetchItemsCartegory,
+  getCartegories,
+  getProducts,
+  productPagination,
+  searchProduct,
+} from "../features/items/itemSlice";
 
 const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  function handleLogout() {
-    dispatch(logoutUser());
-    localStorage.removeItem("user");
-    navigate("/login");
+  const [query, setquery] = React.useState("");
+  const { cart, user } = useSelector((state) => state.auth) ?? {};
+  const { categories } = useSelector((state) => state.item) ?? {};
+  React.useEffect(() => {
+    dispatch(getCart(user?.refreshToken));
+    dispatch(getCartegories(user?.refreshToken));
+  }, [dispatch]);
+  React.useEffect(() => {
+    if (query.length > 0) {
+      navigate("/store");
+      dispatch(searchProduct({ token: user?.refreshToken, search: query }));
+    } else if (query.length === 0) {
+      dispatch(productPagination({ token: user?.refreshToken, page: 1 }));
+    }
+  }, [query]);
+  function handleQuery(e) {
+    if (e.key === "Enter" || e.type === "click") {
+      navigate("/store");
+      dispatch(searchProduct({ token: user?.refreshToken, search: query }));
+    }
   }
+  function handleBlur() {
+    if (!query.length) {
+      setquery("");
+      dispatch(productPagination({ token: user?.refreshToken, page: 1 }));
+    }
+  }
+
   return (
     <React.Fragment>
       <header className="header-top-strip py-3">
@@ -45,13 +75,16 @@ const Header = () => {
               <div className="input-group">
                 <input
                   type="text"
+                  value={query}
+                  onChange={(e) => setquery(e.target.value)}
+                  onBlur={handleBlur}
                   className="form-control"
                   placeholder="Search Products Here"
                   aria-label="Search Products Here"
                   aria-describedby="basic-addon2"
                 />
                 <span className="input-group-text" id="basic-addon2">
-                  <BsSearch />
+                  <BsSearch onClick={handleQuery} />
                 </span>
               </div>
             </div>
@@ -89,7 +122,7 @@ const Header = () => {
                 </div>
                 <div>
                   <Link
-                    to="/login"
+                    to={user ? "/profile" : "/login"}
                     className="d-flex align-items-center gap-10 text-white"
                   >
                     <img
@@ -97,7 +130,7 @@ const Header = () => {
                       alt="..."
                     />
                     <p className="mb-0">
-                      Login <br /> My Account
+                      {user ? user.firstname : "Login"} <br /> My Account
                     </p>
                   </Link>
                 </div>
@@ -111,8 +144,15 @@ const Header = () => {
                       alt="..."
                     />
                     <div className="d-flex flex-column gap-10">
-                      <span className="badge bg-white text-dark">0</span>
-                      <p className="mb-0">&#36;0.00</p>
+                      <span className="badge bg-white text-dark">
+                        {cart &&
+                          cart.product &&
+                          cart.product.length > 0 &&
+                          cart.product.reduce((acc, val) => {
+                            return acc + val.quantity;
+                          }, 0)}
+                      </span>
+                      <p className="mb-0">&#36;{cart?.cartTotal}</p>
                     </div>
                   </Link>
                 </div>
@@ -143,22 +183,56 @@ const Header = () => {
                         Shop Cartegories
                       </span>
                     </button>
-                    <ul className="dropdown-menu">
-                      <li>
-                        <Link className="dropdown-item text-white" to="">
-                          Action
-                        </Link>
-                      </li>
-                      <li>
-                        <Link className="dropdown-item text-white" to="">
-                          Another action
-                        </Link>
-                      </li>
-                      <li>
-                        <Link className="dropdown-item text-white" to="">
-                          Something else here
-                        </Link>
-                      </li>
+                    <ul
+                      className="dropdown-menu"
+                      style={{
+                        maxHeight: "400px",
+                        overflowY: "auto",
+                        overflowX: "hidden",
+                      }}
+                    >
+                      <Link
+                        role="listitem"
+                        className="dropdown-item text-white"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          dispatch(
+                            getProducts({
+                              token: user.refreshToken,
+                            })
+                          );
+                        }}
+                      >
+                        All Items
+                      </Link>
+                      {categories &&
+                        categories.length > 0 &&
+                        categories
+                          .slice()
+                          .sort((a, b) =>
+                            a.description.toLowerCase() >
+                            b.description.toLowerCase()
+                              ? 1
+                              : -1
+                          )
+                          .map((category, index) => (
+                            <Link
+                              role="listitem"
+                              className="dropdown-item text-white"
+                              key={index}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                dispatch(
+                                  fetchItemsCartegory({
+                                    token: user.refreshToken,
+                                    str: category.description,
+                                  })
+                                );
+                              }}
+                            >
+                              {category.description}
+                            </Link>
+                          ))}
                     </ul>
                   </div>
                 </div>
@@ -167,16 +241,10 @@ const Header = () => {
                     <NavLink to="/">Home</NavLink>
                     <NavLink to="/store">Our Store</NavLink>
                     <NavLink to="/blog">Blogs</NavLink>
+                    <NavLink to="/order-history">Orders</NavLink>
                     <NavLink to="/contact">Contact</NavLink>
                   </div>
                 </div>
-                <a
-                  className="text-white fs-9"
-                  role="button"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </a>
               </div>
             </div>
           </div>

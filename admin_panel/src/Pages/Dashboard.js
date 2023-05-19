@@ -1,7 +1,23 @@
 import { ArrowDownOutlined } from "@ant-design/icons";
 import { Table } from "antd";
 import React from "react";
-import { Column } from "@ant-design/plots";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
+import { Card } from "antd";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  getMonthlyRevenue,
+  getOrders,
+  getYearlyCount,
+} from "../feature/auth/authSlice";
 
 const columns = [
   {
@@ -29,99 +45,146 @@ const columns = [
     dataIndex: "total",
   },
 ];
-const table_data = [];
-for (let i = 0; i < 46; i++) {
-  table_data.push({
-    key: i,
-    status: "pending",
-    country: "UK",
-    customer: "Kieth John",
-    date: "01-02-23",
-    total: `${i}00`,
-  });
-}
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 const Dashboard = () => {
-  const data = [
-    {
-      type: "Jan",
-      sales: 38,
-    },
-    {
-      type: "Feb",
-      sales: 52,
-    },
-    {
-      type: "Mar",
-      sales: 61,
-    },
-    {
-      type: "Apr",
-      sales: 145,
-    },
-    {
-      type: "May",
-      sales: 48,
-    },
-    {
-      type: "Jun",
-      sales: 38,
-    },
-    {
-      type: "Jul",
-      sales: 38,
-    },
-    {
-      type: "Aug",
-      sales: 38,
-    },
-    {
-      type: "Sep",
-      sales: 38,
-    },
-    {
-      type: "Oct",
-      sales: 38,
-    },
-    {
-      type: "Nov",
-      sales: 38,
-    },
-    {
-      type: "Dec",
-      sales: 38,
-    },
-  ];
-  const config = {
-    data,
-    xField: "type",
-    yField: "sales",
-    color: ({ type }) => {
-      return "#ffd333";
-    },
-    label: {
-      // 可手动配置 label 数据标签位置
-      position: "middle",
-      // 'top', 'bottom', 'middle',
-      // 配置样式
-      style: {
-        fill: "#FFFFFF",
-        opacity: 0.6,
+  const dispatch = useDispatch();
+  const {
+    dataStreamMonthly = [],
+    dataStreamYearly = [],
+    user,
+    orders = [],
+  } = useSelector((state) => state.auth) ?? {};
+  const [orderActivity, setorderActivity] = React.useState([]);
+  const [stat1, setstat1] = React.useState([]);
+  const [stat2, setstat2] = React.useState([]);
+  React.useEffect(() => {
+    let monthList = [
+      "N/A",
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const source =
+      dataStreamMonthly &&
+      dataStreamMonthly.map((stage) => {
+        const monthName = stage._id.month
+          ? monthList[parseInt(stage._id.month)]
+          : "N/A";
+        return { type: monthName, revenue: (stage.amount / 100).toFixed(2) };
+      });
+    setstat1(source);
+    const reference =
+      dataStreamMonthly &&
+      dataStreamMonthly.map((stage) => {
+        const month = stage._id.month;
+        const monthName = month !== null ? monthList[parseInt(month)] : "N/A";
+        return { type: monthName, sales: stage.count };
+      });
+    setstat2(reference);
+    const recentOrders =
+      orders &&
+      orders.map((order) => {
+        return {
+          key: order.id.slice(19),
+          status: order.orderStatus.substring(0, 9) + "...",
+          country: order.shippingInfo.country,
+          customer:
+            order.orderBy.firstname +
+            " " +
+            order.orderBy.lastname.substring(0, 6) +
+            "...",
+          date: new Date(order.paymentIntent.date).toLocaleDateString(),
+          total: (order?.paymentIntent?.amountPaid / 100).toFixed(2),
+        };
+      });
+    setorderActivity(recentOrders);
+  }, [dataStreamMonthly, orders]);
+  React.useEffect(() => {
+    dispatch(getMonthlyRevenue(user?.refreshToken));
+    dispatch(getYearlyCount(user?.refreshToken));
+    dispatch(getOrders(user?.refreshToken));
+  }, [dispatch]);
+  const ActivityChart = () => {
+    const options = {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "bottom",
+        },
+        title: {
+          display: true,
+          text: "Revenue and Order Statics",
+        },
       },
-    },
-    xAxis: {
-      label: {
-        autoHide: true,
-        autoRotate: false,
-      },
-    },
-    meta: {
-      type: {
-        alias: "Month",
-      },
-      sales: {
-        alias: "Sales",
-      },
-    },
+    };
+    const mergedData = [];
+    const labels = [
+      "N/A",
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    for (let i = 1; i <= 12; i++) {
+      const monthName = labels[i];
+      mergedData.push({ type: monthName, revenue: 0, sales: 0 });
+    }
+    stat1.forEach((stage) => {
+      const index = mergedData.findIndex((item) => item.type === stage.type);
+      if (index !== -1) {
+        mergedData[index].revenue = stage.revenue;
+      }
+    });
+    stat2.forEach((stage) => {
+      const index = mergedData.findIndex((item) => item.type === stage.type);
+      if (index !== -1) {
+        mergedData[index].sales = stage.sales;
+      }
+    });
+    const data = {
+      labels: mergedData.map((item) => item.type),
+      datasets: [
+        {
+          label: "Revenue",
+          data: mergedData.map((item) => item.revenue),
+          backgroundColor: "rgba(255, 99, 132, 0.5)",
+        },
+        {
+          label: "Orders",
+          data: mergedData.map((item) => item.sales),
+          backgroundColor: "rgba(53, 162, 235, 0.5)",
+        },
+      ],
+    };
+    return (
+      <Card style={{ width: "450", hieght: "850" }}>
+        <Bar options={options} data={data} />
+      </Card>
+    );
   };
   return (
     <React.Fragment>
@@ -168,19 +231,19 @@ const Dashboard = () => {
       </div>
       <div className="d-flex gap-3 justify-content-between">
         <div className="mt-4 flex-grow-1">
-          <h3 className="mb-4">Income Statics</h3>
+          <h3 className="mb-4">Revenue Statics</h3>
           <div>
-            <Column {...config} />
+            <ActivityChart />
           </div>
         </div>
         <div className="mt-4 flex-grow-1">
           <h3 className="mb-4">Recent Orders</h3>
           <div>
-            <Table columns={columns} dataSource={table_data} />
+            <Table columns={columns} dataSource={orderActivity} />
           </div>
         </div>
       </div>
-      <div className="my-4">
+      <div className="d-flex gap-3 justify-content-between">
         <h3 className="mb-4">Recent reviews</h3>
       </div>
     </React.Fragment>

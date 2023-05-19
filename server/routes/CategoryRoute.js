@@ -5,11 +5,13 @@ const {
   removeCategory,
   findCategory,
   enumCategory,
+  pagination,
 } = require("../controllers/categoryController");
 const { approveAuth, getPrivileges } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 router.post("/add_new", approveAuth, getPrivileges, addCategory);
+router.get("/pagination", pagination);
 router.put("/update_category/:id", approveAuth, getPrivileges, editCategory);
 router.delete(
   "/delete_category/:id",

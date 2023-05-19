@@ -5,7 +5,6 @@ const uniqid = require("uniqid");
 const User = require("../models/userModel");
 const Product = require("../models/productModel");
 const Cart = require("../models/cartModel");
-const Color = require("../models/colorModel");
 const Coupon = require("../models/couponModel");
 const Order = require("../models/orderModel");
 const { genToken } = require("../config/tokenGenerator");
@@ -29,6 +28,9 @@ const addNewUser = asyncHandler(async (requestObject, responseObject) => {
     password: requestObject.body.password,
     privileges: requestObject.body.privileges,
   });
+  requestObject.body.address &&
+    newUser.address.push(requestObject.body.address);
+  await newUser.save();
   responseObject.status(200).json(newUser);
 });
 const loginUser = asyncHandler(async (requestObject, responseObject) => {
@@ -134,12 +136,15 @@ const updateUser = asyncHandler(async (requestObject, responseObject) => {
     },
     { new: true }
   );
+  requestObject.body.address && user.address.push(requestObject.body.address);
+  await user.save();
   user
     ? responseObject.status(200).json(user)
     : responseObject
         .status(404)
-        .json({ message: "Something wen wrong, update unsucessful" });
+        .json({ message: "Something went wrong, update unsuccessful" });
 });
+
 const suspendAccount = asyncHandler(async (requestObject, responseObject) => {
   const { id } = requestObject.params;
   validateKey(id);
@@ -223,6 +228,7 @@ const updatePassword = asyncHandler(async (requestObject, responseObject) => {
 const forgotPasswordToken = asyncHandler(
   async (requestObject, responseObject) => {
     const email = requestObject.body.email;
+    console.log(email);
     const user = await User.findOne({ email: email });
     if (!user)
       throw new Error(
@@ -232,7 +238,7 @@ const forgotPasswordToken = asyncHandler(
     await user.save();
     const resetUrl = `You are required to follow this link to reset your
     password, this link will be inactive in 10minutes only.
-    <a href="http://localhost:5000/api/users/person/reset_password/${resetToken}">Click here</a>`;
+    <a href="http://localhost:3000/reset-password/${resetToken}">Click here</a>`;
     const data = {
       to: email,
       subject: "Password reset link",
@@ -296,52 +302,173 @@ const shoppingCart = asyncHandler(async (requestObject, responseObject) => {
   const { cart } = requestObject.body;
   const id = requestObject.user._id;
   const user = await User.findById(id);
-  const previousCart = await Cart.findOne({ orderBy: user._id });
-  if (previousCart) previousCart.delete();
-  let product = [];
-  for (let i = 0; i < cart.length; i++) {
-    let object = {};
-    object.product = cart[i]._id;
-    object.quantity = cart[i].quantity;
-    object.color = cart[i].color;
-    const getPrice = await Product.findById(cart[i]._id).select("price").exec();
-    object.price = getPrice.price;
-    product.push(object);
+  const previousCart = await Cart.findOne({
+    $and: [{ orderBy: user._id }, { status: "open" }],
+  });
+  if (previousCart) {
+    for (let i = 0; i < cart.length; i++) {
+      const existingProductIndex = previousCart.product.findIndex(
+        (product) => product.product.toString() === cart[i]._id
+      );
+      if (existingProductIndex !== -1) {
+        previousCart.product[existingProductIndex].quantity += cart[i].quantity;
+      } else {
+        let object = {};
+        object.product = cart[i]._id;
+        object.quantity = cart[i].quantity;
+        object.color = cart[i].color;
+        const getPrice = await Product.findById(cart[i]._id)
+          .select("price")
+          .exec();
+        object.price = getPrice.price;
+        previousCart.product.push(object);
+      }
+    }
+
+    let total = 0;
+    for (let i = 0; i < previousCart.product.length; i++) {
+      const { price, quantity } = previousCart.product[i];
+      total += price * quantity;
+    }
+    previousCart.cartTotal = total;
+    const updatedCart = await previousCart.save();
+
+    if (updatedCart) {
+      responseObject.status(200).json(updatedCart);
+    } else {
+      responseObject
+        .status(400)
+        .json({ message: "Unable to save cart, please try again" });
+    }
+  } else {
+    let product = [];
+    for (let i = 0; i < cart.length; i++) {
+      let object = {};
+      object.product = cart[i]._id;
+      object.quantity = cart[i].quantity;
+      object.color = cart[i].color;
+      const getPrice = await Product.findById(cart[i]._id)
+        .select("price")
+        .exec();
+      object.price = getPrice.price;
+      product.push(object);
+    }
+
+    let total = 0;
+    for (let j = 0; j < product.length; j++) {
+      total += product[j].quantity * product[j].price;
+    }
+
+    const newCart = await new Cart({
+      product: product,
+      cartTotal: total,
+      orderBy: user._id,
+    }).save();
+
+    if (newCart) {
+      responseObject.status(200).json(newCart);
+    } else {
+      responseObject
+        .status(400)
+        .json({ message: "Unable to save cart, please try again" });
+    }
   }
-  let total = 0;
-  for (let j = 0; j < product.length; j++) {
-    total += product[j].quantity * product[j].price;
-  }
-  const newCart = await new Cart({
-    product: product,
-    cartTotal: total,
-    orderBy: user._id,
-  }).save();
-  if (newCart) responseObject.status(200).json(newCart);
-  else
-    responseObject
-      .status(400)
-      .json({ message: "Unable to save cart, please try again" });
 });
 const fetchCart = asyncHandler(async (requestObject, responseObject) => {
   const id = requestObject.user._id;
-  const cart = await Cart.findOne({ orderBy: id }).populate("product.product");
+  const cart = await Cart.findOne({
+    $and: [{ orderBy: id }, { status: "open" }],
+  })
+    .populate("product.product")
+    .populate("orderBy");
   if (cart) responseObject.status(200).json(cart);
-  else
-    responseObject
-      .status(404)
-      .json({ message: "Cart not found, please try again" });
+  else responseObject.send([]);
 });
+const updateProductQuantityUp = asyncHandler(
+  async (requestObject, responseObject) => {
+    const userId = requestObject.user._id;
+    const cart = await Cart.findOne({ orderBy: userId }).populate(
+      "product.product"
+    );
+    const { product, value } = requestObject.body;
+    const update = await Cart.findByIdAndUpdate(
+      cart.cartId,
+      { $inc: { "product.$[prod].quantity": value } },
+      { arrayFilters: [{ "prod.product": product }] }
+    );
+    if (update) {
+      const updatedCart = await Cart.findById(cart).populate("product.product");
+      const cartTotal = updatedCart.product.reduce((total, item) => {
+        return total + item.quantity * item.product.price;
+      }, 0);
+      await Cart.findByIdAndUpdate(cart, { cartTotal });
+      responseObject
+        .status(200)
+        .json({ message: "Quantity updated successfully" });
+    } else {
+      responseObject.status(404).json({ message: "Cart not found" });
+    }
+  }
+);
+const updateProductQuantityDown = asyncHandler(
+  async (requestObject, responseObject) => {
+    const userId = requestObject.user._id;
+    const cart = await Cart.findOne({ orderBy: userId }).populate(
+      "product.product"
+    );
+    const { product, value } = requestObject.body;
+    const update = await Cart.findByIdAndUpdate(
+      cart.cartId,
+      {
+        $inc: { "product.$[elem].quantity": -value },
+      },
+      { arrayFilters: [{ "elem.product": product }] }
+    );
+    if (update) {
+      const updatedCart = await Cart.findById(cart).populate("product.product");
+      const cartTotal = updatedCart.product.reduce((total, item) => {
+        return total + item.quantity * item.product.price;
+      }, 0);
+      await Cart.findByIdAndUpdate(cart, { cartTotal });
+      responseObject
+        .status(200)
+        .json({ message: "Quantity updated successfully" });
+    } else {
+      responseObject.status(404).json({ message: "Cart not found" });
+    }
+  }
+);
+const removeItemFromCart = asyncHandler(
+  async (requestObject, responseObject) => {
+    const id = requestObject.user._id;
+    const item = requestObject.params.id;
+    const cart = await Cart.findOne({ orderBy: id, status: "open" });
+    if (!cart) {
+      return responseObject.status(404).json({ message: "Cart not found" });
+    }
+    cart.product = cart.product.filter(
+      (product) => product.product.toString() !== item
+    );
+    const total = cart.product.reduce(
+      (acc, curr) => acc + curr.price * curr.quantity,
+      0
+    );
+    cart.cartTotal = total;
+    await cart.save();
+    responseObject.status(200).json(cart);
+  }
+);
 const emptyCart = asyncHandler(async (requestObject, responseObject) => {
   const id = requestObject.user._id;
   const cart = await Cart.findOne({ orderBy: id });
-  if (cart) {
-    cart.remove();
+  if (cart && cart.status === "open" && cart.product.length > 0) {
+    cart.product = [];
+    cart.cartTotal = 0;
+    await cart.save();
     responseObject.status(200).json(cart);
-  } else
-    responseObject
-      .status(400)
-      .json({ message: "Cart not found, cart is probably empty" });
+  } else {
+    responseObject.status(400).json({ message: "Cart not found or empty" });
+  }
 });
 const redeemCoupon = asyncHandler(async (requestObject, responseObject) => {
   const coupon = requestObject.body.code;
@@ -379,60 +506,82 @@ const redeemCoupon = asyncHandler(async (requestObject, responseObject) => {
 });
 const makeOrder = asyncHandler(async (requestObject, responseObject) => {
   const id = requestObject.user._id;
-  const userCart = await Cart.findOne({ orderBy: id });
-  let totals = [];
-  let grandTotal = 0;
-  if (!userCart.totalAfterDiscount || userCart.totalAfterDiscount === 0) {
-    for (let i = 0; i < userCart.product.length; i++) {
-      let object = {};
-      object.price = userCart.product[i].price;
-      object.quantity = userCart.product[i].quantity;
-      totals.push(object);
-    }
-    for (let j = 0; j < totals.length; j++) {
-      grandTotal += totals[j].quantity * totals[j].price;
-    }
-  } else grandTotal = userCart.totalAfterDiscount;
-  const updateTotal = await Cart.findOneAndUpdate(
-    { orderBy: id },
-    { totalAfterDiscount: grandTotal }
-  );
-  const newOrder = await new Order({
-    product: userCart.product,
-    paymentIntent: {
-      id: uniqid(),
-      method: "Cash On Delivery",
-      amount: grandTotal,
-      date: Date.now(),
-      currency: "USD",
-    },
-    orderBy: id,
-    orderStatus: "Processing",
-  }).save();
-  const normalizeQuantities = userCart.product.map((item) => {
-    return {
-      updateOne: {
-        filter: { _id: item.product._id },
-        update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
-      },
-    };
+  const userCart = await Cart.findOne({
+    $and: [{ orderBy: id }, { status: "open" }],
   });
-  const normalized = await Product.bulkWrite(normalizeQuantities, {});
-  if (normalized) responseObject.status(200).json(newOrder);
-  else
-    responseObject
-      .status(400)
-      .json({ message: "Unable to place order, PLease try again" });
+  const existingOrder = await Order.findOne({ cartInfo: userCart?._id });
+  if (existingOrder) {
+    return responseObject.status(200).json(existingOrder);
+  } else {
+    const grandTotal =
+      userCart.totalAfterDiscount ||
+      userCart.product.reduce((total, item) => {
+        return total + item.price * item.quantity;
+      }, 0);
+    userCart.totalAfterDiscount = grandTotal;
+    await userCart.save();
+    const newOrder = await new Order({
+      product: userCart.product,
+      paymentIntent: {
+        id: uniqid(),
+        method: requestObject.body.paymentIntent.method,
+        amount: grandTotal,
+        date: Date.now(),
+        currency: "USD",
+      },
+      orderBy: id,
+      cartInfo: userCart._id,
+      orderStatus: "Not Processed",
+      shippingInfo: {
+        firstname: requestObject.body.shippingInfo.firstname,
+        lastname: requestObject.body.shippingInfo.lastname,
+        addressLine1: requestObject.body.shippingInfo.addressLine1,
+        addressLine2: requestObject.body.shippingInfo.addressLine2,
+        city: requestObject.body.shippingInfo.city,
+        state: requestObject.body.shippingInfo.state || undefined,
+        zip: requestObject.body.shippingInfo.zip || undefined,
+        country: requestObject.body.shippingInfo.country,
+      },
+      shippingFee: 129,
+    }).save();
+    const normalizeQuantities = userCart.product.map((item) => {
+      return {
+        updateOne: {
+          filter: { _id: item.product._id },
+          update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
+        },
+      };
+    });
+    const normalized = await Product.bulkWrite(normalizeQuantities, {});
+    if (normalized) {
+      responseObject.status(200).json(newOrder);
+    } else {
+      responseObject
+        .status(400)
+        .json({ message: "Unable to place order, PLease try again" });
+    }
+  }
 });
 const getOrder = asyncHandler(async (requestObject, responseObject) => {
   const id = requestObject.user._id;
-  const order = await Order.findOne({ orderBy: id })
+  const order = await Order.find({ orderBy: id })
     .populate("product.product")
     .populate("orderBy");
   if (order) responseObject.status(200).json(order);
   else
     responseObject
       .status(400)
+      .json({ message: "Could not find any orders, please try again" });
+});
+const getOrderCheckout = asyncHandler(async (requestObject, responseObject) => {
+  const { id } = requestObject.params;
+  const orderCheckedout = await Order.findOne({
+    "paymentIntent.transactionId": id,
+  });
+  if (orderCheckedout) responseObject.status(200).json(orderCheckedout);
+  else
+    responseObject
+      .status(404)
       .json({ message: "Could not find any orders, please try again" });
 });
 const fetchOrder = asyncHandler(async (requestObject, responseObject) => {
@@ -468,15 +617,94 @@ const updateOrderStatus = asyncHandler(
     const id = requestObject.params.id;
     const status = requestObject.body.status;
     const orderStatus = await Order.findOneAndUpdate(
-      id,
-      { orderStatus: status, paymentIntent: { status: status } },
+      { _id: id },
+      { orderStatus: status },
       { new: true }
-    );
-    if (orderStatus) responseObject.status(200).json(orderStatus);
-    else
+    ).populate("product.product");
+
+    if (orderStatus) {
+      responseObject.status(200).json(orderStatus);
+    } else {
       responseObject
         .status(400)
         .json({ message: "Could not update order status, please try again" });
+    }
+  }
+);
+const getSavedAddress = asyncHandler(async (requestObject, responseObject) => {
+  const { address, email } = requestObject.user;
+  responseObject.json({ address, email });
+});
+const monthRevenueRecords = asyncHandler(
+  async (requestObject, responseObject) => {
+    let monthList = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    let now = new Date();
+    let limit = "";
+    now.setDate(1);
+    for (let x = 0; x < 11; x++) {
+      now.setMonth(now.getMonth() - 1);
+      limit = monthList[now.getMonth()] + " " + now.getFullYear();
+    }
+    const data = await Order.aggregate([
+      { $match: { createdAt: { $lte: new Date(), $gte: new Date(limit) } } },
+      {
+        $group: {
+          _id: { month: "$orderMonth" },
+          amount: { $sum: "$paymentIntent.amountPaid" },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+    responseObject.json(data);
+  }
+);
+const yearRevenueRecords = asyncHandler(
+  async (requestObject, responseObject) => {
+    let monthList = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    let now = new Date();
+    let limit = "";
+    now.setDate(1);
+    for (let x = 0; x < 11; x++) {
+      now.setMonth(now.getMonth() - 1);
+      limit = monthList[now.getMonth()] + " " + now.getFullYear();
+    }
+    const data = await Order.aggregate([
+      { $match: { createdAt: { $lte: new Date(), $gte: new Date(limit) } } },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+          amount: { $sum: "$paymentIntent.amountPaid" },
+        },
+      },
+    ]);
+    responseObject.json(data);
   }
 );
 
@@ -501,10 +729,17 @@ module.exports = {
   shoppingCart: shoppingCart,
   fetchCart: fetchCart,
   emptyCart: emptyCart,
+  updateProductQuantityDown: updateProductQuantityDown,
+  updateProductQuantityUp: updateProductQuantityUp,
+  removeItemFromCart: removeItemFromCart,
   redeemCoupon: redeemCoupon,
   makeOrder: makeOrder,
   getOrder: getOrder,
+  getOrderCheckout: getOrderCheckout,
   getAllOrder: getAllOrder,
   updateOrderStatus: updateOrderStatus,
   fetchOrder: fetchOrder,
+  getSavedAddress: getSavedAddress,
+  monthRevenueRecords: monthRevenueRecords,
+  yearRevenueRecords: yearRevenueRecords,
 };

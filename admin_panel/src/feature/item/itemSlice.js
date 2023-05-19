@@ -5,7 +5,11 @@ import {
   findProduct,
   updateProduct,
   removeProduct,
+  fetchProductPaginated,
+  configurePagination,
+  queryProduct,
 } from "./itemService";
+import { toast } from "react-toastify";
 
 export const getProducts = createAsyncThunk(
   "products/getProducts",
@@ -87,11 +91,60 @@ export const deleteProduct = createAsyncThunk(
     }
   }
 );
+export const productPagination = createAsyncThunk(
+  "products/item_pagination",
+  async (value, thunkAPI) => {
+    try {
+      return await configurePagination(value);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+export const getproductsPaginated = createAsyncThunk(
+  "products/item_paginated",
+  async (value, thunkAPI) => {
+    try {
+      return await fetchProductPaginated(value);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+export const searchProduct = createAsyncThunk(
+  "products/search_products",
+  async (value, thunkAPI) => {
+    try {
+      return await queryProduct(value);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 export const clearState = createAction("reset_data");
 export const itemSlice = createSlice({
   name: "products",
   initialState: {
     products: [],
+    pagination: {},
     isError: false,
     isLoading: false,
     isSuccess: false,
@@ -122,12 +175,14 @@ export const itemSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
+        toast.success("Product add successfully");
       })
       .addCase(createProduct.rejected, (state, action) => {
         state.isLoading = false;
         state.isSuccess = false;
         state.isError = true;
         state.message = action.error;
+        toast.error("Unable to create product, please try again");
       })
       .addCase(fetchProduct.pending, (state) => {
         state.isLoading = true;
@@ -152,12 +207,14 @@ export const itemSlice = createSlice({
         state.isSuccess = true;
         state.isError = false;
         state.products = action.payload;
+        toast.success("Product updated successfully");
       })
       .addCase(reviseProduct.rejected, (state, action) => {
         state.isLoading = false;
         state.isSuccess = false;
         state.isError = true;
         state.message = action.error;
+        toast.error("Unable to update product");
       })
       .addCase(deleteProduct.pending, (state) => {
         state.isLoading = true;
@@ -167,18 +224,65 @@ export const itemSlice = createSlice({
         state.isSuccess = true;
         state.isError = false;
         state.products = action.payload;
+        toast.success("Product deleted successfully");
       })
       .addCase(deleteProduct.rejected, (state, action) => {
         state.isLoading = false;
         state.isSuccess = false;
         state.isError = true;
         state.message = action.error;
+        toast.error("Unable to delete product, please try again");
       })
       .addCase(clearState, (state) => {
         state.isLoading = false;
         state.isSuccess = false;
         state.isError = false;
         state.products = [];
+      })
+      .addCase(productPagination.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(productPagination.fulfilled, (state, action) => {
+        state.isError = false;
+        state.isSuccess = true;
+        state.isLoading = false;
+        state.pagination = action.payload;
+      })
+      .addCase(productPagination.rejected, (state, action) => {
+        state.isError = true;
+        state.isSuccess = false;
+        state.isLoading = false;
+        state.message = action.error;
+      })
+      .addCase(getproductsPaginated.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getproductsPaginated.fulfilled, (state, action) => {
+        state.isError = false;
+        state.isSuccess = true;
+        state.isLoading = false;
+        state.products = action.payload;
+      })
+      .addCase(getproductsPaginated.rejected, (state, action) => {
+        state.isError = true;
+        state.isSuccess = false;
+        state.isLoading = false;
+        state.message = action.error;
+      })
+      .addCase(searchProduct.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(searchProduct.fulfilled, (state, action) => {
+        state.isError = false;
+        state.isSuccess = true;
+        state.isLoading = false;
+        state.products = action.payload;
+      })
+      .addCase(searchProduct.rejected, (state, action) => {
+        state.isError = true;
+        state.isSuccess = false;
+        state.isLoading = false;
+        state.message = action.error;
       });
   },
 });

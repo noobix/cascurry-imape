@@ -79,12 +79,12 @@ const MainLayout = () => {
   function handleLogout() {
     dispatch(logout());
     localStorage.removeItem("user");
-    navigate("/");
+    setTimeout(() => navigate("/"), 500);
   }
   function verify() {
     if (user) {
       const { refreshToken } = user;
-      const { exp } = jwt_decode(refreshToken);
+      const { exp } = jwt_decode(refreshToken, { header: true });
       const expirationTime = exp * 1000 - 60000;
       if (Date.now() >= expirationTime) {
         localStorage.removeItem("user");

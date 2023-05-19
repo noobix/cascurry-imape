@@ -26,6 +26,13 @@ const {
   updateOrderStatus,
   getAllOrder,
   fetchOrder,
+  removeItemFromCart,
+  updateProductQuantityUp,
+  updateProductQuantityDown,
+  getSavedAddress,
+  getOrderCheckout,
+  monthRevenueRecords,
+  yearRevenueRecords,
 } = require("../controllers/userController");
 const { approveAuth, getPrivileges } = require("../middlewares/authMiddleware");
 
@@ -38,6 +45,7 @@ router.get("/person/", approveAuth, fetchUser);
 router.get("/person/wishlist", approveAuth, getWishlist);
 router.get("/person/fetch_cart", approveAuth, fetchCart);
 router.get("/person/fetch_order", approveAuth, getOrder);
+router.get("/person/saved_addresses", approveAuth, getSavedAddress);
 router.get("/person/all_fetch_order", approveAuth, getPrivileges, getAllOrder);
 router.get("/person/logout", logout);
 router.get("/person/fetch_cookies", fetchRefreshToken);
@@ -49,9 +57,27 @@ router.put("/person/", approveAuth, updateUser);
 router.delete("/person/shopping_cart/clear", approveAuth, emptyCart);
 router.put("/person/save_address", approveAuth, saveAddress);
 router.post("/person/shopping_cart", approveAuth, shoppingCart);
+router.post(
+  "/person/shopping_cart/increase_quantity",
+  approveAuth,
+  updateProductQuantityUp
+);
+router.post(
+  "/person/shopping_cart/decrease_quantity",
+  approveAuth,
+  updateProductQuantityDown
+);
+router.delete("/person/remove_from_cart/:id", approveAuth, removeItemFromCart);
 router.post("/person/shopping_new_order", approveAuth, makeOrder);
 router.post("/person/shopping_coupon", approveAuth, redeemCoupon);
 router.get("/people", approveAuth, getPrivileges, enumUsers);
+router.get(
+  "/data/revenuebyMonth",
+  approveAuth,
+  getPrivileges,
+  monthRevenueRecords
+);
+router.get("/data/countbyyear", approveAuth, getPrivileges, yearRevenueRecords);
 router.put(
   "/person/activate_account/:id",
   approveAuth,
@@ -71,6 +97,11 @@ router.put(
   approveAuth,
   getPrivileges,
   updateOrderStatus
+);
+router.get(
+  "/person/get_user_order/cheackedout/:id",
+  approveAuth,
+  getOrderCheckout
 );
 router.put(
   "/person/suspend_account/:id",

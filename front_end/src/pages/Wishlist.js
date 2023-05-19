@@ -4,7 +4,7 @@ import BreadCrumb from "../components/BreadCrumb";
 import Container from "../components/Container";
 import MetaData from "../components/MetaData";
 import { userWishlist } from "../features/auth/authSlice";
-import { addWishlist } from "../features/items/itemSlice";
+import { addWishlist } from "../features/auth/authSlice";
 
 const Wishlist = () => {
   const dispatch = useDispatch();

@@ -1,7 +1,6 @@
 import React from "react";
 import { string, object } from "yup";
 import { useFormik } from "formik";
-import { toast } from "react-toastify";
 import CustomInput from "../Components/CustomInput";
 import { useDispatch, useSelector } from "react-redux";
 import { createColor } from "../feature/color/colorSlice";
@@ -10,11 +9,7 @@ const AddColor = () => {
   const dispatch = useDispatch();
   const [colorCode, setcolorCode] = React.useState();
   const { user } = useSelector((state) => state.auth);
-  const { isError, isSuccess } = useSelector((state) => state.color);
-  React.useEffect(() => {
-    if (isSuccess) toast.success("Color sucessfully added");
-    if (isError) toast.error("Unable to create color, please try again");
-  }, [isError, isSuccess]);
+  const { isError } = useSelector((state) => state.color);
   let colorSchema = object({
     name: string().required(),
     color: string(),

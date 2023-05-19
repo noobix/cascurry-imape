@@ -1,8 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { string, object, array } from "yup";
+import { string, object } from "yup";
 import { useFormik } from "formik";
-import { toast } from "react-toastify";
 import CustomInput from "../Components/CustomInput";
 import {
   clearState,
@@ -25,11 +24,10 @@ const AddBrand = () => {
   });
   const extractId = location.pathname.split("/")[3];
   const { user } = useSelector((state) => state.auth);
-  const { brands } = useSelector((state) => state.brands);
+  const { brand, isError } = useSelector((state) => state.brands);
   const { cartegories } = useSelector((state) => state.cartegory);
-  const { isError, isSuccess } = useSelector((state) => state.brands);
   const {
-    brands: { supplier: dealer },
+    brand: { supplier: dealer },
   } = useSelector((state) => state.brands);
   React.useEffect(() => {
     if (extractId) {
@@ -37,12 +35,17 @@ const AddBrand = () => {
     }
   }, [extractId]);
   React.useEffect(() => {
+    if (!extractId)
+      formik.setValues({
+        name: "",
+        manufacturer: "",
+        madeIn: "",
+        category: "",
+      });
+  }, [location]);
+  React.useEffect(() => {
     dispatch(getCartegory(user?.refreshToken));
   }, [dispatch]);
-  React.useEffect(() => {
-    if (isSuccess) toast.success("Brand sucessfully added");
-    if (isError) toast.error("Unable to create brand, please try again");
-  }, [isError, isSuccess]);
   let brandSchema = object({
     name: string().required(),
     manufacturer: string().required(),
@@ -53,10 +56,10 @@ const AddBrand = () => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      name: brands?.name || "",
-      manufacturer: brands?.manufacturer || "",
-      madeIn: brands?.madeIn || "",
-      category: brands?.category?.name || "",
+      name: brand?.name || "",
+      manufacturer: brand?.manufacturer || "",
+      madeIn: brand?.madeIn || "",
+      category: brand?.category?.name || "",
       supplier: {},
     },
     validationSchema: brandSchema,
@@ -72,7 +75,7 @@ const AddBrand = () => {
       };
       if (!extractId) {
         dispatch(createBrands(values));
-        !isError && formik.resetForm();
+        setTimeout(() => !isError && formik.resetForm(), 200);
         setsupplier({
           name: "",
           phone: "",
@@ -81,7 +84,7 @@ const AddBrand = () => {
         });
       } else {
         dispatch(reviseBrand(values));
-        !isError && formik.resetForm();
+        setTimeout(() => !isError && formik.resetForm(), 200);
         dispatch(clearState());
         setsupplier({
           name: "",

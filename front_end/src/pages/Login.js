@@ -6,20 +6,13 @@ import MetaData from "../components/MetaData";
 import CustomInput from "../components/CustomInput";
 import { useDispatch, useSelector } from "react-redux";
 import { useFormik } from "formik";
-import { toast } from "react-toastify";
 import { string, object } from "yup";
 import { loginUser } from "../features/auth/authSlice";
 
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isError, isSuccess, isLoading, user } = useSelector(
-    (state) => state.auth
-  );
-  React.useEffect(() => {
-    if (isSuccess) toast.success("Registered sucessfully added");
-    if (isError) toast.error("Unable to register, please try again");
-  }, [isError, isSuccess]);
+  const { isError } = useSelector((state) => state.auth);
   let loginSchema = object({
     email: string().required(),
     password: string().required(),
@@ -33,7 +26,7 @@ const Login = () => {
     onSubmit: (values) => {
       dispatch(loginUser(values));
       !isError && formik.resetForm();
-      navigate("/");
+      setTimeout(() => navigate("/"), 500);
     },
   });
   return (

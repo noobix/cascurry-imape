@@ -1,11 +1,14 @@
 import { createSlice, createAsyncThunk, createAction } from "@reduxjs/toolkit";
 import {
   addBrands,
+  configurePagination,
+  fetchBrandPaginated,
   getBrand,
   listBrands,
   removeBrand,
   updateBrands,
 } from "./brandService";
+import { toast } from "react-toastify";
 
 export const getBrands = createAsyncThunk(
   "products/getBrands",
@@ -88,10 +91,44 @@ export const deleteBrand = createAsyncThunk(
     }
   }
 );
+export const brandPagination = createAsyncThunk(
+  "products/brand_pagination",
+  async (value, thunkAPI) => {
+    try {
+      return await configurePagination(value);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+export const getBrandsPaginated = createAsyncThunk(
+  "products/brands_paginated",
+  async (value, thunkAPI) => {
+    try {
+      return await fetchBrandPaginated(value);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 export const brandSlice = createSlice({
   name: "brands",
   initialState: {
     brands: [],
+    brand: {},
+    pagination: {},
     isError: false,
     isLoading: false,
     isSuccess: false,
@@ -122,13 +159,15 @@ export const brandSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
-        state.brands = action.payload;
+        state.brand = action.payload;
+        toast.success("Brand created successfully");
       })
       .addCase(createBrands.rejected, (state, action) => {
         state.isLoading = false;
         state.isSuccess = false;
         state.isError = true;
         state.message = action.error;
+        toast.error("Unable to create brand, please try again");
       })
       .addCase(deleteBrand.pending, (state) => {
         state.isLoading = true;
@@ -137,13 +176,15 @@ export const brandSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
-        state.brands = action.payload;
+        state.brand = action.payload;
+        toast.success("Brand successfully removed");
       })
       .addCase(deleteBrand.rejected, (state, action) => {
         state.isLoading = false;
         state.isSuccess = false;
         state.isError = true;
         state.message = action.error;
+        toast.error("Unable to remove brand, please try again");
       })
       .addCase(fetchBrand.pending, (state) => {
         state.isLoading = true;
@@ -152,7 +193,7 @@ export const brandSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
-        state.brands = action.payload;
+        state.brand = action.payload;
       })
       .addCase(fetchBrand.rejected, (state, action) => {
         state.isLoading = false;
@@ -167,9 +208,41 @@ export const brandSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
-        state.brands = action.payload;
+        state.brand = action.payload;
+        toast.success("Brand updated successfully");
       })
       .addCase(reviseBrand.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.message = action.error;
+        toast.error("Unable to update brand, please try again");
+      })
+      .addCase(brandPagination.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(brandPagination.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.pagination = action.payload;
+      })
+      .addCase(brandPagination.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.message = action.error;
+      })
+      .addCase(getBrandsPaginated.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getBrandsPaginated.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.brands = action.payload;
+      })
+      .addCase(getBrandsPaginated.rejected, (state, action) => {
         state.isLoading = false;
         state.isSuccess = false;
         state.isError = true;

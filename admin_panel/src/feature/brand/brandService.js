@@ -57,3 +57,37 @@ export const removeBrand = async ({ token, id }) => {
   );
   return response.data;
 };
+export const configurePagination = async ({ token, page }) => {
+  const response = await axios.get(
+    `/api/products/brand/pagination?page=${page}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};
+export const fetchBrandPaginated = async ({
+  token,
+  page,
+  limit,
+  skip,
+  search,
+}) => {
+  const response = await axios.get(
+    `/api/products/brand/get_brands?page=${page || ""}&limit=${
+      limit || ""
+    }&skip=${skip || ""}&search=${search || ""}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};

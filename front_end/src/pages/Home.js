@@ -8,7 +8,7 @@ import { getBlogs } from "../features/blogs/blogslice";
 import ProductCard from "../components/ProductCard";
 import SpecialProducts from "../components/SpecialProducts";
 import Container from "../components/Container";
-import { logoutUser } from "../features/auth/authSlice";
+import { addProductToCart, logoutUser } from "../features/auth/authSlice";
 import { getProducts } from "../features/items/itemSlice";
 
 const Home = () => {
@@ -16,21 +16,131 @@ const Home = () => {
   const navigate = useNavigate();
   const { blogs = [] } = useSelector((state) => state.blog) ?? {};
   const { product = [] } = useSelector((state) => state.item) ?? {};
-  const threndingProducts = product
-    .filter((item) => item.tags.some((tag) => tag.tag === "Thrending"))
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 4);
-  const specialProducts = product
-    .filter((item) => item.tags.some((tag) => tag.tag === "Specials"))
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 4);
-  const featuredProducts = product
-    .filter((item) => item.tags.some((tag) => tag.tag === "Featured"))
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 4);
-  const { user, isLoading, isError, isSuccess, message } = useSelector(
-    (state) => state.auth
-  );
+  const [threndingProducts, setthrendingProducts] = React.useState([]);
+  const [specialProducts, setspecialProducts] = React.useState([]);
+  const [featuredProducts, setfeaturedProducts] = React.useState([]);
+  const [randomCategory, setrandomCategory] = React.useState([]);
+  const [rightBannerMain, setrightBannerMain] = React.useState([]);
+  const [leftBanner1, setleftBanner1] = React.useState([]);
+  const [leftBanner2, setleftBanner2] = React.useState([]);
+  const [leftBanner3, setleftBanner3] = React.useState([]);
+  const [leftBanner4, setleftBanner4] = React.useState([]);
+  React.useEffect(() => {
+    const thrending =
+      product &&
+      product.length &&
+      product
+        .filter((item) => item.tags.some((tag) => tag.tag === "Thrending"))
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 4);
+    setthrendingProducts(thrending);
+  }, [product]);
+  React.useEffect(() => {
+    const special =
+      product &&
+      product.length &&
+      product
+        .filter((item) => item.tags.some((tag) => tag.tag === "Specials"))
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 4);
+    setspecialProducts(special);
+  }, [product]);
+  React.useEffect(() => {
+    const featured =
+      product &&
+      product.length &&
+      product
+        .filter((item) => item.tags.some((tag) => tag.tag === "Featured"))
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 4);
+    setfeaturedProducts(featured);
+  }, [product]);
+  React.useEffect(() => {
+    const categoryCounts = {};
+    product &&
+      product.length &&
+      product.forEach((item) => {
+        const category = item.category.description;
+        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+      });
+    const productCategories = Object.keys(categoryCounts)
+      .map((category) => ({
+        title: category,
+        category: category,
+        image: product.find((item) => item.category.description === category)
+          .images[0].image,
+        itemCount: categoryCounts[category],
+      }))
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 8);
+    setrandomCategory(productCategories);
+  }, [product]);
+  React.useEffect(() => {
+    const rightMain =
+      product &&
+      product.length > 0 &&
+      product
+        .filter(
+          (item) =>
+            item.category.description === "Wearable Technologies" &&
+            item.slug.includes("ear")
+        )
+        .slice(0, 1);
+    setrightBannerMain(rightMain);
+  }, [product]);
+  React.useEffect(() => {
+    const firstleft =
+      product &&
+      product.length > 0 &&
+      product
+        .filter(
+          (item) =>
+            item.category.description === "Laptop PC" &&
+            item.slug.includes("computer")
+        )
+        .slice(0, 1);
+    setleftBanner1(firstleft);
+  }, [product]);
+  React.useEffect(() => {
+    const secondleft =
+      product &&
+      product.length > 0 &&
+      product
+        .filter(
+          (item) =>
+            item.category.description === "Wearable Technologies" &&
+            item.slug.includes("watch")
+        )
+        .slice(0, 1);
+    setleftBanner2(secondleft);
+  }, [product]);
+  React.useEffect(() => {
+    const thirdleft =
+      product &&
+      product.length > 0 &&
+      product
+        .filter(
+          (item) =>
+            item.category.description === "Communication and GPS" &&
+            item.slug.includes("tablet")
+        )
+        .slice(0, 1);
+    setleftBanner3(thirdleft);
+  }, [product]);
+  React.useEffect(() => {
+    const fouthleft =
+      product &&
+      product.length > 0 &&
+      product
+        .filter(
+          (item) =>
+            item.category.description === "Wearable Technologies" &&
+            item.slug.includes("head")
+        )
+        .slice(0, 1);
+    setleftBanner4(fouthleft);
+  }, [product]);
+  const { user } = useSelector((state) => state.auth);
   React.useEffect(() => {
     dispatch(getBlogs());
     dispatch(getProducts(user?.refreshToken));
@@ -66,10 +176,32 @@ const Home = () => {
                 alt="..."
               />
               <div className="main-banner-content position-absolute">
-                <h4>SUPERCHARGED FOR PRO'S</h4>
-                <h5>iPad S13+ Pro</h5>
-                <p>From &#36;999.00 OR &#36;41.62/month</p>
-                <Link className="button">BUY NOW</Link>
+                {rightBannerMain &&
+                  rightBannerMain.map((unit, index) => (
+                    <React.Fragment key={index}>
+                      <h4>RECOMMENDED FOR EAZE</h4>
+                      <h5>{unit.title.replace(" WF-1000XM4 Wireless", "")}</h5>
+                      <p>From &#36;{unit.price} OR &#36;41.62/month</p>
+                      <Link
+                        to="/cart"
+                        onClick={() =>
+                          dispatch(
+                            addProductToCart({
+                              token: user.refreshToken,
+                              data: {
+                                _id: unit?._id,
+                                quantity: 1,
+                                color: unit?.color?.name,
+                              },
+                            })
+                          )
+                        }
+                        className="button"
+                      >
+                        BUY NOW
+                      </Link>
+                    </React.Fragment>
+                  ))}
               </div>
             </div>
           </div>
@@ -84,12 +216,17 @@ const Home = () => {
                   alt="..."
                 />
                 <div className="small-banner-content position-absolute">
-                  <h4>SUPERCHARGED FOR PRO'S</h4>
-                  <h5>iPad S13+ Pro</h5>
-                  <p>
-                    From &#36;999.00 <br />
-                    OR &#36;41.62/month
-                  </p>
+                  {leftBanner1 &&
+                    leftBanner1.map((unit, index) => (
+                      <React.Fragment key={index}>
+                        <h4>NEW LAPTOP PRICED LIKE OLD</h4>
+                        <h5>{unit.title.substring(0, 17)}</h5>
+                        <p>
+                          From &#36;{unit.price} <br />
+                          OR &#36;41.62/month
+                        </p>
+                      </React.Fragment>
+                    ))}
                 </div>
               </div>
               <div className="small-banner position-relative">
@@ -101,12 +238,17 @@ const Home = () => {
                   alt="..."
                 />
                 <div className="small-banner-content position-absolute">
-                  <h4>Best Sale</h4>
-                  <h5>iPad S13+ Pro</h5>
-                  <p>
-                    From &#36;999.00 <br />
-                    OR &#36;41.62/month
-                  </p>
+                  {leftBanner2 &&
+                    leftBanner2.map((unit, index) => (
+                      <React.Fragment key={index}>
+                        <h4>Best Sale</h4>
+                        <h5>{unit.title}</h5>
+                        <p>
+                          From &#36;{unit.price} <br />
+                          OR &#36;41.62/month
+                        </p>
+                      </React.Fragment>
+                    ))}
                 </div>
               </div>
               <div className="small-banner position-relative">
@@ -118,12 +260,17 @@ const Home = () => {
                   alt="..."
                 />
                 <div className="small-banner-content position-absolute">
-                  <h4>By iPad Air</h4>
-                  <h5>iPad S13+ Pro</h5>
-                  <p>
-                    From &#36;999.00 <br />
-                    OR &#36;41.62/month
-                  </p>
+                  {leftBanner3 &&
+                    leftBanner3.map((unit, index) => (
+                      <React.Fragment key={index}>
+                        <h4>By iPad Air</h4>
+                        <h5>{unit.title.substring(0, 21)}</h5>
+                        <p>
+                          From &#36;{unit.price} <br />
+                          OR &#36;41.62/month
+                        </p>
+                      </React.Fragment>
+                    ))}
                 </div>
               </div>
               <div className="small-banner position-relative">
@@ -135,12 +282,17 @@ const Home = () => {
                   alt="..."
                 />
                 <div className="small-banner-content position-absolute">
-                  <h4>SUPERCHARGED FOR PRO'S</h4>
-                  <h5>iPad S13+ Pro</h5>
-                  <p>
-                    From &#36;999.00 <br />
-                    OR &#36;41.62/month
-                  </p>
+                  {leftBanner4 &&
+                    leftBanner4.map((unit, index) => (
+                      <React.Fragment key={index}>
+                        <h4>EXTREME SOUND NO LIMITS</h4>
+                        <h5>{unit.title}</h5>
+                        <p>
+                          From &#36;{unit.price} <br />
+                          OR &#36;41.62/month
+                        </p>
+                      </React.Fragment>
+                    ))}
                 </div>
               </div>
             </div>
@@ -209,62 +361,21 @@ const Home = () => {
         <div className="row">
           <div className="col-12">
             <div className="cartegories d-flex flex-wrap align-items-center justify-content-between">
-              <div className="d-flex align-items-center gap-30">
-                <div>
-                  <h6>Cameras</h6>
-                  <p>10 items</p>
-                </div>
-                <img src="/assets/images/camera.jpg" alt="..." />
-              </div>
-              <div className="d-flex align-items-center gap-30">
-                <div>
-                  <h6>Smart Tv</h6>
-                  <p>10 items</p>
-                </div>
-                <img src="/assets/images/tv.jpg" alt="..." />
-              </div>
-              <div className="d-flex align-items-center gap-30">
-                <div>
-                  <h6>Music</h6>
-                  <p>10 items</p>
-                </div>
-                <img src="/assets/images/headphone.jpg" alt="..." />
-              </div>
-              <div className="d-flex align-items-center gap-30">
-                <div>
-                  <h6>Gaming</h6>
-                  <p>10 items</p>
-                </div>
-                <img src="/assets/images/camera.jpg" alt="..." />
-              </div>
-              <div className="d-flex align-items-center gap-30">
-                <div>
-                  <h6>Cameras</h6>
-                  <p>10 items</p>
-                </div>
-                <img src="/assets/images/camera.jpg" alt="..." />
-              </div>
-              <div className="d-flex align-items-center gap-30">
-                <div>
-                  <h6>Smart Tv</h6>
-                  <p>10 items</p>
-                </div>
-                <img src="/assets/images/tv.jpg" alt="..." />
-              </div>
-              <div className="d-flex align-items-center gap-30">
-                <div>
-                  <h6>Music</h6>
-                  <p>10 items</p>
-                </div>
-                <img src="/assets/images/headphone.jpg" alt="..." />
-              </div>
-              <div className="d-flex align-items-center gap-30">
-                <div>
-                  <h6>Gaming</h6>
-                  <p>10 items</p>
-                </div>
-                <img src="/assets/images/camera.jpg" alt="..." />
-              </div>
+              {randomCategory &&
+                randomCategory.map((item, index) => (
+                  <div key={index} className="d-flex align-items-center gap-30">
+                    <div>
+                      <h6>{item.category}</h6>
+                      <p>{item.itemCount}&nbsp;items</p>
+                    </div>
+                    <img
+                      className="img-fluid"
+                      style={{ width: "85px" }}
+                      src={item.image}
+                      alt="..."
+                    />
+                  </div>
+                ))}
             </div>
           </div>
         </div>

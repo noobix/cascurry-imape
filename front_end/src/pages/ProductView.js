@@ -1,8 +1,13 @@
 import { Rating } from "@smastrom/react-rating";
 import Magnifier from "react-magnifier";
+import { useSelector, useDispatch } from "react-redux";
 import React from "react";
+import { useFormik } from "formik";
+import { string, object } from "yup";
+import toString, { toWords } from "number-to-words";
 import BreadCrumb from "../components/BreadCrumb";
 import MetaData from "../components/MetaData";
+import { useLocation, useNavigate } from "react-router-dom";
 import { BsShare } from "react-icons/bs";
 import { SiMaterialdesignicons } from "react-icons/si";
 import { TbAward, TbGitCompare, TbDimensions, TbPackage } from "react-icons/tb";
@@ -10,9 +15,82 @@ import { MdOutlineLocalShipping } from "react-icons/md";
 import ProductCard from "../components/ProductCard";
 import Color from "../components/Color";
 import Container from "../components/Container";
+import {
+  getProduct,
+  getproductReviews,
+  postReview,
+} from "../features/items/itemSlice";
+import { addProductToCart, getCart } from "../features/auth/authSlice";
 
 const ProductView = () => {
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user, cart, orders } = useSelector((state) => state.auth);
+  const { product, reviews, isError } =
+    useSelector((state) => state.item) ?? {};
+  const extractId = location.pathname.split("/")[3];
+  const [rating, setrating] = React.useState(0);
+  const [quantity, setquantity] = React.useState(1);
+  const [isCart, setisCart] = React.useState(false);
   const [orderedProduct, setorderedProduct] = React.useState(false);
+  React.useEffect(() => {
+    dispatch(getProduct({ token: user.refreshToken, id: extractId }));
+    dispatch(getCart({ token: user.refreshToken }));
+    dispatch(
+      getproductReviews({ token: user.refreshToken, product: extractId })
+    );
+    isInCart();
+  }, [extractId]);
+  React.useEffect(() => {
+    const isOrdered = orders.filter((order) =>
+      order.product.find((item) => item.product._id === extractId)
+    );
+    if (isOrdered.length) setorderedProduct(true);
+  }, [orders]);
+  const isInCart = () => {
+    const product =
+      cart &&
+      cart.product &&
+      cart.product.length > 0 &&
+      cart.product.filter((item) => item.product._id === extractId);
+    if (product?.length) {
+      setisCart(true);
+      setquantity(cart.product.quantity);
+    }
+  };
+  let reviewSchema = object({
+    name: string().required(),
+    email: string().required(),
+    star: string().required(),
+    comment: string(),
+  });
+  const formik = useFormik({
+    initialValues: {
+      name: user.firstname + " " + user.lastname,
+      email: user.email,
+      star: rating,
+      comment: "",
+    },
+    validationSchema: reviewSchema,
+    enableReinitialize: true,
+    onSubmit: (values) => {
+      values = {
+        data: { ...values, item: extractId },
+        token: user.refreshToken,
+      };
+      dispatch(postReview(values));
+      !isError && formik.resetForm();
+    },
+  });
+  const copyToClipboard = (text) => {
+    var textField = document.createElement("textarea");
+    textField.innerText = text;
+    document.body.appendChild(textField);
+    textField.select();
+    document.execCommand("copy");
+    textField.remove();
+  };
   return (
     <React.Fragment>
       <MetaData title="Product Page" />
@@ -27,75 +105,61 @@ const ProductView = () => {
                   zoomFactor={1}
                   width="100%"
                   height="100%"
-                  src={
-                    "https://www.freshnessmag.com/.image/c_fit%2Ccs_" +
-                    "srgb%2Cq_auto:good%2Cw_620/MTM1OTc1NzE5MDUxMzY4OT" +
-                    "I2/beats-by-dr-dre---studio-headphones---limited-" +
-                    "edition-holiday-2011-colors---2.png"
-                  }
+                  src={product.images && product?.images[0]?.image}
                 />
               </div>
               <div className="other-product-images d-flex flex-wrap mt-2 gap-15">
-                <div>
-                  <img
-                    className="img-fluid w-30"
-                    src="assets/images/headphone3.jpg"
-                    alt="..."
-                  />
-                </div>
-                <div>
-                  <img
-                    className="img-fluid w-30"
-                    src="assets/images/headphone4.jpg"
-                    alt="..."
-                  />
-                </div>
-                <div>
-                  <img
-                    className="img-fluid w-30"
-                    src="assets/images/wirelesspod-01.jpg"
-                    alt="..."
-                  />
-                </div>
-                <div>
-                  <img
-                    className="img-fluid w-30"
-                    src="assets/images/wirelesspod-02.jpg"
-                    alt="..."
-                  />
-                </div>
+                {product.images &&
+                  product.images
+                    .slice(1)
+                    .map((image, index) => (
+                      <img
+                        key={index}
+                        className="img-fluid w-25 ms-3"
+                        src={image.image}
+                        alt="..."
+                      />
+                    ))}
               </div>
             </div>
           </div>
           <div className="col-6">
             <div className="main-product-details mb-2">
               <div className="border-bottom">
-                <h3 className="title">Beats by Dre Pro wireless headset</h3>
+                <h3 className="title">{product?.title}</h3>
               </div>
               <div className="border-bottom py-3">
-                <p className="price">&#36;200</p>
+                <p className="price">&#36;&nbsp;{product.price}</p>
                 <div className="d-flex align-items-center gap-10">
-                  <Rating style={{ maxWidth: 65 }} value={3} />
-                  <p className="mb-0">(2 Reviews)</p>
+                  <Rating
+                    style={{ maxWidth: 65 }}
+                    value={product.totalRatings}
+                  />
+                  <p className="mb-0">
+                    ({reviews.ratings && reviews.ratings.length} Review
+                    {reviews.ratings && reviews.ratings.length > 1 && "s"})
+                  </p>
                 </div>
                 <a href="#review">Write a review</a>
               </div>
               <div className="border-bottom">
                 <div className="d-flex align-items-center my-3 gap-10">
                   <h4 className="product-head">Type:</h4>
-                  <p className="product-data">Headphones</p>
+                  <p className="product-data">{product?.slug}</p>
                 </div>
                 <div className="d-flex align-items-center my-3 gap-10">
                   <h4 className="product-head">Brand:</h4>
-                  <p className="product-data">Beats by Dre</p>
+                  <p className="product-data">{product?.brand?.name}</p>
                 </div>
                 <div className="d-flex align-items-center my-3 gap-10">
                   <h4 className="product-head">Cartegory:</h4>
-                  <p className="product-data">Accessory gagdet</p>
+                  <p className="product-data">{product?.category?.name}</p>
                 </div>
                 <div className="d-flex align-items-center my-3 gap-10">
                   <h4 className="product-head">Tags:</h4>
-                  <p className="product-data">Entertainment</p>
+                  <p className="product-data">
+                    {product.tags?.map((tag) => tag.tag)}
+                  </p>
                 </div>
                 <div className="d-flex align-items-center my-3 gap-10">
                   <h4 className="product-head">Size:</h4>
@@ -108,7 +172,7 @@ const ProductView = () => {
                 </div>
                 <div className="d-flex my-2 gap-10 align-items-center my-3">
                   <h4 className="product-head">Color:</h4>
-                  <Color />
+                  <Color color={product?.color?.color} />
                 </div>
                 <div className="d-flex align-items-center my-3 gap-10">
                   <h4 className="product-head">SKU:</h4>
@@ -116,36 +180,58 @@ const ProductView = () => {
                 </div>
                 <div className="d-flex align-items-center my-3 gap-10">
                   <h4 className="product-head">Avialability:</h4>
-                  <p className="product-data">In-stock</p>
+                  <p className="product-data">
+                    {product.quantity > 0 ? "In-stock" : "Sold-out"}
+                  </p>
                 </div>
                 <div className="d-flex align-items-center my-3 gap-10">
                   <h4 className="product-head">Origin:</h4>
-                  <p className="product-data">USA</p>
+                  <p className="product-data">{product?.brand?.madeIn}</p>
                 </div>
-                <div className="d-flex align-items-center my-3 gap-15">
+                <div className="d-flex align-items-center my-3 gap-10">
                   <h4 className="product-head">Quantity:</h4>
                   <div>
                     <input
                       type="number"
                       name="count"
+                      onChange={(e) => setquantity(e.target.value)}
+                      value={quantity}
                       min={1}
                       max={11}
-                      className="form-control w-10"
+                      disabled={isCart}
+                      className="form-control w-50"
                     />
                   </div>
                   <div className="d-flex flex-row align-items-center gap-10">
                     <button
                       className="button-sm border-0 form-control text-nowrap"
                       type="button"
+                      onClick={
+                        isCart
+                          ? () => navigate("/cart")
+                          : () =>
+                              dispatch(
+                                addProductToCart({
+                                  token: user.refreshToken,
+                                  data: {
+                                    _id: product?._id,
+                                    quantity: quantity,
+                                    color: product?.color?.name,
+                                  },
+                                })
+                              )
+                      }
                     >
-                      Add to Cart
+                      {isCart ? "View In Cart" : "Add to Cart"}
                     </button>
-                    <button
-                      className="button-sm border-0 form-control"
-                      type="button"
-                    >
-                      But it Now
-                    </button>
+                    {!isCart && (
+                      <button
+                        className="button-sm border-0 form-control"
+                        type="button"
+                      >
+                        But it Now
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div className="d-flex align-content-center gap-15 mt-4">
@@ -275,7 +361,10 @@ const ProductView = () => {
                   </div>
                 </div>
                 <div className="my-3 bg-body-secondary d-inline-block">
-                  <a href="#">
+                  <a
+                    href="javascript:void(0);"
+                    onClick={() => copyToClipboard(window.location.href)}
+                  >
                     <BsShare className="fs-5 ma-2 text-dark" />
                     &nbsp;&nbsp;Share
                   </a>
@@ -285,7 +374,7 @@ const ProductView = () => {
           </div>
         </div>{" "}
       </Container>
-      <Container classProp="description-wrapper home-wrapper-2 py-5">
+      <Container classProp="description-wrapper home-wrapper-2 py-1">
         <div className="row">
           <div className="bg-white p-3">
             <div className="col-12">
@@ -308,7 +397,7 @@ const ProductView = () => {
           </div>
         </div>
       </Container>
-      <Container classProp="reviews-wrapper py-5 home-wrapper-2">
+      <Container classProp="reviews-wrapper py-1 home-wrapper-2">
         <div className="row">
           <div className="col-12">
             <div className="review-inner-wrapper">
@@ -317,8 +406,16 @@ const ProductView = () => {
                 <div>
                   <h4 className="mb-2">Customer Reviews</h4>
                   <div className="d-flex gap-10 align-items-center">
-                    <Rating style={{ maxWidth: 90 }} value={3} />
-                    <p className="mb-0">Based on two reviews</p>
+                    <Rating
+                      style={{ maxWidth: 90 }}
+                      value={reviews.totalRatings}
+                    />
+                    <p className="mb-0">
+                      Based on{" "}
+                      {reviews.ratings && toWords(reviews.ratings.length)}{" "}
+                      review
+                      {reviews.ratings && reviews.ratings.length > 1 && "s"}
+                    </p>
                   </div>
                 </div>
                 {orderedProduct && (
@@ -332,34 +429,44 @@ const ProductView = () => {
               <div className="row">
                 <div className="col-3">
                   <div className="review-form py-4">
-                    <h6>Write a review</h6>
-                    <form className="d-flex flex-column gap-15">
+                    <form
+                      onSubmit={formik.handleSubmit}
+                      className="d-flex flex-column gap-15"
+                      style={{
+                        visibility: `${!orderedProduct ? "hidden" : "visible"}`,
+                      }}
+                    >
+                      <h6>Write a review</h6>
                       <div>
                         <input
                           className="form-control"
                           type="text"
+                          disabled
                           name="name"
                           placeholder="Full name"
+                          onChange={formik.handleChange("name")}
+                          value={formik.values.name}
+                          onBlur={formik.handleChange("name")}
                         />
                       </div>
                       <div>
                         <input
                           className="form-control"
                           type="email"
+                          disabled
                           name="email"
                           placeholder="Email address"
+                          onChange={formik.handleChange("email")}
+                          value={formik.values.email}
+                          onBlur={formik.handleChange("email")}
                         />
                       </div>
                       <div>
-                        <input
-                          className="form-control"
-                          type="text"
-                          name="title"
-                          placeholder="Review title"
+                        <Rating
+                          style={{ maxWidth: 120 }}
+                          value={rating}
+                          onChange={setrating}
                         />
-                      </div>
-                      <div>
-                        <Rating style={{ maxWidth: 90 }} value={3} />
                       </div>
                       <textarea
                         className="form-control"
@@ -367,6 +474,10 @@ const ProductView = () => {
                         id=""
                         cols="30"
                         rows="5"
+                        name="comment"
+                        onChange={formik.handleChange("comment")}
+                        value={formik.values.comment}
+                        onBlur={formik.handleChange("comment")}
                       ></textarea>
                       <div className="d-flex justify-content-end">
                         <button className="button border-0" type="submit">
@@ -378,17 +489,23 @@ const ProductView = () => {
                 </div>
                 <div className="col-9">
                   <div className="reviews py-4">
-                    <div className="review">
-                      <div className="d-flex gap-10 align-items-center">
-                        <h6 className="mb-0">Nana Yaw</h6>
-                        <Rating style={{ maxWidth: 90 }} value={3} />
-                      </div>
-                      <p className="mt-2">
-                        Lorem ipsum dolor sit, amet consectetur adipisicing
-                        elit. Quam quidem impedit ab inventore, numquam
-                        asperiores.
-                      </p>
-                    </div>
+                    {reviews.ratings &&
+                      reviews.ratings.length > 0 &&
+                      reviews.ratings.map((review, index) => (
+                        <div key={index} className="review">
+                          <div className="d-flex gap-10 align-items-center">
+                            <h6 className="mb-0">
+                              {review.postedBy.firstname}{" "}
+                              {review.postedBy.lastname}
+                            </h6>
+                            <Rating
+                              style={{ maxWidth: 90 }}
+                              value={review.star}
+                            />
+                          </div>
+                          <p className="mt-2">{review.comment}</p>
+                        </div>
+                      ))}
                   </div>
                 </div>
               </div>

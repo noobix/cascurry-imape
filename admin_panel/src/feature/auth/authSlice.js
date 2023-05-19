@@ -6,7 +6,10 @@ const userDefaultState = localStorage.getItem("user")
   : null;
 const initialState = {
   user: userDefaultState,
+  dataStreamMonthly: [],
+  dataStreamYearly: [],
   orders: [],
+  order: {},
   isError: false,
   isLoading: false,
   isSuccess: false,
@@ -76,6 +79,54 @@ export const logout = createAsyncThunk(
     }
   }
 );
+export const getMonthlyRevenue = createAsyncThunk(
+  "order/admin_month_revenue",
+  async (value, thunkAPI) => {
+    try {
+      return await authService.getMonthlyOrderRevenue(value);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+export const getYearlyCount = createAsyncThunk(
+  "order/admin_yearly_count",
+  async (value, thunkAPI) => {
+    try {
+      return await authService.getYearlyOrderCount(value);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+export const updateOrderStatus = createAsyncThunk(
+  "order/update_order_status",
+  async (value, thunkAPI) => {
+    try {
+      return await authService.ChangeOrderStatus(value);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 export const authSlice = createSlice({
   name: "auth",
   initialState: initialState,
@@ -102,7 +153,7 @@ export const authSlice = createSlice({
       .addCase(logout.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.user = {};
+        state.user = null;
       })
       .addCase(logout.rejected, (state, action) => {
         state.isLoading = false;
@@ -130,9 +181,51 @@ export const authSlice = createSlice({
       .addCase(getOrder.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.orders = action.payload;
+        state.order = action.payload;
       })
       .addCase(getOrder.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(getMonthlyRevenue.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getMonthlyRevenue.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.dataStreamMonthly = action.payload;
+      })
+      .addCase(getMonthlyRevenue.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(getYearlyCount.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getYearlyCount.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.dataStreamYearly = action.payload;
+      })
+      .addCase(getYearlyCount.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(updateOrderStatus.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateOrderStatus.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.order = action.payload;
+      })
+      .addCase(updateOrderStatus.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;

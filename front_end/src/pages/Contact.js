@@ -26,9 +26,9 @@ const Contact = () => {
   });
   const formik = useFormik({
     initialValues: {
-      name: user.firstname + " " + user.lastname || "",
-      email: user.email || "",
-      mobile: user.mobile || "",
+      name: user?.firstname + " " + user?.lastname || "",
+      email: user?.email || "",
+      mobile: user?.mobile || "",
       comment: "",
     },
     validationSchema: contactSchema,

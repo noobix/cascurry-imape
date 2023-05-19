@@ -82,12 +82,47 @@ const editBrand = asyncHandler(async (requestObject, responseObject) => {
   }
 });
 const enumBrand = asyncHandler(async (requestObject, responseObject) => {
-  const brands = await Brand.find().populate("category");
-  if (brands) responseObject.status(200).json(brands);
+  const page = requestObject.query.page;
+  const limit = requestObject.query.limit;
+  const skip = requestObject.query.skip;
+  const search = requestObject.query.search;
+  const searchObj = {};
+  if (search) {
+    const regex = new RegExp(`.*${search}.*`, "i");
+    searchObj.name = regex;
+  }
+  if (page) {
+    const count = await Brand.countDocuments();
+    if (skip >= count)
+      throw new Error("Page not found, This operation is invalid.");
+  }
+  const brands = Brand.find(searchObj);
+  const query = brands.skip(skip).limit(limit);
+  const brandList = await query.populate("category").exec();
+  if (brandList) responseObject.status(200).json(brandList);
   else
     responseObject
       .status(404)
       .json({ message: "Unable to carry out request. Please try again" });
+});
+const pagination = asyncHandler(async (requestObject, responseObject) => {
+  const ITEMS_PER_PAGE = 30;
+  const currentPage = requestObject.query.page || 1;
+  const totalItems = await Brand.countDocuments();
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  if (currentPage < 1 || currentPage > totalPages) {
+    return responseObject.status(404).json({ message: "Invalid page number." });
+  }
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems - 1);
+  responseObject.status(200).json({
+    currentPage: currentPage,
+    endIndex: endIndex,
+    totalPages: totalPages,
+    startIndex: startIndex,
+    itemCount: ITEMS_PER_PAGE,
+    pages: [...Array(totalPages + 1).keys()].slice(1),
+  });
 });
 const removeBrand = asyncHandler(async (requestObject, responseObject) => {
   const id = requestObject.params.id;
@@ -114,4 +149,5 @@ module.exports = {
   findBrand: findBrand,
   addbrand: addbrand,
   editBrand: editBrand,
+  pagination: pagination,
 };
