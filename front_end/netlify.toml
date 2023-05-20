@@ -1,7 +1,10 @@
 [[redirects]]
+  force = true
   from = "/api/*"
   to = "https://cascurry-imape.onrender.com/:splat"
   status = 200
+  [redirect.headers]
+    x-from = "Netlify"
 
 [[redirects]]
   from = "/*"
