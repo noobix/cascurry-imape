@@ -1,6 +1,6 @@
 [[redirects]]
   from = "/api/*"
-  to = "https://cascurry-imape.onrender.com/:splat"
+  to = "https://cascurry-imape.onrender.com"
   status = 200
 
 [[redirects]]
