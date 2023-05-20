@@ -52,5 +52,5 @@
     ]
   },
   "devDependencies": {},
-  "proxy": "https://cascurry-imape.onrender.com"
+  "proxy": "https://localhost:5000"
 }

@@ -89,7 +89,6 @@ const getImages = asyncHandler(async (requestObject, responseObject) => {
       .json({ message: "No images found, please try again" });
 });
 const findProduct = asyncHandler(async (requestObject, responseObject) => {
-  console.log(params);
   const { id } = requestObject.params;
   const item = await Product.findById(id)
     .populate("category")
