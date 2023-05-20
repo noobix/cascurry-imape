@@ -1,8 +1,8 @@
 [[redirects]]
   force = true
   from = "/api/*"
-  to = "https://cascurry-imape.onrender.com/:splat"
-  status = 301
+  to = "https://cascurry-imape.onrender.com/api/:splat"
+  status = 200
 
 [[redirects]]
   from = "/*"
