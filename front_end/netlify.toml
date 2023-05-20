@@ -1,10 +1,12 @@
 [[redirects]]
-  force = true
-  from = "/api/*"
-  to = "https://cascurry-imape.onrender.com/api/:splat"
-  status = 200
+    force = true
+    from = "/api/*"
+    to = "https://cascurry-imape.onrender.com/api/:splat"
+    status = 200
+    [redirect.headers]
+        x-from = "Netlify"
 
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+    from = "/*"
+    to = "/index.html"
+    status = 200
