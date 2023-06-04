@@ -26,7 +26,6 @@ const Login = () => {
     onSubmit: (values) => {
       dispatch(loginUser(values));
       !isError && formik.resetForm();
-      setTimeout(() => navigate("/"), 500);
     },
   });
   return (
