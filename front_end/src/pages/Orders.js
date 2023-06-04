@@ -14,7 +14,7 @@ const Orders = () => {
   return (
     <React.Fragment>
       <MetaData title="Orders" />
-      <BreadCrumb title="order-history" />
+      <BreadCrumb title="Order-history" />
       <Container classProp="cart-wrapper home-wrapper-2 py-5">
         <div className="row">
           <div className="col-12">

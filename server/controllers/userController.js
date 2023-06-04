@@ -35,59 +35,62 @@ const addNewUser = asyncHandler(async (requestObject, responseObject) => {
 });
 const loginUser = asyncHandler(async (requestObject, responseObject) => {
   const { email, password } = requestObject.body;
-  const user = await User.findOne({ email: email });
-  if (user && (await user.isPasswordAMatch(password))) {
-    const refreshToken = refreshTokenGenerator(user.id);
-    const saveToken = await User.findByIdAndUpdate(
-      user.id,
-      { refreshToken: refreshToken },
-      { new: true },
-      (err) => {
-        if (!err) {
-          responseObject.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            maxAge: 60 * 60 * 24 * 1000,
-          });
-        }
-      }
-    ).clone();
-    saveToken
-      ? responseObject.status(200).json(saveToken)
-      : responseObject.status(417).json({
+  User.findOne({ email: email }).then(async (user) => {
+    if (user && (await user.isPasswordAMatch(password))) {
+      const refreshToken = refreshTokenGenerator(user.id);
+      const saveToken = await User.findByIdAndUpdate(
+        user.id,
+        { refreshToken: refreshToken },
+        { new: true }
+      );
+      if (saveToken) {
+        responseObject.cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+          maxAge: 60 * 60 * 24 * 1000,
+        });
+        responseObject.status(200).json(saveToken);
+      } else {
+        responseObject.status(417).json({
           message: "Server error, Could not save token, please try again",
         });
-  } else {
-    throw new Error("Credentials not found, Please try again");
-  }
+      }
+    } else {
+      responseObject
+        .status(404)
+        .json({ message: "Credentials not found, please try again" });
+    }
+  });
 });
 const loginAdmin = asyncHandler(async (requestObject, responseObject) => {
   const { email, password } = requestObject.body;
-  const admin = await User.findOne({ email: email });
-  if (admin.privileges !== "admin")
-    throw new Error("This panel is for administrative users only");
-  if (admin && (await admin.isPasswordAMatch(password))) {
-    const refreshToken = refreshTokenGenerator(admin.id);
-    const saveToken = await User.findByIdAndUpdate(
-      admin.id,
-      { refreshToken: refreshToken },
-      { new: true },
-      (err) => {
-        if (!err) {
-          responseObject.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            maxAge: 60 * 60 * 24 * 1000,
-          });
-        }
+  User.findOne({ email: email }).then(async (admin) => {
+    if (admin.privileges !== "admin") {
+      throw new Error("This panel is for administrative users only");
+    }
+    if (admin && (await admin.isPasswordAMatch(password))) {
+      const refreshToken = refreshTokenGenerator(admin.id);
+      const updatedAdmin = await User.findByIdAndUpdate(
+        admin.id,
+        { refreshToken: refreshToken },
+        { new: true }
+      );
+      if (updatedAdmin) {
+        responseObject.cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+          maxAge: 60 * 60 * 24 * 1000,
+        });
+        responseObject.status(200).json(updatedAdmin);
+      } else {
+        responseObject.status(417).json({
+          message: "Server error, Could not save token, please try again",
+        });
       }
-    ).clone();
-    if (saveToken) responseObject.status(200).json(saveToken);
-    else
-      responseObject.status(417).json({
-        message: "Server error, Could not save token, please try again",
-      });
-  } else {
-    throw new Error("Credentials not found, Please try again");
-  }
+    } else {
+      responseObject
+        .status(404)
+        .json({ message: "Credentials not found, please try again" });
+    }
+  });
 });
 const enumUsers = asyncHandler(async (requestObject, responseObject) => {
   const users = await User.find();
@@ -632,8 +635,10 @@ const updateOrderStatus = asyncHandler(
   }
 );
 const getSavedAddress = asyncHandler(async (requestObject, responseObject) => {
-  const { address, email } = requestObject.user;
-  responseObject.json({ address, email });
+  const { _id } = requestObject.user;
+  const { address, email } = await User.findById(_id);
+  if (address && email) responseObject.status(200).json({ address, email });
+  else responseObject.status(404).json({ message: "User not found" });
 });
 const monthRevenueRecords = asyncHandler(
   async (requestObject, responseObject) => {
@@ -707,6 +712,67 @@ const yearRevenueRecords = asyncHandler(
     responseObject.json(data);
   }
 );
+const compareProduct = asyncHandler(async (requestObject, responseObject) => {
+  const { id } = requestObject.params;
+  const idUser = requestObject.user._id;
+  const user = await User.findById(idUser);
+  const item = await Product.findById(id).populate("brand");
+  if (item) {
+    const product = {
+      id: item._id,
+      image: item.images[0].image,
+      title: item.title,
+      price: item.price,
+      brand: item.brand.name,
+      isInstock: item.quantity > 0 ? "In-Stock" : "Sold-out",
+      color: item.color,
+    };
+    const saveCompare = await User.findByIdAndUpdate(
+      idUser,
+      { $push: { compareList: product } },
+      { new: true }
+    );
+    if (saveCompare) {
+      responseObject.status(200).json(user);
+    } else
+      responseObject
+        .status(417)
+        .json({ message: "Unable to save compare product, please try again" });
+  } else {
+    responseObject.status(404).json({ message: "Product not found" });
+  }
+});
+const removeCompare = asyncHandler(async (requestObject, responseObject) => {
+  const { id } = requestObject.params;
+  const idUser = requestObject.user._id;
+  const user = await User.findById(idUser);
+  const item = await Product.findById(id);
+  if (item) {
+    const removeCompare = await User.findByIdAndUpdate(
+      idUser,
+      { $pull: { compareList: { title: item.title } } },
+      { new: true }
+    );
+    if (removeCompare) responseObject.status(200).json(user);
+    else
+      responseObject
+        .status(417)
+        .json({ message: "Unable to remove compare item, please try again" });
+  } else {
+    responseObject.status(404).json({ message: "Product not found" });
+  }
+});
+const getCompareProducts = asyncHandler(
+  async (requestObject, responseObject) => {
+    const user = requestObject.user._id;
+    const getCompareList = await User.findById(user);
+    if (getCompareList) responseObject.status(200).json(getCompareList);
+    else
+      responseObject
+        .status(404)
+        .json({ message: "Unable to get compare products" });
+  }
+);
 
 module.exports = {
   addNewUser: addNewUser,
@@ -742,4 +808,7 @@ module.exports = {
   getSavedAddress: getSavedAddress,
   monthRevenueRecords: monthRevenueRecords,
   yearRevenueRecords: yearRevenueRecords,
+  compareProduct: compareProduct,
+  removeCompare: removeCompare,
+  getCompareProducts: getCompareProducts,
 };

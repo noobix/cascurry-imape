@@ -52,7 +52,7 @@ const Cart = () => {
   return (
     <React.Fragment>
       <MetaData title="Cart" />
-      <BreadCrumb title="cart" />
+      <BreadCrumb title="Cart" />
       <Container classProp="cart-wrapper home-wrapper-2 py-5">
         <div className="row">
           <div className="col-12">

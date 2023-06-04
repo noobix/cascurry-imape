@@ -57,7 +57,7 @@ const ForgotPassword = () => {
                 )}
                 <div className="d-flex align-items-center flex-column justify-content-center gap-15">
                   <button className="button border-0" type="submit">
-                    Login
+                    Send Mail
                   </button>
                   <Link to="/login">Cancel</Link>
                 </div>

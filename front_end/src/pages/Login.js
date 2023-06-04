@@ -32,7 +32,7 @@ const Login = () => {
   return (
     <React.Fragment>
       <MetaData title="Login" />
-      <BreadCrumb title="login" />
+      <BreadCrumb title="Login" />
       <Container classProp="login-wrapper home-wrapper-2">
         <div className="row">
           <div className="col-12">
@@ -45,7 +45,7 @@ const Login = () => {
                 <CustomInput
                   type="email"
                   name="email"
-                  placeholder="email"
+                  placeholder="Email"
                   onChange={formik.handleChange("email")}
                   value={formik.values.email}
                   onBlur={formik.handleChange("email")}
@@ -58,7 +58,7 @@ const Login = () => {
                 <CustomInput
                   type="password"
                   name="password"
-                  placeholder="password"
+                  placeholder="Password"
                   onChange={formik.handleChange("password")}
                   value={formik.values.password}
                   onBlur={formik.handleChange("password")}

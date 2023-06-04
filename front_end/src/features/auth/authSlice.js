@@ -19,6 +19,9 @@ import {
   misrememberedPassword,
   resetPassword,
   productWishlist,
+  fetchCompareList,
+  removeCompareItem,
+  addCompareItem,
 } from "./authService";
 import { toast } from "react-toastify";
 
@@ -329,6 +332,54 @@ export const changePassword = createAsyncThunk(
     }
   }
 );
+export const getCompareProducts = createAsyncThunk(
+  "auth/get_compare_list",
+  async (value, thunkAPI) => {
+    try {
+      return await fetchCompareList(value);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+export const deleteCompareItem = createAsyncThunk(
+  "auth/delete_compare_item",
+  async (value, thunkAPI) => {
+    try {
+      return await removeCompareItem(value);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+export const compareItem = createAsyncThunk(
+  "auth/add_compare_item",
+  async (value, thunkAPI) => {
+    try {
+      return await addCompareItem(value);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 export const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -338,6 +389,7 @@ export const authSlice = createSlice({
     cart: {},
     order: {},
     orders: [],
+    compareProducts: [],
     savedAddresses: null,
     isError: false,
     isSuccess: false,
@@ -362,7 +414,9 @@ export const authSlice = createSlice({
         state.isSuccess = false;
         state.isLoading = false;
         state.message = action.error;
-        toast.error("Unable to register user, please try again");
+        toast.error(
+          state.message || "Unable to register user, please try again"
+        );
       })
       .addCase(loginUser.pending, (state) => {
         state.isError = true;
@@ -379,7 +433,7 @@ export const authSlice = createSlice({
         state.isSuccess = false;
         state.isLoading = false;
         state.message = action.error;
-        toast.error("Unable to login user, please try again");
+        toast.error(state.message || "Unable to login user, please try again");
       })
       .addCase(logoutUser.pending, (state) => {
         state.isError = true;
@@ -428,7 +482,7 @@ export const authSlice = createSlice({
         state.isSuccess = false;
         state.isLoading = false;
         state.message = action.error;
-        toast.error("Unable to add to cart, please try again");
+        toast.error(state.message || "Unable to add to cart, please try again");
       })
       .addCase(getCart.pending, (state) => {
         state.isError = true;
@@ -460,7 +514,9 @@ export const authSlice = createSlice({
         state.isSuccess = false;
         state.isLoading = false;
         state.message = action.error;
-        toast.error("Unable to add to wishlist, please try again");
+        toast.error(
+          state.message || "Unable to add to wishlist, please try again"
+        );
       })
       .addCase(decreaseCartItemQuan.pending, (state) => {
         state.isError = true;
@@ -631,6 +687,55 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.message = action.error;
         toast.error("Unable to save new password");
+      })
+      .addCase(getCompareProducts.pending, (state) => {
+        state.isError = true;
+      })
+      .addCase(getCompareProducts.fulfilled, (state, action) => {
+        state.isError = false;
+        state.isSuccess = true;
+        state.isLoading = false;
+        state.compareProducts = action.payload;
+      })
+      .addCase(getCompareProducts.rejected, (state, action) => {
+        state.isError = true;
+        state.isSuccess = false;
+        state.isLoading = false;
+        state.message = action.error;
+      })
+      .addCase(deleteCompareItem.pending, (state) => {
+        state.isError = true;
+      })
+      .addCase(deleteCompareItem.fulfilled, (state, action) => {
+        state.isError = false;
+        state.isSuccess = true;
+        state.isLoading = false;
+        state.compareProducts = action.payload;
+        toast.success("Item removed from compare products");
+      })
+      .addCase(deleteCompareItem.rejected, (state, action) => {
+        state.isError = true;
+        state.isSuccess = false;
+        state.isLoading = false;
+        state.message = action.error;
+        toast.error("Unable to remove compare item, please try again");
+      })
+      .addCase(compareItem.pending, (state) => {
+        state.isError = true;
+      })
+      .addCase(compareItem.fulfilled, (state, action) => {
+        state.isError = false;
+        state.isSuccess = true;
+        state.isLoading = false;
+        state.compareProducts = action.payload;
+        toast.success("Item added from compare products");
+      })
+      .addCase(compareItem.rejected, (state, action) => {
+        state.isError = true;
+        state.isSuccess = false;
+        state.isLoading = false;
+        state.message = action.error;
+        toast.error("Unable to add compare item, please try again");
       });
   },
 });

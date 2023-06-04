@@ -72,7 +72,7 @@ const Checkout = () => {
                   </li>
                   &nbsp;/
                   <li className="breadcrumb-item active" aria-current="page">
-                    information
+                    Information
                   </li>
                   &nbsp;/
                   <li className="breadcrumb-item">

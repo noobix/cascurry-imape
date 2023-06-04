@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import React from "react";
 import { useFormik } from "formik";
 import { string, object } from "yup";
-import toString, { toWords } from "number-to-words";
+import { toWords } from "number-to-words";
 import BreadCrumb from "../components/BreadCrumb";
 import MetaData from "../components/MetaData";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -94,7 +94,7 @@ const ProductView = () => {
   return (
     <React.Fragment>
       <MetaData title="Product Page" />
-      <BreadCrumb title="product-view" />
+      <BreadCrumb title="Product-view" />
       <Container classProp="main-product-wrapper home-wrapper-2 py-5">
         <div className="row">
           <div className="col-6">
@@ -199,7 +199,7 @@ const ProductView = () => {
                       min={1}
                       max={11}
                       disabled={isCart}
-                      className="form-control w-50"
+                      className="form-control w-100"
                     />
                   </div>
                   <div className="d-flex flex-row align-items-center gap-10">
@@ -227,7 +227,20 @@ const ProductView = () => {
                     {!isCart && (
                       <button
                         className="button-sm border-0 form-control"
-                        type="button"
+                        role="a"
+                        onClick={() => {
+                          dispatch(
+                            addProductToCart({
+                              token: user.refreshToken,
+                              data: {
+                                _id: product?._id,
+                                quantity: quantity,
+                                color: product?.color?.name,
+                              },
+                            })
+                          );
+                          navigate("/cart");
+                        }}
                       >
                         But it Now
                       </button>

@@ -8,7 +8,6 @@ import MetaData from "../components/MetaData";
 import ProductCard from "../components/ProductCard";
 import {
   fetchItemsCartegory,
-  getProducts,
   getproductsPaginated,
   productPagination,
   searchProductByColor,
@@ -26,6 +25,8 @@ const OurStore = () => {
   const [productcolors, setproductcolors] = React.useState([]);
   const [productTags, setproductTags] = React.useState([]);
   const [randomProduct, setrandomProduct] = React.useState([]);
+  const [sortProductBy, setsortProductBy] = React.useState([]);
+  const [currentSort, setcurrentSort] = React.useState("not-sorted");
   const dispatch = useDispatch();
   const { product = [], pagination } = useSelector((state) => state.item) ?? {};
   const { user } = useSelector((state) => state.auth);
@@ -99,10 +100,67 @@ const OurStore = () => {
       })
     );
   }, [pagination]);
+  const handleSelect = (e) => {
+    switch (e.target.value) {
+      case "not-sorted":
+        setsortProductBy([]);
+        setcurrentSort("not-sorted");
+        break;
+      case "best-selling":
+        const bestSales = product.slice().sort((a, b) => b.sold - a.sold);
+        setsortProductBy(bestSales);
+        setcurrentSort("best-selling");
+        break;
+      case "title-ascending":
+        const titleAsc = product
+          .slice()
+          .sort((a, b) => a.title.localeCompare(b.title));
+        setcurrentSort("title-ascending");
+        setsortProductBy(titleAsc);
+        break;
+      case "title-desending":
+        const titleDesc = product
+          .slice()
+          .sort((a, b) => b.title.localeCompare(a.title));
+        setcurrentSort("title-desending");
+        setsortProductBy(titleDesc);
+        break;
+      case "price-ascending":
+        const priceAsc = product
+          .slice()
+          .sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        setsortProductBy(priceAsc);
+        setcurrentSort("price-ascending");
+        break;
+      case "price-descending":
+        const priceDesc = product
+          .slice()
+          .sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+        setsortProductBy(priceDesc);
+        setcurrentSort("price-descending");
+        break;
+      case "created ascending":
+        const productNewOld = product
+          .slice()
+          .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        setsortProductBy(productNewOld);
+        setcurrentSort("created ascending");
+        break;
+      case "created descending":
+        const productOldNew = product
+          .slice()
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setsortProductBy(productOldNew);
+        setcurrentSort("created descending");
+        break;
+      default:
+        console.log("Unknown choice");
+    }
+  };
   return (
     <React.Fragment>
       <MetaData title="Our Store" />
-      <BreadCrumb title="our-store" />
+      <BreadCrumb title="Our-store" />
       <Container classProp="store-wrapper home-wrapper-2 py-5">
         <div className="row">
           <div className="col-3">
@@ -113,8 +171,11 @@ const OurStore = () => {
                   <li
                     onClick={() =>
                       dispatch(
-                        getProducts({
-                          token: user.refreshToken,
+                        getproductsPaginated({
+                          token: user?.refreshToken,
+                          page: 1,
+                          limit: pagination.itemCount,
+                          skip: pagination.startIndex,
                         })
                       )
                     }
@@ -308,10 +369,13 @@ const OurStore = () => {
                   <p className="mb-0 text-nowrap">Sort By</p>
                   <select
                     className="form-control form-select w-100"
-                    name=""
-                    id=""
+                    name="sort"
+                    value={currentSort}
+                    onClick={handleSelect}
                   >
-                    <option value="manual">Featured</option>
+                    <option defaultValue value="not-sorted">
+                      Not Sorted
+                    </option>
                     <option value="best-selling" default>
                       Best Selling
                     </option>
@@ -319,7 +383,7 @@ const OurStore = () => {
                     <option value="title-desending">Alphabetically Z-A</option>
                     <option value="price-ascending">Price from Low-High</option>
                     <option value="price-descending">
-                      Price from Low-High
+                      Price from High-Low
                     </option>
                     <option value="created ascending">Date from Old-New</option>
                     <option value="created descending">
@@ -367,7 +431,13 @@ const OurStore = () => {
               <div className="d-flex flex-wrap gap-10">
                 <ProductCard
                   grid={grid}
-                  data={filteredbyPrice.length ? filteredbyPrice : product}
+                  data={
+                    filteredbyPrice.length
+                      ? filteredbyPrice
+                      : sortProductBy.length
+                      ? sortProductBy
+                      : product
+                  }
                 />
               </div>
             </div>
@@ -384,6 +454,8 @@ const OurStore = () => {
                 role="button"
                 className="page-link"
                 onClick={() => {
+                  setsortProductBy([]);
+                  setcurrentSort("not-sorted");
                   dispatch(
                     productPagination({
                       token: user?.refreshToken,
@@ -410,6 +482,8 @@ const OurStore = () => {
                     role="button"
                     className="page-link"
                     onClick={() => {
+                      setsortProductBy([]);
+                      setcurrentSort("not-sorted");
                       dispatch(
                         productPagination({
                           token: user?.refreshToken,
@@ -428,6 +502,8 @@ const OurStore = () => {
                 role="button"
                 className="page-link"
                 onClick={() => {
+                  setsortProductBy([]);
+                  setcurrentSort("not-sorted");
                   dispatch(
                     productPagination({
                       token: user?.refreshToken,

@@ -31,11 +31,11 @@ const PaymentRecieved = () => {
         <nav style={{ "--bs-breadcrumb-divider": ">" }} aria-label="breadcrumb">
           <ol className="breadcrumb">
             <li className="breadcrumb-item">
-              <Link to="/cart">cart</Link>
+              <Link to="/cart">Cart</Link>
             </li>
             &nbsp;/
             <li className="breadcrumb-item">
-              <Link to="/shipping">shipping</Link>
+              <Link to="/shipping">Shipping</Link>
             </li>
             &nbsp;/
             <li className="breadcrumb-item active" aria-current="page">
@@ -172,14 +172,17 @@ const PaymentRecieved = () => {
             <div className="d-flex gap-3 mb-1">
               <div>Amount:</div>
               <div>
-                {order && (order?.paymentIntent?.amount).toFixed(2)}&nbsp;
+                {order.paymentIntent &&
+                  (order?.paymentIntent?.amount).toFixed(2)}
+                &nbsp;
                 <u>Shipping excluded</u>
               </div>
             </div>
             <div className="d-flex gap-3 mb-1">
               <div>Amount Paid:</div>
               <div>
-                {order && (order?.paymentIntent?.amountPaid / 100).toFixed(2)}
+                {order.paymentIntent &&
+                  (order?.paymentIntent?.amountPaid / 100).toFixed(2)}
               </div>
             </div>
             <div className="d-flex gap-3 mb-1">

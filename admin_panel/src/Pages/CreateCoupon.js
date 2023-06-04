@@ -18,11 +18,7 @@ const CreateCoupon = () => {
   const navigate = useNavigate();
   const extractId = location.pathname.split("/")[3];
   const { user } = useSelector((state) => state.auth);
-  const { isError, isSuccess, coupons } = useSelector((state) => state.coupon);
-  React.useEffect(() => {
-    if (isSuccess) toast.success("Coupon sucessfully added");
-    if (isError) toast.error("Unable to create coupon, please try again");
-  }, [isError, isSuccess]);
+  const { isError, coupons } = useSelector((state) => state.coupon);
   React.useEffect(() => {
     if (extractId) {
       dispatch(findCoupon({ token: user.refreshToken, id: extractId }));

@@ -130,7 +130,7 @@ const enumProducts = asyncHandler(async (requestObject, responseObject) => {
     query = query.select(fields.join(" "));
   } else {
     query = query.select(
-      "title slug brand price category images tags quantity totalRatings"
+      "title slug brand price category images tags quantity sold totalRatings createdAt"
     );
   }
   if (requestObject.query.sortBy) {

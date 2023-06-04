@@ -25,7 +25,7 @@ import {
 import { Link, Outlet } from "react-router-dom";
 import { Breadcrumb, Layout, Menu, theme } from "antd";
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import jwt_decode from "jwt-decode";
 import { ToastContainer } from "react-toastify";
@@ -70,6 +70,9 @@ const MainLayout = () => {
   const [collapsed, setCollapsed] = React.useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [pageName, setpageName] = React.useState("");
+  const sidePath = location.pathname.split("/");
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -82,6 +85,7 @@ const MainLayout = () => {
     setTimeout(() => navigate("/"), 500);
   }
   function verify() {
+    if (user === null) return;
     if (user) {
       const { refreshToken } = user;
       const { exp } = jwt_decode(refreshToken, { header: true });
@@ -98,6 +102,16 @@ const MainLayout = () => {
       navigate("/");
     }
   }, []);
+  React.useEffect(() => {
+    setpageName(getPageTitle());
+  }, [location]);
+  const getPageTitle = () => {
+    const { pathname } = location;
+    const pageName = pathname.substring(1).split("/")[1] || "Admin";
+    const capitalizedPageName =
+      pageName.charAt(0).toUpperCase() + pageName.slice(1);
+    return capitalizedPageName;
+  };
   return (
     <Layout
       style={{
@@ -139,7 +153,7 @@ const MainLayout = () => {
           className="d-flex justify-content-between pe-3"
         >
           <div className="header m-3">
-            <h4>[]</h4>
+            <h4>{pageName}</h4>
           </div>
           <div
             className="d-flex gap-3 align-items-center"
@@ -164,8 +178,8 @@ const MainLayout = () => {
               id="dropDownMenuLink"
               aria-expanded="false"
             >
-              <h5 className="mb-0">Kelvin</h5>
-              <p className="mb-0">eclestiasis@calviono.in</p>
+              <h5 className="mb-0">{user?.firstname}</h5>
+              <p className="mb-0">{user?.email}</p>
             </div>
             <div className="dropdown-menu">
               <li>
@@ -208,8 +222,9 @@ const MainLayout = () => {
               margin: "16px 0",
             }}
           >
-            <Breadcrumb.Item>User</Breadcrumb.Item>
-            <Breadcrumb.Item>Bill</Breadcrumb.Item>
+            {sidePath.map((path, index) => (
+              <Breadcrumb.Item key={index}>{path}</Breadcrumb.Item>
+            ))}
           </Breadcrumb>
           <ToastContainer
             position="top-right"

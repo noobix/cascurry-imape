@@ -24,11 +24,13 @@ import Wishlist from "./pages/Wishlist";
 import PaymentRecieved from "./pages/PaymentRecieved";
 import Orders from "./pages/Orders";
 import Profile from "./pages/Profile";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   return (
     <React.Fragment>
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />

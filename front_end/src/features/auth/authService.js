@@ -211,3 +211,39 @@ export const resetPassword = async ({ data, token }) => {
   );
   return response.data;
 };
+export const fetchCompareList = async (token) => {
+  const response = await axios.get(`/api/users/person/compare_products/list`, {
+    headers: {
+      "Content-Type": "application/json",
+      //Authorization: `Bearer ${token}`,
+    },
+    withCredentials: true,
+  });
+  return response.data.compareList;
+};
+export const removeCompareItem = async ({ token, id }) => {
+  const response = await axios.delete(
+    `/api/users/person/compare_products/remove/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        //Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    }
+  );
+  return response.data.compareList;
+};
+export const addCompareItem = async ({ token, id }) => {
+  const response = await axios.post(
+    `/api/users/person/compare_products/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        //Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    }
+  );
+  return response.data.compareList;
+};

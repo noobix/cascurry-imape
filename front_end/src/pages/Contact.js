@@ -44,7 +44,7 @@ const Contact = () => {
   return (
     <React.Fragment>
       <MetaData title="Contact" />
-      <BreadCrumb title="contact" />
+      <BreadCrumb title="Contact" />
       <Container classProp="contact-wrapper home-wrapper-2 py5">
         <div className="row">
           <div className="col-12">

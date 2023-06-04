@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { BsSearch } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
 import { getCart } from "../features/auth/authSlice";
@@ -14,13 +14,16 @@ import {
 const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [query, setquery] = React.useState("");
   const { cart, user } = useSelector((state) => state.auth) ?? {};
   const { categories } = useSelector((state) => state.item) ?? {};
   React.useEffect(() => {
-    dispatch(getCart(user?.refreshToken));
-    dispatch(getCartegories(user?.refreshToken));
-  }, [dispatch]);
+    if (user?.refreshToken) {
+      dispatch(getCart(user?.refreshToken));
+      dispatch(getCartegories(user?.refreshToken));
+    }
+  }, [dispatch, user]);
   React.useEffect(() => {
     if (query.length > 0) {
       navigate("/store");
@@ -41,16 +44,13 @@ const Header = () => {
       dispatch(productPagination({ token: user?.refreshToken, page: 1 }));
     }
   }
-
   return (
     <React.Fragment>
       <header className="header-top-strip py-3">
         <div className="container-xxl">
           <div className="row">
             <div className="col-6">
-              <p className="text-white mb-0">
-                Free Shipping Over $100 & Free Returns
-              </p>
+              <p className="text-white mb-0">Free Delivery Over GHC1000</p>
             </div>
             <div className="col-6">
               <p className="text-end text-white mb-0">
@@ -173,6 +173,7 @@ const Header = () => {
                       type="button"
                       data-bs-toggle="dropdown"
                       aria-expanded="false"
+                      disabled={location.pathname !== "/store" ? true : false}
                     >
                       <img
                         className="icon"

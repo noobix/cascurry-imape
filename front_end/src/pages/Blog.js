@@ -16,7 +16,7 @@ const Blog = () => {
   return (
     <React.Fragment>
       <MetaData title="Blogs" />
-      <BreadCrumb title="blog" />
+      <BreadCrumb title="Blog" />
       <Container classProp="blog-wrapper home-wrapper-2 py-5">
         <div className="row">
           <div className="col-3">

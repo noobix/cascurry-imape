@@ -33,6 +33,9 @@ const {
   getOrderCheckout,
   monthRevenueRecords,
   yearRevenueRecords,
+  compareProduct,
+  removeCompare,
+  getCompareProducts,
 } = require("../controllers/userController");
 const { approveAuth, getPrivileges } = require("../middlewares/authMiddleware");
 
@@ -84,7 +87,13 @@ router.put(
   getPrivileges,
   activateAccount
 );
-
+router.get("/person/compare_products/list", approveAuth, getCompareProducts);
+router.post("/person/compare_products/:id", approveAuth, compareProduct);
+router.delete(
+  "/person/compare_products/remove/:id",
+  approveAuth,
+  removeCompare
+);
 router.get("/person/:id", approveAuth, getPrivileges, findUser);
 router.get(
   "/person/get_user_order/:id",

@@ -3,7 +3,7 @@ import { Rating } from "@smastrom/react-rating";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-import { addWishlist } from "../features/auth/authSlice";
+import { addWishlist, compareItem } from "../features/auth/authSlice";
 import { addProductToCart } from "../features/auth/authSlice";
 
 const ProductCard = ({ grid, data = [] }) => {
@@ -74,7 +74,18 @@ const ProductCard = ({ grid, data = [] }) => {
                     />
                   </button>
                   <button className="border-0 bg-transparent">
-                    <img src="assets/images/prodcompare.svg" alt="..." />
+                    <img
+                      src="assets/images/prodcompare.svg"
+                      alt="..."
+                      onClick={() =>
+                        dispatch(
+                          compareItem({
+                            token: user.refreshToken,
+                            id: item._id,
+                          })
+                        )
+                      }
+                    />
                   </button>
                   <button className="border-0 bg-transparent">
                     <img
