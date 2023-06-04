@@ -241,7 +241,7 @@ const forgotPasswordToken = asyncHandler(
     await user.save();
     const resetUrl = `You are required to follow this link to reset your
     password, this link will be inactive in 10minutes only.
-    <a href="http://localhost:3000/reset-password/${resetToken}">Click here</a>`;
+    <a href="https://open-market-sv2.netlify.app/reset-password/${resetToken}">Click here</a>`;
     const data = {
       to: email,
       subject: "Password reset link",
