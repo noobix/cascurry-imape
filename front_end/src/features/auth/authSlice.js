@@ -415,7 +415,7 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.message = action.error;
         toast.error(
-          state.message || "Unable to register user, please try again"
+          action.payload || "Unable to register user, please try again"
         );
       })
       .addCase(loginUser.pending, (state) => {
@@ -433,7 +433,7 @@ export const authSlice = createSlice({
         state.isSuccess = false;
         state.isLoading = false;
         state.message = action.error;
-        toast.error(state.message || "Unable to login user, please try again");
+        toast.error(action.payload || "Unable to login user, please try again");
       })
       .addCase(logoutUser.pending, (state) => {
         state.isError = true;
