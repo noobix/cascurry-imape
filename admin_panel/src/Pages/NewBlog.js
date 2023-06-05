@@ -5,7 +5,6 @@ import Dropzone from "react-dropzone";
 import { useFormik } from "formik";
 import { array, object, string } from "yup";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
 import CustomInput from "../Components/CustomInput";
 import {
   clearUploadData,
@@ -24,7 +23,7 @@ const NewBlog = () => {
   const { user } = useSelector((state) => state.auth);
   const { images } = useSelector((state) => state.upload);
   const { blogs } = useSelector((state) => state.blog);
-  const { isError, isSuccess } = useSelector((state) => state.blog);
+  const { isError } = useSelector((state) => state.blog);
   const { cartegories } = useSelector((state) => state.cartegory);
   React.useEffect(() => {
     dispatch(getCartegory(user?.refreshToken));
@@ -41,10 +40,6 @@ const NewBlog = () => {
   React.useEffect(() => {
     formik.values.images = images.length ? images : undefined;
   }, [images]);
-  React.useEffect(() => {
-    if (isSuccess) toast.success("Blog sucessfully added");
-    if (isError) toast.error("Unable to create blog, please try again");
-  }, [isError, isSuccess]);
   let blogSchema = object({
     title: string().required(),
     description: string().required(),

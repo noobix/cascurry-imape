@@ -6,6 +6,7 @@ import {
   removeBlog,
   updateBlog,
 } from "./blogService";
+import { toast } from "react-toastify";
 
 export const getBlogs = createAsyncThunk(
   "blog/product_blogs",
@@ -138,12 +139,16 @@ export const blogSlice = createSlice({
         state.isSuccess = true;
         state.isError = false;
         state.blogs = action.payload;
+        toast.success("Blog successfully removed");
       })
       .addCase(deleteBlog.rejected, (state, action) => {
         state.isLoading = false;
         state.isSuccess = false;
         state.isError = true;
         state.message = action.error;
+        toast.error(
+          action.payload || "Unable to remove blog, Please try again"
+        );
       })
       .addCase(reviseBlog.pending, (state) => {
         state.isLoading = true;
@@ -153,12 +158,16 @@ export const blogSlice = createSlice({
         state.isSuccess = true;
         state.isError = false;
         state.blogs = action.payload;
+        toast.success("Blog updated succesfully");
       })
       .addCase(reviseBlog.rejected, (state, action) => {
         state.isLoading = false;
         state.isSuccess = false;
         state.isError = true;
         state.message = action.error;
+        toast.error(
+          action.payload || "Unable to save blog update, please try again"
+        );
       })
       .addCase(createBlog.pending, (state) => {
         state.isLoading = true;
@@ -168,12 +177,16 @@ export const blogSlice = createSlice({
         state.isSuccess = true;
         state.isError = false;
         state.blogs = action.payload;
+        toast.success("New blog created successfully");
       })
       .addCase(createBlog.rejected, (state, action) => {
         state.isLoading = false;
         state.isSuccess = false;
         state.isError = true;
         state.message = action.error;
+        toast.error(
+          action.payload || "Unable to save new blog, please try again"
+        );
       })
       .addCase(clearState, (state) => {
         state.brands = [];
