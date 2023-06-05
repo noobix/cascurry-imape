@@ -22,6 +22,7 @@ import {
   fetchCompareList,
   removeCompareItem,
   addCompareItem,
+  fetchCities,
 } from "./authService";
 import { toast } from "react-toastify";
 
@@ -380,11 +381,28 @@ export const compareItem = createAsyncThunk(
     }
   }
 );
+export const getCitiesList = createAsyncThunk(
+  "auth/get_cities_list",
+  async (value, thunkAPI) => {
+    try {
+      return await fetchCities(value);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 export const authSlice = createSlice({
   name: "auth",
   initialState: {
     user: userDefaultState,
     countryList: null,
+    cityList: null,
     wishlist: [],
     cart: {},
     order: {},
@@ -736,6 +754,21 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.message = action.error;
         toast.error("Unable to add compare item, please try again");
+      })
+      .addCase(getCitiesList.pending, (state) => {
+        state.isError = true;
+      })
+      .addCase(getCitiesList.fulfilled, (state, action) => {
+        state.isError = false;
+        state.isSuccess = true;
+        state.isLoading = false;
+        state.cityList = action.payload;
+      })
+      .addCase(getCitiesList.rejected, (state, action) => {
+        state.isError = true;
+        state.isSuccess = false;
+        state.isLoading = false;
+        state.message = action.error;
       });
   },
 });

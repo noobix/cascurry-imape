@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authService from "./authService";
+import { toast } from "react-toastify";
 
 const userDefaultState = localStorage.getItem("user")
   ? JSON.parse(localStorage.getItem("user"))
@@ -140,12 +141,14 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.user = action.payload;
+        toast.success("Login successful");
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
         state.message = action.error;
+        toast.error(action.payload || "Unable to login account");
       })
       .addCase(logout.pending, (state) => {
         state.isLoading = true;
@@ -154,12 +157,14 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.user = null;
+        toast.success("Logout successful");
       })
       .addCase(logout.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
         state.message = action.error;
+        toast.error(action.payload || "Unable to logout account");
       })
       .addCase(getOrders.pending, (state) => {
         state.isLoading = true;

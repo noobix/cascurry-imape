@@ -64,8 +64,10 @@ const loginUser = asyncHandler(async (requestObject, responseObject) => {
 const loginAdmin = asyncHandler(async (requestObject, responseObject) => {
   const { email, password } = requestObject.body;
   User.findOne({ email: email }).then(async (admin) => {
-    if (admin.privileges !== "admin") {
-      throw new Error("This panel is for administrative users only");
+    if (admin?.privileges !== "admin") {
+      responseObject.status(401).json({
+        message: "You should not be here, please check with administrator",
+      });
     }
     if (admin && (await admin.isPasswordAMatch(password))) {
       const refreshToken = refreshTokenGenerator(admin.id);

@@ -141,6 +141,17 @@ export const fetchCountries = async () => {
   const response = await axios(config);
   return response.data;
 };
+export const fetchCities = async (iso2) => {
+  const config = {
+    method: "get",
+    url: "https://api.countrystatecity.in/v1/countries/" + iso2 + "/cities",
+    headers: {
+      "X-CSCAPI-KEY": process.env.REACT_APP_COUNTRIESAPI_KEY,
+    },
+  };
+  const response = await axios(config);
+  return response.data;
+};
 export const fetchCheckout = async ({ token, id }) => {
   const response = await axios.get(
     `/api/users/person/get_user_order/cheackedout/${id}`,

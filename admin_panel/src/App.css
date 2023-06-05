@@ -125,6 +125,12 @@ body {
   padding: 2.5px !important;
 }
 
+.cursor-pointer {
+  cursor: pointer;
+  color: #212529;
+  font-weight: 600;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;

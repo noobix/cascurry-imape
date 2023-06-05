@@ -7,6 +7,7 @@ import { string, object } from "yup";
 import Container from "../components/Container";
 import {
   getCart,
+  getCitiesList,
   getCountryList,
   getUserInfo,
 } from "../features/auth/authSlice";
@@ -15,7 +16,7 @@ import PaymentMethod from "../components/PaymentMethod";
 const Checkout = () => {
   const dispatch = useDispatch();
   const [address, setaddress] = React.useState("");
-  const { user, savedAddresses, cart, isError, countryList } =
+  const { user, savedAddresses, cart, isError, countryList, cityList } =
     useSelector((state) => state.auth) ?? {};
   const { session } = useSelector((state) => state.payment);
   React.useEffect(() => {
@@ -26,6 +27,13 @@ const Checkout = () => {
   React.useEffect(() => {
     if (session.url && session.url.length) window.location.href = session.url;
   }, [session]);
+  const handleSelect = (e) => {
+    const selected = countryList.find(
+      (country) => country.name === e.target.value
+    );
+    dispatch(getCitiesList(selected.iso2));
+    formik.setFieldValue("country", e.target.value);
+  };
   let orderSchema = object({
     firstname: string().required(),
     lastname: string().required(),
@@ -133,7 +141,7 @@ const Checkout = () => {
                     id="floatingSelect2"
                     aria-label="Floating label select example"
                     name="country"
-                    onChange={formik.handleChange("country")}
+                    onChange={handleSelect}
                     value={formik.values.country}
                     onBlur={formik.handleChange("country")}
                   >
@@ -256,9 +264,11 @@ const Checkout = () => {
                     onBlur={formik.handleChange("state")}
                   >
                     <option defaultValue>State</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
+                    {cityList &&
+                      cityList.length > 0 &&
+                      cityList.map((city) => (
+                        <option value={city.name}>{city.name}</option>
+                      ))}
                   </select>
                   {formik.touched.state && formik.errors.state ? (
                     <div className="mb-2 mt-0">{formik.errors.state}</div>
