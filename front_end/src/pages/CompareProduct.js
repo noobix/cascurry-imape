@@ -14,7 +14,7 @@ const CompareProduct = () => {
   const dispatch = useDispatch();
   const { user, compareProducts = [] } = useSelector((state) => state.auth);
   React.useEffect(() => {
-    dispatch(getCompareProducts({ token: user.refreshToken }));
+    dispatch(getCompareProducts({ token: user?.refreshToken }));
   }, [dispatch]);
   return (
     <React.Fragment>

@@ -60,7 +60,7 @@ const ProductCard = ({ grid, data = [] }) => {
                 >
                   {item.category.description}
                 </p>
-                <p className="price">&#36;&nbsp;{item.price}</p>
+                <p className="price">&#8373;&nbsp;{item.price}</p>
               </div>
               <div className="action-bar position-absolute">
                 <div className="d-flex flex-column gap-15">

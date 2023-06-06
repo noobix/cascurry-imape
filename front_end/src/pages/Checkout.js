@@ -328,7 +328,7 @@ const Checkout = () => {
                       <h6>{item.product.title}</h6>
                       <p>#3430392FF</p>
                     </div>
-                    <h6>&#36;&nbsp;{item.product.price}</h6>
+                    <h6>&#8373;&nbsp;{item.product.price}</h6>
                   </div>
                 ))}
             </div>
@@ -336,7 +336,7 @@ const Checkout = () => {
               <div className="d-flex justify-content-between align-items-center">
                 <p className="checkout-subtotal">Sub total</p>
                 <p className="checkout-subtotal-amount">
-                  &#36;&nbsp;
+                  &#8373;&nbsp;
                   {cart &&
                     cart.product &&
                     cart.product.length > 0 &&
@@ -348,13 +348,15 @@ const Checkout = () => {
               </div>
               <div className="d-flex justify-content-between align-items-center">
                 <p className="mb-1 checkout-shipping-total">Shipping</p>
-                <p className="mb-1 checkout-shipping-amount">&#36;&nbsp;129</p>
+                <p className="mb-1 checkout-shipping-amount">
+                  &#8373;&nbsp;129
+                </p>
               </div>
             </div>
             <div className="d-flex justify-content-between align-items-center py-4">
               <h4 className="checkout-total">Total</h4>
               <h5 className="checkout-amount">
-                &#36;&nbsp;
+                &#8373;&nbsp;
                 {cart &&
                   cart.product &&
                   cart.product.length > 0 &&

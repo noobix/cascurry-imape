@@ -4,6 +4,7 @@ import BreadCrumb from "../components/BreadCrumb";
 import Container from "../components/Container";
 import MetaData from "../components/MetaData";
 import CustomInput from "../components/CustomInput";
+import PasswordInput from "../components/PasswordInput";
 import { useDispatch, useSelector } from "react-redux";
 import { useFormik } from "formik";
 import { string, object } from "yup";
@@ -25,7 +26,11 @@ const Login = () => {
     validationSchema: loginSchema,
     onSubmit: (values) => {
       dispatch(loginUser(values));
-      !isError && formik.resetForm();
+      !isError &&
+        setTimeout(() => {
+          formik.resetForm();
+          navigate("/");
+        }, 200);
     },
   });
   return (
@@ -54,7 +59,7 @@ const Login = () => {
                 ) : (
                   <span></span>
                 )}
-                <CustomInput
+                <PasswordInput
                   type="password"
                   name="password"
                   placeholder="Password"

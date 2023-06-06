@@ -87,7 +87,9 @@ const Cart = () => {
                     </div>
                   </div>
                   <div className="cart-col-2">
-                    <h5 className="price">&#36;&nbsp;{item?.product?.price}</h5>
+                    <h5 className="price">
+                      &#8373;&nbsp;{item?.product?.price}
+                    </h5>
                   </div>
                   <div className="cart-col-3 d-flex align-items-center gap-15">
                     <div>
@@ -121,7 +123,7 @@ const Cart = () => {
                   </div>
                   <div className="cart-col-4">
                     <h5 className="total">
-                      &#36;&nbsp;{item?.product?.price * item?.quantity}
+                      &#8373;&nbsp;{item?.product?.price * item?.quantity}
                     </h5>
                   </div>
                 </div>
@@ -133,7 +135,7 @@ const Cart = () => {
                 </Link>
                 <div className="d-flex flex-column align-items-end">
                   <h4 className="total">
-                    Total:&nbsp;&#36;&nbsp;{cart?.cartTotal}
+                    Total:&nbsp;&#8373;&nbsp;{cart?.cartTotal}
                   </h4>
                   <p>Taxes and shipping are calculated at checkout</p>
                   <Link to="/checkout" className="button">

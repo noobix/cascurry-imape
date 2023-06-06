@@ -1,7 +1,6 @@
 import React from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { useSelector } from "react-redux";
 import Layout from "./components/Layout";
 import About from "./pages/About";
 import Blog from "./pages/Blog";
@@ -28,14 +27,13 @@ import Profile from "./pages/Profile";
 import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
-  const { user } = useSelector((state) => state.auth);
   return (
     <React.Fragment>
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={user ? <Home /> : <Login />} />
+            <Route index element={<Home />} />
             <Route path="about" element={<About />} />
             <Route path="contact" element={<Contact />} />
             <Route path="store" element={<OurStore />} />
