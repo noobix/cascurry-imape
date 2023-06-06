@@ -29,7 +29,7 @@ const Login = () => {
       !isError &&
         setTimeout(() => {
           formik.resetForm();
-          navigate("/");
+          navigate("/", { replace: true });
         }, 200);
     },
   });
