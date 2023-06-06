@@ -26,11 +26,12 @@ const Login = () => {
     validationSchema: loginSchema,
     onSubmit: (values) => {
       dispatch(loginUser(values));
-      !isError &&
-        setTimeout(() => {
+      setTimeout(() => {
+        if (!isError) {
           formik.resetForm();
-          navigate("/");
-        }, 300);
+          navigate("/", { replace: true });
+        }
+      }, 200);
     },
   });
   return (
