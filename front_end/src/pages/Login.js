@@ -29,8 +29,8 @@ const Login = () => {
       !isError &&
         setTimeout(() => {
           formik.resetForm();
-          navigate("/", { replace: true });
-        }, 200);
+          navigate("/");
+        }, 300);
     },
   });
   return (
