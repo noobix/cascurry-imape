@@ -4,7 +4,7 @@ import { useFormik } from "formik";
 import BreadCrumb from "../components/BreadCrumb";
 import Container from "../components/Container";
 import MetaData from "../components/MetaData";
-import CustomInput from "../components/CustomInput";
+import PasswordInput from "../components/PasswordInput";
 import { useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { changePassword } from "../features/auth/authSlice";
@@ -45,7 +45,7 @@ const ResetPassword = () => {
                 onSubmit={formik.handleSubmit}
                 className="d-flex flex-column gap-15"
               >
-                <CustomInput
+                <PasswordInput
                   type="password"
                   name="password"
                   placeholder="password"
@@ -58,7 +58,7 @@ const ResetPassword = () => {
                 ) : (
                   <span></span>
                 )}
-                <CustomInput
+                <PasswordInput
                   type="password"
                   name="confirmPassword"
                   placeholder="confirm password"
