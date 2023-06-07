@@ -264,6 +264,7 @@ const resetPassword = asyncHandler(async (requestObject, responseObject) => {
     PasswordResetToken: hashedToken,
     PasswordResetExpire: { $gte: Date.now() },
   });
+  console.log(user);
   if (!user)
     throw new Error(
       "Token Expired, please start another password reset process"

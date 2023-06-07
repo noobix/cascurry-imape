@@ -29,7 +29,7 @@ const ResetPassword = () => {
       if (values.password !== values.confirmPassword)
         return (formik.errors.confirmPassword = "Password Mismatch");
       dispatch(changePassword(values));
-      setTimeout(() => navigate("/"), 190);
+      setTimeout(() => navigate("/"), 200);
     },
   });
   return (
