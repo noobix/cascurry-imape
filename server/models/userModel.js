@@ -67,7 +67,8 @@ userSchema.methods.createPasswordResetToken = async function () {
   const token = crypto.randomBytes(32).toString("hex");
   const hashed = crypto.createHash("sha256").update(token).digest("hex");
   this.passwordResetToken = hashed.toString();
-  this.PasswordResetExpire = Date.now() + 30 * 60 * 1000; //10mins
+  this.passwordResetExpire = Date.now() + 30 * 60 * 1000; //10mins
+  this.lastPasswordChange = Date.now();
   return token;
 };
 //Export the model

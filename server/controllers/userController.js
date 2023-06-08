@@ -260,10 +260,9 @@ const resetPassword = asyncHandler(async (requestObject, responseObject) => {
   const password = requestObject.body.password;
   const token = requestObject.params.token;
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-  const currentDate = new Date();
   const user = await User.findOne({
-    PasswordResetToken: hashedToken,
-    PasswordResetExpire: { $gte: currentDate },
+    passwordResetToken: hashedToken,
+    passwordResetExpire: { $gte: Date.now() },
   });
   console.log(user);
   console.log(hashedToken);
