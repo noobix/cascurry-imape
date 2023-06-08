@@ -573,6 +573,7 @@ export const authSlice = createSlice({
         state.isError = false;
         state.isSuccess = true;
         state.isLoading = false;
+        state.message = action.payload;
       })
       .addCase(removeCartItem.rejected, (state, action) => {
         state.isError = true;
@@ -682,12 +683,14 @@ export const authSlice = createSlice({
         state.isSuccess = true;
         state.isLoading = false;
         state.message = action.payload;
+        toast.success("Password reset email sent sucessfully");
       })
       .addCase(forgotPassword.rejected, (state, action) => {
         state.isError = true;
         state.isSuccess = false;
         state.isLoading = false;
         state.message = action.error;
+        toast.error(state.message || action.payload);
       })
       .addCase(changePassword.pending, (state) => {
         state.isError = true;
@@ -696,7 +699,6 @@ export const authSlice = createSlice({
         state.isError = false;
         state.isSuccess = true;
         state.isLoading = false;
-        state.user = action.payload;
         toast.success("Passward successfully changed");
       })
       .addCase(changePassword.rejected, (state, action) => {

@@ -43,7 +43,7 @@ export const addToCart = async ({ token, data }) => {
       withCredentials: true,
     }
   );
-  return response.data.cart;
+  return response.data;
 };
 export const fetchCart = async (token) => {
   const response = await axios.get(`/api/users/person/fetch_cart`, {

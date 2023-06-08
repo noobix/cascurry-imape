@@ -31,7 +31,7 @@ const Login = () => {
           formik.resetForm();
           navigate("/", { replace: true });
         }
-      }, 1600);
+      }, 1800);
     },
   });
   return (
