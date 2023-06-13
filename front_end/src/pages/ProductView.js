@@ -35,10 +35,10 @@ const ProductView = () => {
   const [isCart, setisCart] = React.useState(false);
   const [orderedProduct, setorderedProduct] = React.useState(false);
   React.useEffect(() => {
-    dispatch(getProduct({ token: user.refreshToken, id: extractId }));
-    dispatch(getCart({ token: user.refreshToken }));
+    dispatch(getProduct({ token: user?.refreshToken, id: extractId }));
+    dispatch(getCart({ token: user?.refreshToken }));
     dispatch(
-      getproductReviews({ token: user.refreshToken, product: extractId })
+      getproductReviews({ token: user?.refreshToken, product: extractId })
     );
     isInCart();
   }, [extractId]);
@@ -67,8 +67,8 @@ const ProductView = () => {
   });
   const formik = useFormik({
     initialValues: {
-      name: user.firstname + " " + user.lastname,
-      email: user.email,
+      name: user?.firstname + " " + user?.lastname,
+      email: user?.email,
       star: rating,
       comment: "",
     },
@@ -77,7 +77,7 @@ const ProductView = () => {
     onSubmit: (values) => {
       values = {
         data: { ...values, item: extractId },
-        token: user.refreshToken,
+        token: user?.refreshToken,
       };
       dispatch(postReview(values));
       !isError && formik.resetForm();
