@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
   BsLinkedin,
   BsTwitter,
@@ -7,8 +8,11 @@ import {
   BsFacebook,
   BsYoutube,
 } from "react-icons/bs";
+import { fetchItemsCartegory } from "../features/items/itemSlice";
 
 const Footer = () => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
   return (
     <React.Fragment>
       <footer className="py-3">
@@ -103,24 +107,90 @@ const Footer = () => {
                 >
                   Terms & Conditions
                 </Link>
-                <Link className="py-2 mb-1 text-white">Blogs</Link>
+                <Link to="/blog" className="py-2 mb-1 text-white">
+                  Blogs
+                </Link>
               </div>
             </div>
             <div className="col-3">
               <h6 className="text-white mb-4">Account</h6>
               <div className="footer-links d-flex flex-column">
-                <Link className="py-2 mb-1 text-white">About Us</Link>
+                <Link to="/about" className="py-2 mb-1 text-white">
+                  About Us
+                </Link>
                 <Link className="py-2 mb-1 text-white">FAQ</Link>
-                <Link className="py-2 mb-1 text-white">Contact</Link>
+                <Link to="/contact" className="py-2 mb-1 text-white">
+                  Contact
+                </Link>
               </div>
             </div>
             <div className="col-2">
               <h6 className="text-white mb-4">Quick Links</h6>
               <div className="footer-links d-flex flex-column">
-                <Link className="py-2 mb-1 text-white">Laptop</Link>
-                <Link className="py-2 mb-1 text-white">Tablet</Link>
-                <Link className="py-2 mb-1 text-white">Phones</Link>
-                <Link className="py-2 mb-1 text-white">Watch</Link>
+                <Link
+                  to="/store"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    dispatch(
+                      fetchItemsCartegory({
+                        token: user.refreshToken,
+                        str: "Laptop PC",
+                      })
+                    );
+                    window.scrollTo(0, 0);
+                  }}
+                  className="py-2 mb-1 text-white"
+                >
+                  Laptop
+                </Link>
+                <Link
+                  to="/store"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    dispatch(
+                      fetchItemsCartegory({
+                        token: user.refreshToken,
+                        str: "Communication and GPS",
+                      })
+                    );
+                    window.scrollTo(0, 0);
+                  }}
+                  className="py-2 mb-1 text-white"
+                >
+                  Tablet
+                </Link>
+                <Link
+                  to="/store"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    dispatch(
+                      fetchItemsCartegory({
+                        token: user.refreshToken,
+                        str: "Computer Software",
+                      })
+                    );
+                    window.scrollTo(0, 0);
+                  }}
+                  className="py-2 mb-1 text-white"
+                >
+                  Software
+                </Link>
+                <Link
+                  to="/store"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    dispatch(
+                      fetchItemsCartegory({
+                        token: user.refreshToken,
+                        str: "Wearable Technologies",
+                      })
+                    );
+                    window.scrollTo(0, 0);
+                  }}
+                  className="py-2 mb-1 text-white"
+                >
+                  Watch
+                </Link>
               </div>
             </div>
           </div>

@@ -68,6 +68,41 @@ const ChangeOrderStatus = async ({ token, id, data }) => {
   );
   return response.data;
 };
+const fetchOrdersPagination = async ({ token, page }) => {
+  const response = await axios.get(
+    `/api/users/person/all_order_paginate?page=${page}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};
+const fetchOrdersPaginated = async ({
+  token,
+  page,
+  limit,
+  skip,
+  search,
+  status,
+}) => {
+  const response = await axios.get(
+    `/api/users/person/all_fetch_order?page=${page || ""}&limit=${
+      limit || ""
+    }&skip=${skip || ""}&search=${search || ""}&status=${status || ""}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};
 
 const authService = {
   login,
@@ -77,6 +112,8 @@ const authService = {
   getMonthlyOrderRevenue,
   getYearlyOrderCount,
   ChangeOrderStatus,
+  fetchOrdersPagination,
+  fetchOrdersPaginated,
 };
 
 export default authService;

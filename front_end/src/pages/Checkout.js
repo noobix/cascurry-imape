@@ -155,7 +155,9 @@ const Checkout = () => {
                       ))}
                   </select>
                   {formik.touched.country && formik.errors.country ? (
-                    <div className="mb-2 mt-0">{formik.errors.country}</div>
+                    <div className="mb-2 mt-0 validation-error">
+                      {formik.errors.country}
+                    </div>
                   ) : (
                     <span></span>
                   )}
@@ -176,7 +178,9 @@ const Checkout = () => {
                       onBlur={formik.handleChange("firstname")}
                     />
                     {formik.touched.firstname && formik.errors.firstname ? (
-                      <div className="mb-2 mt-0">{formik.errors.firstname}</div>
+                      <div className="mb-2 mt-0 validation-error">
+                        {formik.errors.firstname}
+                      </div>
                     ) : (
                       <span></span>
                     )}
@@ -194,7 +198,9 @@ const Checkout = () => {
                       onBlur={formik.handleChange("lastname")}
                     />
                     {formik.touched.lastname && formik.errors.lastname ? (
-                      <div className="mb-2 mt-0">{formik.errors.lastname}</div>
+                      <div className="mb-2 mt-0 validation-error">
+                        {formik.errors.lastname}
+                      </div>
                     ) : (
                       <span></span>
                     )}
@@ -213,7 +219,7 @@ const Checkout = () => {
                     onBlur={formik.handleChange("addressLine1")}
                   />
                   {formik.touched.addressLine1 && formik.errors.addressLine1 ? (
-                    <div className="mb-2 mt-0">
+                    <div className="mb-2 mt-0 validation-error">
                       {formik.errors.addressLine1}
                     </div>
                   ) : (
@@ -232,7 +238,7 @@ const Checkout = () => {
                     onBlur={formik.handleChange("addressLine2")}
                   />
                   {formik.touched.addressLine2 && formik.errors.addressLine2 ? (
-                    <div className="mb-2 mt-0">
+                    <div className="mb-2 mt-0 validation-error">
                       {formik.errors.addressLine2}
                     </div>
                   ) : (
@@ -251,7 +257,9 @@ const Checkout = () => {
                     onBlur={formik.handleChange("city")}
                   />
                   {formik.touched.city && formik.errors.city ? (
-                    <div className="mb-2 mt-0">{formik.errors.city}</div>
+                    <div className="mb-2 mt-0 validation-error">
+                      {formik.errors.city}
+                    </div>
                   ) : (
                     <span></span>
                   )}
@@ -266,12 +274,16 @@ const Checkout = () => {
                     <option defaultValue>State</option>
                     {cityList &&
                       cityList.length > 0 &&
-                      cityList.map((city) => (
-                        <option value={city.name}>{city.name}</option>
+                      cityList.map((city, index) => (
+                        <option key={index} value={city.name}>
+                          {city.name}
+                        </option>
                       ))}
                   </select>
                   {formik.touched.state && formik.errors.state ? (
-                    <div className="mb-2 mt-0">{formik.errors.state}</div>
+                    <div className="mb-2 mt-0 validation-error">
+                      {formik.errors.state}
+                    </div>
                   ) : (
                     <span></span>
                   )}
@@ -286,7 +298,9 @@ const Checkout = () => {
                     onBlur={formik.handleChange("zip")}
                   />
                   {formik.touched.zip && formik.errors.zip ? (
-                    <div className="mb-2 mt-0">{formik.errors.zip}</div>
+                    <div className="mb-2 mt-0 validation-error">
+                      {formik.errors.zip}
+                    </div>
                   ) : (
                     <span></span>
                   )}

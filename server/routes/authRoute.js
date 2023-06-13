@@ -36,6 +36,7 @@ const {
   compareProduct,
   removeCompare,
   getCompareProducts,
+  pagination,
 } = require("../controllers/userController");
 const { approveAuth, getPrivileges } = require("../middlewares/authMiddleware");
 
@@ -50,6 +51,7 @@ router.get("/person/fetch_cart", approveAuth, fetchCart);
 router.get("/person/fetch_order", approveAuth, getOrder);
 router.get("/person/saved_addresses", approveAuth, getSavedAddress);
 router.get("/person/all_fetch_order", approveAuth, getPrivileges, getAllOrder);
+router.get("/person/all_order_paginate", pagination);
 router.get("/person/logout", logout);
 router.get("/person/fetch_cookies", fetchRefreshToken);
 router.put("/person/update_password", approveAuth, updatePassword);

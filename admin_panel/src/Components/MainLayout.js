@@ -72,13 +72,12 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [pageName, setpageName] = React.useState("");
+  const [notification, setnotification] = React.useState(0);
   const sidePath = location.pathname.split("/");
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const { user, isLoading, isError, isSuccess, message } = useSelector(
-    (state) => state.auth
-  );
+  const { user, orders, isLoading } = useSelector((state) => state.auth);
   function handleLogout() {
     dispatch(logout());
     localStorage.removeItem("user");
@@ -105,6 +104,18 @@ const MainLayout = () => {
   React.useEffect(() => {
     setpageName(getPageTitle());
   }, [location]);
+  React.useEffect(() => {
+    const notification =
+      orders &&
+      orders.length > 0 &&
+      orders.reduce((acc, order) => {
+        if (order.orderStatus === "Not Processed") {
+          return acc + 1;
+        }
+        return acc;
+      }, 0);
+    setnotification(notification);
+  }, [orders]);
   const getPageTitle = () => {
     const { pathname } = location;
     const pageName = pathname.substring(1).split("/")[1] || "Admin";
@@ -161,7 +172,7 @@ const MainLayout = () => {
           >
             <div className="position-relative d-flex align-items-center m-3">
               <span className="badge bg-warning rounded-circle p-1 position-absolute z-1">
-                3
+                {notification}
               </span>
               <BellOutlined className="fs-5 position-absolute" />
             </div>
@@ -204,7 +215,17 @@ const MainLayout = () => {
                 <Link
                   className="dropdown-item"
                   style={{ height: "auto", lineHeight: "20px" }}
-                  onClick={() => handleLogout()}
+                  to="https://open-market-sv2.netlify.app/"
+                  onClick={handleLogout}
+                >
+                  Switch to client
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="dropdown-item"
+                  style={{ height: "auto", lineHeight: "20px" }}
+                  onClick={handleLogout}
                 >
                   Signout
                 </Link>

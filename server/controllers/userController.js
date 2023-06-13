@@ -10,7 +10,7 @@ const Order = require("../models/orderModel");
 const { genToken } = require("../config/tokenGenerator");
 const { refreshTokenGenerator } = require("../config/refreshTokenGen");
 const validateKey = require("../utils/validateId");
-const mailer = require("./emailController");
+const { mailer, checkoutMailer } = require("./emailController");
 const crypto = require("crypto");
 
 const addNewUser = asyncHandler(async (requestObject, responseObject) => {
@@ -525,6 +525,38 @@ const makeOrder = asyncHandler(async (requestObject, responseObject) => {
       }, 0);
     userCart.totalAfterDiscount = grandTotal;
     await userCart.save();
+    const calcDelivery = () => {
+      const deliveryDate = new Date();
+      const currentDate = new Date();
+      const type =
+        requestObject?.body?.shippingInfo?.country === "Ghana"
+          ? "Local"
+          : "International";
+      if (type === "Local") {
+        format(requestObject?.body?.shippingInfo?.city) === "Accra" || "Tema"
+          ? deliveryDate.setDate(currentDate.getDate() + 3)
+          : deliveryDate.setDate(currentDate.getDate() + 5);
+      } else if (type === "International") {
+        deliveryDate.setDate(currentDate.getDate() + 12);
+      }
+      return deliveryDate;
+    };
+    const calcShipping = () => {
+      const type =
+        requestObject?.body?.shippingInfo?.country === "Ghana"
+          ? "Local"
+          : "International";
+      if (type === "Local") {
+        const shipping =
+          format(requestObject?.body?.shippingInfo?.city) === "Accra" || "Tema"
+            ? 75
+            : 129;
+        return shipping;
+      } else if (type === "International") {
+        const shipping = 661;
+        return shipping;
+      }
+    };
     const newOrder = await new Order({
       product: userCart.product,
       paymentIntent: {
@@ -547,7 +579,8 @@ const makeOrder = asyncHandler(async (requestObject, responseObject) => {
         zip: requestObject.body.shippingInfo.zip || undefined,
         country: requestObject.body.shippingInfo.country,
       },
-      shippingFee: 129,
+      shippingFee: calcShipping(),
+      deliveryDate: calcDelivery(),
     }).save();
     const normalizeQuantities = userCart.product.map((item) => {
       return {
@@ -582,9 +615,34 @@ const getOrderCheckout = asyncHandler(async (requestObject, responseObject) => {
   const { id } = requestObject.params;
   const orderCheckedout = await Order.findOne({
     "paymentIntent.transactionId": id,
-  });
-  if (orderCheckedout) responseObject.status(200).json(orderCheckedout);
-  else
+  })
+    .populate({
+      path: "product.product",
+      populate: {
+        path: "brand",
+        model: "Brand",
+      },
+    })
+    .populate("orderBy");
+  if (orderCheckedout) {
+    const data = {
+      to: orderCheckedout.orderBy.email,
+      subject: "Order sucessfully made",
+    };
+    const assets = orderCheckedout.product.map((item) => {
+      return {
+        title: item.product.title,
+        brand: item.product.brand.name,
+        price: item.product.price,
+        image: item.product.images[0].image,
+        quantity: item.quantity,
+      };
+    });
+    checkoutMailer(data, assets, (status, message) => {
+      responseObject.status(status).json({ message: message });
+    });
+    responseObject.status(200).json(orderCheckedout);
+  } else
     responseObject
       .status(404)
       .json({ message: "Could not find any orders, please try again" });
@@ -608,14 +666,63 @@ const fetchOrder = asyncHandler(async (requestObject, responseObject) => {
     });
 });
 const getAllOrder = asyncHandler(async (requestObject, responseObject) => {
-  const order = await Order.find()
+  const page = requestObject.query.page;
+  const limit = requestObject.query.limit;
+  const skip = requestObject.query.skip;
+  const search = requestObject.query.search;
+  const status = requestObject.query.status;
+  const searchObj = {};
+  if (search) {
+    const orders = await Order.find();
+    const searchResults = orders
+      .map((order) => ({
+        id: order._id,
+        sliced: order._id.toString().slice(-5),
+      }))
+      .filter((order) => order.sliced === search);
+
+    if (searchResults.length > 0) {
+      searchObj._id = searchResults[0].id.toString();
+    }
+  }
+  if (status) {
+    searchObj.orderStatus = status;
+  }
+  if (page) {
+    const count = await Order.countDocuments();
+    if (skip >= count)
+      throw new Error("Page not found, This operation is invalid.");
+  }
+  const orders = Order.find(searchObj);
+  const query = orders.skip(skip).limit(limit);
+  const ordersList = await query
     .populate("product.product")
-    .populate("orderBy");
-  if (order) responseObject.status(200).json(order);
+    .populate("orderBy")
+    .exec();
+  if (ordersList) responseObject.status(200).json(ordersList);
   else
     responseObject
       .status(400)
       .json({ message: "Could not find any orders, please try again" });
+});
+const pagination = asyncHandler(async (requestObject, responseObject) => {
+  const ITEMS_PER_PAGE = 30;
+  const currentPage = requestObject.query.page || 1;
+  const totalItems = await Order.countDocuments();
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  if (currentPage < 1 || currentPage > totalPages) {
+    return responseObject.status(404).json({ message: "Invalid page number." });
+  }
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems - 1);
+  responseObject.status(200).json({
+    currentPage: currentPage,
+    endIndex: endIndex,
+    totalPages: totalPages,
+    startIndex: startIndex,
+    itemCount: ITEMS_PER_PAGE,
+    pages: [...Array(totalPages + 1).keys()].slice(1),
+  });
 });
 const updateOrderStatus = asyncHandler(
   async (requestObject, responseObject) => {
@@ -813,4 +920,5 @@ module.exports = {
   compareProduct: compareProduct,
   removeCompare: removeCompare,
   getCompareProducts: getCompareProducts,
+  pagination: pagination,
 };

@@ -29,7 +29,7 @@ const columns = [
     dataIndex: "status",
   },
   {
-    title: "Co",
+    title: "Cont",
     dataIndex: "country",
   },
   {
@@ -97,22 +97,26 @@ const Dashboard = () => {
         return { type: monthName, sales: stage.count };
       });
     setstat2(reference);
-    const recentOrders =
+    var recentOrders =
       orders &&
-      orders.map((order) => {
-        return {
-          key: order.id.slice(19),
-          status: order.orderStatus.substring(0, 9) + "...",
-          country: order.shippingInfo.country,
-          customer:
-            order.orderBy.firstname +
-            " " +
-            order.orderBy.lastname.substring(0, 6) +
-            "...",
-          date: new Date(order.paymentIntent.date).toLocaleDateString(),
-          total: (order?.paymentIntent?.amountPaid / 100).toFixed(2),
-        };
-      });
+      orders.reduce(function (filtered, order) {
+        if (order.orderStatus === "Not Processed") {
+          var someNewValue = {
+            key: order.id.slice(19),
+            status: order.orderStatus.substring(0, 9) + "...",
+            country: order.shippingInfo.country,
+            customer:
+              order.orderBy.firstname +
+              " " +
+              order.orderBy.lastname.substring(0, 6) +
+              "...",
+            date: new Date(order.paymentIntent.date).toLocaleDateString(),
+            total: (order?.paymentIntent?.amountPaid / 100).toFixed(2),
+          };
+          filtered.push(someNewValue);
+        }
+        return filtered;
+      }, []);
     setorderActivity(recentOrders);
   }, [dataStreamMonthly, orders]);
   React.useEffect(() => {

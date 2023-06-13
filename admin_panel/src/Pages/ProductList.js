@@ -114,7 +114,7 @@ const ProductList = () => {
                     <td>{product.category.name}</td>
                     <td>{product.brand.madeIn}</td>
                     <td>{product.quantity}</td>
-                    <td>&#36;{product.price}</td>
+                    <td>&#8373;{product.price}</td>
                     <td>
                       <Link to={`/admin/add-item/${product._id}`}>
                         <EditOutlined className="fs-5 me-3 text-primary" />

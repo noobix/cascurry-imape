@@ -1,6 +1,8 @@
 const asyncHandler = require("express-async-handler");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_API_KEY);
+const { Converter } = require("easy-currencies");
 
+const converter = new Converter();
 const processCCPayment = asyncHandler(async (requestObject, responseObject) => {
   const partialMaskEmail = (s) =>
     s.replace(
@@ -27,24 +29,35 @@ const processCCPayment = asyncHandler(async (requestObject, responseObject) => {
       mobile: partialMaskMobile(requestObject.body.cart.orderBy.mobile),
     },
   });
-  const cart_items = requestObject.body.cart.product.map((item) => {
-    return {
-      price_data: {
-        currency: "usd",
-        product_data: {
-          name: item.product.title,
-          images: [item.product.images[0].image],
-          description: item.product.category.name,
-          metadata: {
-            brand: item.product.brand.name,
-            slug: item.product.slug,
+  const convertedPrice = async (item_cost) => {
+    const bbq = await converter.convert(item_cost, "GHS", "USD");
+    return bbq;
+  };
+  const cart_items = await Promise.all(
+    requestObject.body.cart.product.map(async (item) => {
+      const itemPrice = await convertedPrice(item.product.price);
+      return {
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: item.product.title,
+            images: [item.product.images[0].image],
+            description: item.product.category.name,
+            metadata: {
+              brand: item.product.brand.name,
+              slug: item.product.slug,
+            },
           },
+          unit_amount: Math.ceil(itemPrice) * 100,
         },
-        unit_amount: item.product.price * 100,
-      },
-      quantity: item.quantity,
-    };
-  });
+        quantity: item.quantity,
+      };
+    })
+  );
+
+  const itsAccra = await converter.convert(75, "GHS", "USD");
+  const isOutAccra = await converter.convert(129, "GHS", "USD");
+  const iShipping = await converter.convert(661, "GHS", "USD");
   const session = await stripe.checkout.sessions.create({
     customer: customer.id,
     line_items: cart_items,
@@ -52,11 +65,36 @@ const processCCPayment = asyncHandler(async (requestObject, responseObject) => {
       {
         shipping_rate_data: {
           type: "fixed_amount",
-          fixed_amount: { amount: 129 * 100, currency: "usd" },
-          display_name: "Standard Movement",
+          fixed_amount: { amount: Math.ceil(itsAccra) * 100, currency: "usd" },
+          display_name: "Standard Movement(Accra only)",
           delivery_estimate: {
-            minimum: { unit: "business_day", value: 6 },
-            maximum: { unit: "business_day", value: 8 },
+            minimum: { unit: "business_day", value: 2 },
+            maximum: { unit: "business_day", value: 3 },
+          },
+        },
+      },
+      {
+        shipping_rate_data: {
+          type: "fixed_amount",
+          fixed_amount: {
+            amount: Math.ceil(isOutAccra) * 100,
+            currency: "usd",
+          },
+          display_name: "Standard Movement(Outside Accra)",
+          delivery_estimate: {
+            minimum: { unit: "business_day", value: 4 },
+            maximum: { unit: "business_day", value: 5 },
+          },
+        },
+      },
+      {
+        shipping_rate_data: {
+          type: "fixed_amount",
+          fixed_amount: { amount: Math.ceil(iShipping) * 100, currency: "usd" },
+          display_name: "International Movement",
+          delivery_estimate: {
+            minimum: { unit: "business_day", value: 12 },
+            maximum: { unit: "business_day", value: 15 },
           },
         },
       },

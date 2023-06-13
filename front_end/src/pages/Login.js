@@ -56,7 +56,9 @@ const Login = () => {
                   onBlur={formik.handleChange("email")}
                 />
                 {formik.touched.email && formik.errors.email ? (
-                  <div className="mb-2 mt-0">{formik.errors.email}</div>
+                  <div className="mb-2 mt-0 validation-error">
+                    {formik.errors.email}
+                  </div>
                 ) : (
                   <span></span>
                 )}
@@ -69,7 +71,9 @@ const Login = () => {
                   onBlur={formik.handleChange("password")}
                 />
                 {formik.touched.password && formik.errors.password ? (
-                  <div className="mb-2 mt-0">{formik.errors.password}</div>
+                  <div className="mb-2 mt-0 validation-error">
+                    {formik.errors.password}
+                  </div>
                 ) : (
                   <span></span>
                 )}

@@ -9,6 +9,7 @@ const initialState = {
   user: userDefaultState,
   dataStreamMonthly: [],
   dataStreamYearly: [],
+  pagination: {},
   orders: [],
   order: {},
   isError: false,
@@ -37,6 +38,22 @@ export const getOrders = createAsyncThunk(
   async (value, thunkAPI) => {
     try {
       return await authService.listOrders(value);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+export const getOrdersPaginated = createAsyncThunk(
+  "order/order_list_paginated",
+  async (value, thunkAPI) => {
+    try {
+      return await authService.fetchOrdersPaginated(value);
     } catch (error) {
       const message =
         (error.response &&
@@ -128,6 +145,22 @@ export const updateOrderStatus = createAsyncThunk(
     }
   }
 );
+export const ordersPagination = createAsyncThunk(
+  "order/get_orders_paginated",
+  async (value, thunkAPI) => {
+    try {
+      return await authService.fetchOrdersPagination(value);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 export const authSlice = createSlice({
   name: "auth",
   initialState: initialState,
@@ -175,6 +208,20 @@ export const authSlice = createSlice({
         state.orders = action.payload;
       })
       .addCase(getOrders.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(getOrdersPaginated.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getOrdersPaginated.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.orders = action.payload;
+      })
+      .addCase(getOrdersPaginated.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
@@ -231,6 +278,20 @@ export const authSlice = createSlice({
         state.order = action.payload;
       })
       .addCase(updateOrderStatus.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(ordersPagination.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(ordersPagination.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.pagination = action.payload;
+      })
+      .addCase(ordersPagination.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;

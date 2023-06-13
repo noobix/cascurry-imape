@@ -68,6 +68,7 @@ var orderSchema = new mongoose.Schema(
       country: { type: String, required: true },
     },
     shippingFee: { type: Number, required: true },
+    deliveryDate: { type: Date, required: true },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true }, timestamps: true }
 );

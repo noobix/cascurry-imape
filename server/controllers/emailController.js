@@ -1,8 +1,11 @@
+const path = require("path");
 const nodemailer = require("nodemailer");
 const asyncHandler = require("express-async-handler");
+const hbs = require("nodemailer-express-handlebars");
+const { assert } = require("console");
 
 const mailer = asyncHandler(
-  async (data, callback, requestObject, responseObject) => {
+  async (data, callback, _requestObject, _responseObject) => {
     // create reusable transporter object using the default SMTP transport
     let transporter = nodemailer.createTransport({
       host: process.env.SENDMAIL_HOST_SERVER,
@@ -42,4 +45,55 @@ const mailer = asyncHandler(
     callback(reqStatus, message);
   }
 );
-module.exports = mailer;
+const checkoutMailer = asyncHandler(
+  async (data, assets, callback, _requestObject, _responseObject) => {
+    // create reusable transporter object using the default SMTP transport
+    let transporter = nodemailer.createTransport({
+      host: process.env.SENDMAIL_HOST_SERVER,
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: process.env.SENDMAIL_ACCOUNT_ID, // generated ethereal user
+        pass: process.env.SENDMAIL_AUTH_STRING, // generated ethereal password
+      },
+    });
+    const handlebarOptions = {
+      viewEngine: {
+        extName: ".handlebars",
+        partialsDir: path.resolve("./public/template"),
+        defaultLayout: false,
+      },
+      viewPath: path.resolve("./public/template"),
+      extName: ".handlebars",
+    };
+
+    transporter.use("compile", hbs(handlebarOptions));
+    // send mail with defined transport object
+    let mailOptions = {
+      from: '"Kelvin Kabute 👻" <skipgh@gmail.com>', // sender address
+      to: data.to, // list of receivers
+      subject: "Hello ✔ " + data.subject, // Subject line
+      template: "order",
+      context: { assets },
+    };
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email sent: " + info.response);
+        let reqStatus, message;
+        if (info.accepted) {
+          reqStatus = 100;
+          message =
+            "Message sent successfully with order information, please check both spam and inbox";
+        } else {
+          reqStatus = 417;
+          message =
+            "System error, message not sent please contact us on 0800-2232-222";
+        }
+        callback(reqStatus, message);
+      }
+    });
+  }
+);
+module.exports = { mailer: mailer, checkoutMailer: checkoutMailer };

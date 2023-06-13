@@ -33,7 +33,7 @@ const Login = () => {
   return (
     <div className="py-5" style={{ background: "#ffd333", minHeight: "100vh" }}>
       <div className="my-5 w-50 bg-white rounded-3 mx-auto p-4">
-        <h3>Login</h3>
+        <h3>Administrator Login</h3>
         <p>Login to your account to continue</p>
         {message.message == "Rejected" ? (
           <div className="text-center">

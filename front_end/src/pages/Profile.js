@@ -65,11 +65,22 @@ const Profile = () => {
             <div className="d-flex gap-3">
               <div>
                 {user && user.privileges === "admin" ? (
-                  <img
-                    src="https://marketplace.magento.com/media/catalog/product/4/a/4acb_rsz_admin-logo_1.png"
-                    alt="..."
-                    width="300"
-                  />
+                  <React.Fragment>
+                    <h5>
+                      Switch to&nbsp;
+                      <a
+                        onClick={handleLogout}
+                        href="https://admin-open-market-sv2.netlify.app/"
+                      >
+                        admin
+                      </a>
+                    </h5>
+                    <img
+                      src="https://marketplace.magento.com/media/catalog/product/4/a/4acb_rsz_admin-logo_1.png"
+                      alt="..."
+                      width="300"
+                    />
+                  </React.Fragment>
                 ) : (
                   <img
                     src="https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG.png"

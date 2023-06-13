@@ -37,7 +37,6 @@ const StripeListener = asyncHandler(async (requestObject, responseObject) => {
       cartData.status = "closed";
       await Promise.all([cartData.save(), orderSucceed.save()]);
       break;
-
     case "payment_intent.payment_failed":
       const paymentIntentFailed = event.data.object;
       const customerDeclined = await stripe.customers.retrieve(
@@ -51,7 +50,6 @@ const StripeListener = asyncHandler(async (requestObject, responseObject) => {
         "Payment Details declined by provider";
       await orderFailed.save();
       break;
-
     case "payment_intent.processing":
       const paymentIntentProcessing = event.data.object;
       const customerProcessing = await stripe.customers.retrieve(
@@ -64,7 +62,6 @@ const StripeListener = asyncHandler(async (requestObject, responseObject) => {
         "Customer payment transaction processing";
       await orderProcessing.save();
       break;
-
     case "payment_intent.created":
       const paymentIntentCreated = event.data.object;
       const customerCreated = await stripe.customers.retrieve(
@@ -78,7 +75,6 @@ const StripeListener = asyncHandler(async (requestObject, responseObject) => {
         "Payment Details Submitted to provider";
       await orderCreated.save();
       break;
-
     case "charge.succeeded":
       const chargeSucceeded = event.data.object;
       const customerCharged = await stripe.customers.retrieve(

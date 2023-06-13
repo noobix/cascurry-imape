@@ -107,7 +107,9 @@ const SignUp = () => {
                       onBlur={formik.handleChange("firstname")}
                     />
                     {formik.touched.firstname && formik.errors.firstname ? (
-                      <div className="mb-2 mt-0">{formik.errors.firstname}</div>
+                      <div className="mb-2 mt-0 validation-error">
+                        {formik.errors.firstname}
+                      </div>
                     ) : (
                       <span></span>
                     )}
@@ -122,7 +124,9 @@ const SignUp = () => {
                       onBlur={formik.handleChange("lastname")}
                     />
                     {formik.touched.lastname && formik.errors.lastname ? (
-                      <div className="mb-2 mt-0">{formik.errors.lastname}</div>
+                      <div className="mb-2 mt-0 validation-error">
+                        {formik.errors.lastname}
+                      </div>
                     ) : (
                       <span></span>
                     )}
@@ -137,7 +141,9 @@ const SignUp = () => {
                   onBlur={formik.handleChange("email")}
                 />
                 {formik.touched.email && formik.errors.email ? (
-                  <div className="mb-2 mt-0">{formik.errors.email}</div>
+                  <div className="mb-2 mt-0 validation-error">
+                    {formik.errors.email}
+                  </div>
                 ) : (
                   <span></span>
                 )}
@@ -161,7 +167,9 @@ const SignUp = () => {
                       ))}
                   </select>
                   {formik.touched.country && formik.errors.country ? (
-                    <div className="mb-2 mt-0">{formik.errors.country}</div>
+                    <div className="mb-2 mt-0 validation-error">
+                      {formik.errors.country}
+                    </div>
                   ) : (
                     <span></span>
                   )}
@@ -179,7 +187,9 @@ const SignUp = () => {
                   onBlur={formik.handleChange("mobile")}
                 />
                 {formik.touched.mobile && formik.errors.mobile ? (
-                  <div className="mb-2 mt-0">{formik.errors.mobile}</div>
+                  <div className="mb-2 mt-0 validation-error">
+                    {formik.errors.mobile}
+                  </div>
                 ) : (
                   <span></span>
                 )}
@@ -192,7 +202,9 @@ const SignUp = () => {
                   onBlur={formik.handleChange("addressLine1")}
                 />
                 {formik.touched.addressLine1 && formik.errors.addressLine1 ? (
-                  <div className="mb-2 mt-0">{formik.errors.addressLine1}</div>
+                  <div className="mb-2 mt-0 validation-error">
+                    {formik.errors.addressLine1}
+                  </div>
                 ) : (
                   <span></span>
                 )}
@@ -205,7 +217,9 @@ const SignUp = () => {
                   onBlur={formik.handleChange("addressLine2")}
                 />
                 {formik.touched.addressLine2 && formik.errors.addressLine2 ? (
-                  <div className="mb-2 mt-0">{formik.errors.addressLine2}</div>
+                  <div className="mb-2 mt-0 validation-error">
+                    {formik.errors.addressLine2}
+                  </div>
                 ) : (
                   <span></span>
                 )}
@@ -218,7 +232,9 @@ const SignUp = () => {
                   onBlur={formik.handleChange("password")}
                 />
                 {formik.touched.password && formik.errors.password ? (
-                  <div className="mb-2 mt-0">{formik.errors.password}</div>
+                  <div className="mb-2 mt-0 validation-error">
+                    {formik.errors.password}
+                  </div>
                 ) : (
                   <span></span>
                 )}
@@ -232,7 +248,7 @@ const SignUp = () => {
                 />
                 {formik.touched.repeatPassword &&
                 formik.errors.repeatPassword ? (
-                  <div className="mb-2 mt-0">
+                  <div className="mb-2 mt-0 validation-error">
                     {formik.errors.repeatPassword}
                   </div>
                 ) : (

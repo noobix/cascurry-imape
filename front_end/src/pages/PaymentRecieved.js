@@ -1,5 +1,6 @@
 import React from "react";
 import Container from "../components/Container";
+import { AiFillPrinter } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
@@ -25,8 +26,34 @@ const PaymentRecieved = () => {
         })
       );
   }, [countdown]);
+  function handlePrint(elementId, uniqueIframeId) {
+    console.log(elementId);
+    const content = document.getElementById(elementId);
+    let pri;
+    if (document.getElementById(uniqueIframeId)) {
+      pri = document.getElementById(uniqueIframeId).contentWindow;
+    } else {
+      const iframe = document.createElement("iframe");
+      iframe.setAttribute("title", uniqueIframeId);
+      iframe.setAttribute("id", uniqueIframeId);
+      iframe.setAttribute(
+        "style",
+        "height: 0px; width: 0px; position: absolute;"
+      );
+      document.body.appendChild(iframe);
+      pri = iframe.contentWindow;
+    }
+    pri.document.open();
+    pri.document.write(content.innerHTML);
+    pri.document.close();
+    pri.focus();
+    pri.print();
+  }
   return (
-    <Container classProp="checkout-wrapper home-wrapper-2 pt-3">
+    <Container
+      classProp="checkout-wrapper home-wrapper-2 pt-3"
+      select="checkout-receipt"
+    >
       <div className="row">
         <nav style={{ "--bs-breadcrumb-divider": ">" }} aria-label="breadcrumb">
           <ol className="breadcrumb">
@@ -50,6 +77,18 @@ const PaymentRecieved = () => {
             <p className="text-danger">
               Processing Please wait: {countdown} seconds
             </p>
+          )}
+          {countdown < 0 && (
+            <div
+              className="pe-auto"
+              style={{ cursor: "pointer" }}
+              onClick={() => handlePrint("checkout-receipt")}
+            >
+              Print &nbsp;
+              <i>
+                <AiFillPrinter />
+              </i>
+            </div>
           )}
         </div>
       </div>
@@ -192,6 +231,12 @@ const PaymentRecieved = () => {
             <div className="d-flex gap-3 mb-1">
               <div>Order Status:</div>
               <div>{order && order?.orderStatus}</div>
+            </div>
+            <div className="d-flex gap-3 mb-1">
+              <div>Delivery Date:</div>
+              <div>
+                {order && new Date(order?.deliveryDate).toLocaleDateString()}
+              </div>
             </div>
           </div>
         </div>

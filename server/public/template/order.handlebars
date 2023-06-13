@@ -1,0 +1,44 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .heading { font-size: 22px; color: #a2ce2c;font-weight: 700; } .banner {
+      width: 300px; height: 80px; } .item-image { width: 90px; } .pad{padding:
+      8px;}
+    </style>
+  </head>
+  <body>
+    <div>
+      <p class="heading">Order Items Being Processed</p>
+      <img
+        src="https://static.vecteezy.com/system/resources/thumbnails/005/021/047/small/illustration-land-or-ground-shipping-carrier-delivery-service-has-motorcycle-van-and-cargo-ship-yellow-or-orange-tones-design-for-banner-website-decorations-app-advertising-parcel-vector.jpg"
+        alt="..."
+      />
+      <table>
+        <tr>
+          <th class="pad">Image</th>
+          <th class="pad">Brand</th>
+          <th class="pad">Item</th>
+          <th class="pad">Quantity</th>
+          <th class="pad">Unit Price</th>
+        </tr>
+        {{#each assets}}
+          <tr>
+            {{#with this}}
+              <td>
+                <img class="item-image" src={{this.image}} alt="..." />
+              </td>
+              <td style="padding:0 5px;">{{this.brand}}</td>
+              <td style="padding:0 5px;">{{this.title}}</td>
+              <td style="padding:0 5px;">{{this.quantity}}</td>
+              <td style="padding:0 5px;">&#8373;{{this.price}}</td>
+            {{/with}}
+          </tr>
+        {{/each}}
+      </table>
+    </div>
+  </body>
+</html>

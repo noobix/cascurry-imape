@@ -152,7 +152,9 @@ const Header = () => {
                             return acc + val.quantity;
                           }, 0)}
                       </span>
-                      <p className="mb-0">&#36;{cart?.cartTotal}</p>
+                      <p className="mb-0">
+                        {cart.cartTotal && <div>&#8373;{cart?.cartTotal}</div>}
+                      </p>
                     </div>
                   </Link>
                 </div>
