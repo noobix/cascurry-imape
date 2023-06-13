@@ -3,13 +3,11 @@ import Container from "../components/Container";
 import { AiFillPrinter } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { toast } from "react-toastify";
 import { fetchOrderCheckout } from "../features/auth/authSlice";
 
 const PaymentRecieved = () => {
   const dispatch = useDispatch();
-  const { user, order, isError, isSuccess } =
-    useSelector((state) => state.auth) ?? {};
+  const { user, order } = useSelector((state) => state.auth) ?? {};
   const [countdown, setCountdown] = React.useState(30);
   React.useEffect(() => {
     const intervalId = setInterval(() => {
@@ -27,7 +25,6 @@ const PaymentRecieved = () => {
       );
   }, [countdown]);
   function handlePrint(elementId, uniqueIframeId) {
-    console.log(elementId);
     const content = document.getElementById(elementId);
     let pri;
     if (document.getElementById(uniqueIframeId)) {

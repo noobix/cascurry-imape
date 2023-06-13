@@ -1,7 +1,6 @@
 import React from "react";
 import { Rating } from "@smastrom/react-rating";
 import { useLocation, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { addWishlist, compareItem } from "../features/auth/authSlice";
 import { addProductToCart } from "../features/auth/authSlice";

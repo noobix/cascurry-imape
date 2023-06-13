@@ -9,7 +9,6 @@ import { getBlogs } from "../features/blogs/blogslice";
 const Blog = () => {
   const dispatch = useDispatch();
   const { blogs = [] } = useSelector((state) => state.blog) ?? {};
-  const { user } = useSelector((state) => state.auth);
   React.useEffect(() => {
     dispatch(getBlogs());
   }, [dispatch]);

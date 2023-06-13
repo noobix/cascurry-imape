@@ -71,19 +71,19 @@ const Footer = () => {
                   sikabuilding@gmail.com
                 </a>
                 <div className="social-icons d-flex align-items-center gap-30 mt-3">
-                  <a href="#">
+                  <a href="https://www.youtube.com">
                     <BsYoutube className="text-white fs-5" />
                   </a>
-                  <a href="#">
+                  <a href="http://www.twitter.com">
                     <BsTwitter className="text-white fs-5" />
                   </a>
-                  <a href="#">
+                  <a href="http://www.facebook.com">
                     <BsFacebook className="text-white fs-5" />
                   </a>
-                  <a href="#">
+                  <a href="http://www.linkedin.com">
                     <BsLinkedin className="text-white fs-5" />
                   </a>
-                  <a href="#">
+                  <a href="http://www.instagram.com">
                     <BsInstagram className="text-white fs-5" />
                   </a>
                 </div>
