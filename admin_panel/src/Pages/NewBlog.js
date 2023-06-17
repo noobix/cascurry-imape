@@ -124,7 +124,7 @@ const NewBlog = () => {
             name="title"
             value={formik.values.title}
             onChange={formik.handleChange("title")}
-            onBlur={formik.handleChange("title")}
+            onBlur={formik.handleBlur("title")}
           />
           {formik.touched.title && formik.errors.title ? (
             <div className="mb-2 mt-0">{formik.errors.title}</div>
@@ -137,7 +137,7 @@ const NewBlog = () => {
             name="category"
             value={formik.values.category}
             onChange={formik.handleChange("category")}
-            onBlur={formik.handleChange("category")}
+            onBlur={formik.handleBlur("category")}
           >
             <option defaultValue>Select blog cartegory</option>
             {cartegories.map((cartegory, index) => (
@@ -156,7 +156,7 @@ const NewBlog = () => {
             theme="snow"
             value={formik.values.description}
             onChange={formik.handleChange("description")}
-            onBlur={formik.handleChange("description")}
+            onBlur={formik.handleBlur("description")}
           />
           {formik.touched.description && formik.errors.description ? (
             <div className="mb-2 mt-0">{formik.errors.description}</div>

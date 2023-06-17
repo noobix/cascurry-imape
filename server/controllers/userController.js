@@ -26,6 +26,7 @@ const addNewUser = asyncHandler(async (requestObject, responseObject) => {
     email: email,
     mobile: requestObject.body.mobile,
     password: requestObject.body.password,
+    country: requestObject.body.country, //not in model yet
     privileges: requestObject.body.privileges,
   });
   requestObject.body.address &&
@@ -138,6 +139,7 @@ const updateUser = asyncHandler(async (requestObject, responseObject) => {
       lastname: requestObject.body.lastname || undefined,
       email: requestObject.body.email || undefined,
       mobile: requestObject.body.mobile || undefined,
+      country: requestObject.body.country || undefined,
     },
     { new: true }
   );

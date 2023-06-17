@@ -126,7 +126,7 @@ const Profile = () => {
                         name="firstname"
                         onChange={formik.handleChange("firstname")}
                         value={formik.values.firstname}
-                        onBlur={formik.handleChange("firstname")}
+                        onBlur={formik.handleBlur("firstname")}
                       />
                       {formik.touched.firstname && formik.errors.firstname ? (
                         <div className="mb-2 mt-0">
@@ -153,7 +153,7 @@ const Profile = () => {
                         name="lastname"
                         onChange={formik.handleChange("lastname")}
                         value={formik.values.lastname}
-                        onBlur={formik.handleChange("lastname")}
+                        onBlur={formik.handleBlur("lastname")}
                       />
                       {formik.touched.lastname && formik.errors.lastname ? (
                         <div className="mb-2 mt-0">
@@ -180,7 +180,7 @@ const Profile = () => {
                         name="email"
                         onChange={formik.handleChange("email")}
                         value={formik.values.email}
-                        onBlur={formik.handleChange("email")}
+                        onBlur={formik.handleBlur("email")}
                       />
                       {formik.touched.email && formik.errors.email ? (
                         <div className="mb-2 mt-0">{formik.errors.email}</div>
@@ -205,7 +205,7 @@ const Profile = () => {
                         name="mobile"
                         onChange={formik.handleChange("mobile")}
                         value={formik.values.mobile}
-                        onBlur={formik.handleChange("mobile")}
+                        onBlur={formik.handleBlur("mobile")}
                       />
                       {formik.touched.mobile && formik.errors.mobile ? (
                         <div className="mb-2 mt-0">{formik.errors.mobile}</div>
@@ -230,7 +230,7 @@ const Profile = () => {
                         name="addressLine1"
                         onChange={formik.handleChange("addressLine1")}
                         value={formik.values.addressLine1}
-                        onBlur={formik.handleChange("addressLine1")}
+                        onBlur={formik.handleBlur("addressLine1")}
                       />
                       {formik.touched.addressLine1 &&
                       formik.errors.addressLine1 ? (
@@ -258,7 +258,7 @@ const Profile = () => {
                         name="addressLine2"
                         onChange={formik.handleChange("addressLine2")}
                         value={formik.values.addressLine2}
-                        onBlur={formik.handleChange("addressLine2")}
+                        onBlur={formik.handleBlur("addressLine2")}
                       />
                       {formik.touched.addressLine2 &&
                       formik.errors.addressLine2 ? (

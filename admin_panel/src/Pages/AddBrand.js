@@ -113,7 +113,7 @@ const AddBrand = () => {
             name="name"
             onChange={formik.handleChange("name")}
             value={formik.values.name}
-            onBlur={formik.handleChange("name")}
+            onBlur={formik.handleBlur("name")}
           />
           {formik.touched.name && formik.errors.name ? (
             <div className="mb-2 mt-0">{formik.errors.name}</div>
@@ -128,7 +128,7 @@ const AddBrand = () => {
             name="manufacturer"
             onChange={formik.handleChange("manufacturer")}
             value={formik.values.manufacturer}
-            onBlur={formik.handleChange("manufacturer")}
+            onBlur={formik.handleBlur("manufacturer")}
           />
           {formik.touched.manufacturer && formik.errors.manufacturer ? (
             <div className="mb-2 mt-0">{formik.errors.manufacturer}</div>
@@ -143,7 +143,7 @@ const AddBrand = () => {
             name="madeIn"
             onChange={formik.handleChange("madeIn")}
             value={formik.values.madeIn}
-            onBlur={formik.handleChange("madeIn")}
+            onBlur={formik.handleBlur("madeIn")}
           />
           {formik.touched.madeIn && formik.errors.madeIn ? (
             <div className="mb-2 mt-0">{formik.errors.madeIn}</div>
@@ -156,7 +156,7 @@ const AddBrand = () => {
             name="category"
             onChange={formik.handleChange("category")}
             value={formik.values.category}
-            onBlur={formik.handleChange("category")}
+            onBlur={formik.handleBlur("category")}
           >
             <option defaultValue>Select Cartegory</option>
             {cartegories &&

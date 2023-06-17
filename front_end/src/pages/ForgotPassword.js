@@ -48,10 +48,12 @@ const ForgotPassword = () => {
                   placeholder="email"
                   onChange={formik.handleChange("email")}
                   value={formik.values.email}
-                  onBlur={formik.handleChange("email")}
+                  onBlur={formik.handleBlur("email")}
                 />
                 {formik.touched.email && formik.errors.email ? (
-                  <div className="mb-2 mt-0">{formik.errors.email}</div>
+                  <div className="mb-2 mt-0 validation-error">
+                    {formik.errors.email}
+                  </div>
                 ) : (
                   <span></span>
                 )}

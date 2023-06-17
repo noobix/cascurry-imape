@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { MdOutlineArrowBackIosNew } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { string, object } from "yup";
 import Container from "../components/Container";
@@ -15,6 +16,7 @@ import PaymentMethod from "../components/PaymentMethod";
 
 const Checkout = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [address, setaddress] = React.useState("");
   const { user, savedAddresses, cart, isError, countryList, cityList } =
     useSelector((state) => state.auth) ?? {};
@@ -143,7 +145,7 @@ const Checkout = () => {
                     name="country"
                     onChange={handleSelect}
                     value={formik.values.country}
-                    onBlur={formik.handleChange("country")}
+                    onBlur={formik.handleBlur("country")}
                   >
                     <option defaultValue>Open this select menu</option>
                     {countryList &&
@@ -175,7 +177,7 @@ const Checkout = () => {
                       placeholder="Kwesi"
                       onChange={formik.handleChange("firstname")}
                       value={formik.values.firstname}
-                      onBlur={formik.handleChange("firstname")}
+                      onBlur={formik.handleBlur("firstname")}
                     />
                     {formik.touched.firstname && formik.errors.firstname ? (
                       <div className="mb-2 mt-0 validation-error">
@@ -195,7 +197,7 @@ const Checkout = () => {
                       name="lastname"
                       onChange={formik.handleChange("lastname")}
                       value={formik.values.lastname}
-                      onBlur={formik.handleChange("lastname")}
+                      onBlur={formik.handleBlur("lastname")}
                     />
                     {formik.touched.lastname && formik.errors.lastname ? (
                       <div className="mb-2 mt-0 validation-error">
@@ -216,7 +218,7 @@ const Checkout = () => {
                     name="addressLine1"
                     onChange={formik.handleChange("addressLine1")}
                     value={formik.values.addressLine1}
-                    onBlur={formik.handleChange("addressLine1")}
+                    onBlur={formik.handleBlur("addressLine1")}
                   />
                   {formik.touched.addressLine1 && formik.errors.addressLine1 ? (
                     <div className="mb-2 mt-0 validation-error">
@@ -235,7 +237,7 @@ const Checkout = () => {
                     name="addressLine2"
                     onChange={formik.handleChange("addressLine2")}
                     value={formik.values.addressLine2}
-                    onBlur={formik.handleChange("addressLine2")}
+                    onBlur={formik.handleBlur("addressLine2")}
                   />
                   {formik.touched.addressLine2 && formik.errors.addressLine2 ? (
                     <div className="mb-2 mt-0 validation-error">
@@ -254,7 +256,7 @@ const Checkout = () => {
                     name="city"
                     onChange={formik.handleChange("city")}
                     value={formik.values.city}
-                    onBlur={formik.handleChange("city")}
+                    onBlur={formik.handleBlur("city")}
                   />
                   {formik.touched.city && formik.errors.city ? (
                     <div className="mb-2 mt-0 validation-error">
@@ -269,7 +271,7 @@ const Checkout = () => {
                     name="state"
                     onChange={formik.handleChange("state")}
                     value={formik.values.state}
-                    onBlur={formik.handleChange("state")}
+                    onBlur={formik.handleBlur("state")}
                   >
                     <option defaultValue>State</option>
                     {cityList &&
@@ -295,7 +297,7 @@ const Checkout = () => {
                     name="zip"
                     onChange={formik.handleChange("zip")}
                     value={formik.values.zip}
-                    onBlur={formik.handleChange("zip")}
+                    onBlur={formik.handleBlur("zip")}
                   />
                   {formik.touched.zip && formik.errors.zip ? (
                     <div className="mb-2 mt-0 validation-error">

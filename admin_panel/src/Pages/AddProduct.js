@@ -169,7 +169,7 @@ const AddProduct = () => {
             name="title"
             onChange={formik.handleChange("title")}
             value={formik.values.title}
-            onBlur={formik.handleChange("title")}
+            onBlur={formik.handleBlur("title")}
           />
           {formik.touched.title && formik.errors.title ? (
             <div className="mb-2 mt-0">{formik.errors.title}</div>
@@ -184,7 +184,7 @@ const AddProduct = () => {
             name="slug"
             onChange={formik.handleChange("slug")}
             value={formik.values.slug}
-            onBlur={formik.handleChange("slug")}
+            onBlur={formik.handleBlur("slug")}
           />
           {formik.touched.slug && formik.errors.slug ? (
             <div className="mb-2 mt-0">{formik.errors.slug}</div>
@@ -214,7 +214,7 @@ const AddProduct = () => {
             name="price"
             onChange={formik.handleChange("price")}
             value={formik.values.price}
-            onBlur={formik.handleChange("price")}
+            onBlur={formik.handleBlur("price")}
           />
           {formik.touched.price && formik.errors.price ? (
             <div className="mb-2 mt-0">{formik.errors.price}</div>
@@ -227,7 +227,7 @@ const AddProduct = () => {
             name="category"
             value={formik.values.category}
             onChange={formik.handleChange("category")}
-            onBlur={formik.handleChange("category")}
+            onBlur={formik.handleBlur("category")}
           >
             <option defaultValue>Select Product Cartegory</option>
             {cartegories.map((cartegory, index) => (
@@ -247,7 +247,7 @@ const AddProduct = () => {
             name="brand"
             value={formik.values.brand}
             onChange={formik.handleChange("brand")}
-            onBlur={formik.handleChange("brand")}
+            onBlur={formik.handleBlur("brand")}
           >
             <option defaultValue>Select Product Brand</option>
             {brands.map((brand, index) => (
@@ -269,7 +269,7 @@ const AddProduct = () => {
             name="quantity"
             onChange={formik.handleChange("quantity")}
             value={formik.values.quantity}
-            onBlur={formik.handleChange("quantity")}
+            onBlur={formik.handleBlur("quantity")}
           />
           {formik.touched.quantity && formik.errors.quantity ? (
             <div className="mb-2 mt-0">{formik.errors.quantity}</div>
@@ -282,7 +282,7 @@ const AddProduct = () => {
             name="color"
             value={formik.values.color}
             onChange={formik.handleChange("color")}
-            onBlur={formik.handleChange("color")}
+            onBlur={formik.handleBlur("color")}
           >
             <option defaultValue>Select Product Color</option>
             {colors.map((color, index) => (

@@ -76,7 +76,7 @@ const AddProductCartegory = () => {
             name="name"
             onChange={formik.handleChange("name")}
             value={formik.values.name}
-            onBlur={formik.handleChange("name")}
+            onBlur={formik.handleBlur("name")}
           />
           {formik.touched.name && formik.errors.name ? (
             <div className="mb-2 mt-0">{formik.errors.name}</div>
@@ -91,7 +91,7 @@ const AddProductCartegory = () => {
             name="department"
             onChange={formik.handleChange("department")}
             value={formik.values.department}
-            onBlur={formik.handleChange("department")}
+            onBlur={formik.handleBlur("department")}
           />
           {formik.touched.department && formik.errors.department ? (
             <div className="mb-2 mt-0">{formik.errors.department}</div>
@@ -106,7 +106,7 @@ const AddProductCartegory = () => {
             name="description"
             onChange={formik.handleChange("description")}
             value={formik.values.description}
-            onBlur={formik.handleChange("description")}
+            onBlur={formik.handleBlur("description")}
           />
           {formik.touched.description && formik.errors.description ? (
             <div className="mb-2 mt-0">{formik.errors.description}</div>
@@ -121,7 +121,7 @@ const AddProductCartegory = () => {
             name="officerInCharge"
             onChange={formik.handleChange("officerInCharge")}
             value={formik.values.officerInCharge}
-            onBlur={formik.handleChange("officerInCharge")}
+            onBlur={formik.handleBlur("officerInCharge")}
           />
           {formik.touched.officerInCharge && formik.errors.officerInCharge ? (
             <div className="mb-2 mt-0">{formik.errors.officerInCharge}</div>

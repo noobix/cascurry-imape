@@ -181,7 +181,7 @@ const Home = () => {
                     <React.Fragment key={index}>
                       <h4>RECOMMENDED FOR EAZE</h4>
                       <h5>{unit.title.replace(" WF-1000XM4 Wireless", "")}</h5>
-                      <p>From &#36;{unit.price} OR &#36;41.62/month</p>
+                      <p>From &#8373;{unit.price} OR &#8373;410.62/month</p>
                       <Link
                         to="/cart"
                         onClick={() =>
@@ -222,8 +222,8 @@ const Home = () => {
                         <h4>NEW LAPTOP PRICED LIKE OLD</h4>
                         <h5>{unit.title.substring(0, 17)}</h5>
                         <p>
-                          From &#36;{unit.price} <br />
-                          OR &#36;41.62/month
+                          From &#8373;{unit.price} <br />
+                          OR &#8373;410.62/month
                         </p>
                       </React.Fragment>
                     ))}
@@ -244,8 +244,8 @@ const Home = () => {
                         <h4>Best Sale</h4>
                         <h5>{unit.title}</h5>
                         <p>
-                          From &#36;{unit.price} <br />
-                          OR &#36;41.62/month
+                          From &#8373;{unit.price} <br />
+                          OR &#8373;410.62/month
                         </p>
                       </React.Fragment>
                     ))}
@@ -266,8 +266,8 @@ const Home = () => {
                         <h4>By iPad Air</h4>
                         <h5>{unit.title.substring(0, 21)}</h5>
                         <p>
-                          From &#36;{unit.price} <br />
-                          OR &#36;41.62/month
+                          From &#8373;{unit.price} <br />
+                          OR &#8373;410.62/month
                         </p>
                       </React.Fragment>
                     ))}
@@ -288,8 +288,8 @@ const Home = () => {
                         <h4>EXTREME SOUND NO LIMITS</h4>
                         <h5>{unit.title}</h5>
                         <p>
-                          From &#36;{unit.price} <br />
-                          OR &#36;41.62/month
+                          From &#8373;{unit.price} <br />
+                          OR &#8373;410.62/month
                         </p>
                       </React.Fragment>
                     ))}
@@ -310,7 +310,7 @@ const Home = () => {
                 />
                 <div>
                   <h6>Free Shipping</h6>
-                  <p className="mb-0">For all orders above &#36;20</p>
+                  <p className="mb-0">For all orders above &#8373;2000</p>
                 </div>
               </div>
               <div className="d-flex align-items-center gap-10">

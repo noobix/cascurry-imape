@@ -78,7 +78,7 @@ const CreateCoupon = () => {
             name="name"
             onChange={formik.handleChange("name")}
             value={formik.values.name}
-            onBlur={formik.handleChange("name")}
+            onBlur={formik.handleBlur("name")}
           />
           {formik.touched.name && formik.errors.name ? (
             <div className="mb-2 mt-0">{formik.errors.name}</div>
@@ -92,7 +92,7 @@ const CreateCoupon = () => {
             name="expiry"
             onChange={formik.handleChange("expiry")}
             value={formik.values.expiry}
-            onBlur={formik.handleChange("expiry")}
+            onBlur={formik.handleBlur("expiry")}
           />
           {formik.touched.expiry && formik.errors.expiry ? (
             <div className="mb-2 mt-0">{formik.errors.expiry}</div>
@@ -107,7 +107,7 @@ const CreateCoupon = () => {
             name="discount"
             onChange={formik.handleChange("discount")}
             value={formik.values.discount}
-            onBlur={formik.handleChange("discount")}
+            onBlur={formik.handleBlur("discount")}
           />
           {formik.touched.discount && formik.errors.discount ? (
             <div className="mb-2 mt-0">{formik.errors.discount}</div>
@@ -123,7 +123,7 @@ const CreateCoupon = () => {
             maxLength={8}
             onChange={formik.handleChange("code")}
             value={formik.values.code}
-            onBlur={formik.handleChange("code")}
+            onBlur={formik.handleBlur("code")}
           />
           {formik.touched.code && formik.errors.code ? (
             <div className="mb-2 mt-0">{formik.errors.code}</div>

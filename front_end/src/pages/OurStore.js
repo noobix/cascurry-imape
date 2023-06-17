@@ -15,10 +15,10 @@ import {
 
 const OurStore = () => {
   const [grid, setGrid] = React.useState(4);
-  const [showOutOfStock, setshowOutOfStock] = React.useState(false);
-  const [showInStock, setshowInStock] = React.useState(false);
-  const [inStockCount, setinStockCount] = React.useState(0);
-  const [outOfstockCount, setoutOfStockCount] = React.useState(0);
+  const [showOutOfStock, setshowOutOfStock] = React.useState(true);
+  const [showInStock, setshowInStock] = React.useState(true);
+  const [inStockCount, setinStockCount] = React.useState([]);
+  const [outOfstockCount, setoutOfStockCount] = React.useState([]);
   const [currentCategory, setCurrentCategory] = React.useState([]);
   const [price, setPrice] = React.useState({ from: "", to: "" });
   const [filteredbyPrice, setfilteredByPrice] = React.useState([]);
@@ -46,7 +46,7 @@ const OurStore = () => {
         product.length > 0 &&
         product.filter((item) => item.quantity === 0)
       : [];
-    setoutOfStockCount(outOfStock.length);
+    setoutOfStockCount(outOfStock);
   }, [showOutOfStock]);
   React.useEffect(() => {
     const inStock = showInStock
@@ -54,7 +54,7 @@ const OurStore = () => {
         product.length > 0 &&
         product.filter((item) => item.quantity >= 1)
       : [];
-    setinStockCount(inStock.length);
+    setinStockCount(inStock);
   }, [showInStock]);
   React.useEffect(() => {
     const priceFilter =
@@ -218,7 +218,7 @@ const OurStore = () => {
                         value="checkedValue"
                         onChange={(e) => setshowInStock(e.target.checked)}
                       />
-                      In-stock ({inStockCount})
+                      In-stock ({inStockCount.length})
                     </label>
                   </div>
                   <div className="form-check">
@@ -232,7 +232,7 @@ const OurStore = () => {
                         value="checkedValue"
                         onChange={(e) => setshowOutOfStock(e.target.checked)}
                       />
-                      Out of stock ({outOfstockCount})
+                      Out of stock ({outOfstockCount.length})
                     </label>
                   </div>
                 </div>
@@ -385,9 +385,11 @@ const OurStore = () => {
                     <option value="price-descending">
                       Price from High-Low
                     </option>
-                    <option value="created ascending">Date from Old-New</option>
+                    <option value="created ascending">
+                      Items from Old-New
+                    </option>
                     <option value="created descending">
-                      Date from New-Old
+                      Items from New-Old
                     </option>
                   </select>
                 </div>
@@ -436,6 +438,12 @@ const OurStore = () => {
                       ? filteredbyPrice
                       : sortProductBy.length
                       ? sortProductBy
+                      : inStockCount.length
+                      ? inStockCount
+                      : outOfstockCount.length
+                      ? outOfstockCount
+                      : outOfstockCount.length === 0
+                      ? []
                       : product
                   }
                 />

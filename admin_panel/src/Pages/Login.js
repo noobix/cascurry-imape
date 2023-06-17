@@ -49,7 +49,7 @@ const Login = () => {
             name="email"
             onChange={formik.handleChange("email")}
             value={formik.values.email}
-            onBlur={formik.handleChange("email")}
+            onBlur={formik.handleBlur("email")}
           />
           {formik.touched.email && formik.errors.email ? (
             <div>{formik.errors.firstName}</div>
@@ -62,7 +62,7 @@ const Login = () => {
             name="password"
             onChange={formik.handleChange("password")}
             value={formik.values.password}
-            onBlur={formik.handleChange("password")}
+            onBlur={formik.handleBlur("password")}
           />
           {formik.touched.password && formik.errors.password ? (
             <div>{formik.errors.firstName}</div>

@@ -12,7 +12,9 @@ export const userLogin = async (userinfo) => {
   const response = await axios.post(`/api/users/login`, userinfo, {
     headers: { "Content-Type": "application/json" },
   });
-  response.data && localStorage.setItem("user", JSON.stringify(response.data));
+  response.data &&
+    response.data.refreshToken &&
+    localStorage.setItem("user", JSON.stringify(response.data));
   return response.data;
 };
 export const userLogout = async () => {

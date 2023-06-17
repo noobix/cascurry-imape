@@ -50,13 +50,15 @@ const Header = () => {
         <div className="container-xxl">
           <div className="row">
             <div className="col-6">
-              <p className="text-white mb-0">Free Delivery Over GHC1000</p>
+              <p className="text-white mb-0">
+                We Deliver to Over 40 countries across continents
+              </p>
             </div>
             <div className="col-6">
               <p className="text-end text-white mb-0">
                 Hotline
-                <a className="text-white" href="tel:+233 244109010">
-                  +233 244109010
+                <a className="text-white" href="tel:+233 593754162">
+                  +233 593754162
                 </a>
               </p>
             </div>

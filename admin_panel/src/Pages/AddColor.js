@@ -46,7 +46,7 @@ const AddColor = () => {
             name="name"
             onChange={formik.handleChange("name")}
             value={formik.values.name}
-            onBlur={formik.handleChange("name")}
+            onBlur={formik.handleBlur("name")}
           />
           {formik.touched.name && formik.errors.name ? (
             <div className="mb-2 mt-0">{formik.errors.name}</div>
@@ -61,7 +61,7 @@ const AddColor = () => {
             value={colorCode}
             name="color"
             onChange={formik.handleChange("color")}
-            onBlur={formik.handleChange("color")}
+            onBlur={formik.handleBlur("color")}
           />
           {formik.touched.color && formik.errors.color ? (
             <div className="mb-2 mt-0">{formik.errors.color}</div>
