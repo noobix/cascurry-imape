@@ -27,7 +27,7 @@ const addNewUser = asyncHandler(async (requestObject, responseObject) => {
     mobile: requestObject.body.mobile,
     password: requestObject.body.password,
     country: requestObject.body.country, //not in model yet
-    privileges: requestObject.body.privileges,
+    privileges: requestObject.body.privileges || "admin",
   });
   requestObject.body.address &&
     newUser.address.push(requestObject.body.address);
