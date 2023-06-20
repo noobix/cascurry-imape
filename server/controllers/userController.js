@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
 const format = require("capitalize-string");
+const { Converter } = require("easy-currencies");
 const uniqid = require("uniqid");
 const User = require("../models/userModel");
 const Product = require("../models/productModel");
@@ -13,6 +14,7 @@ const validateKey = require("../utils/validateId");
 const { mailer, checkoutMailer } = require("./emailController");
 const crypto = require("crypto");
 
+const converter = new Converter();
 const addNewUser = asyncHandler(async (requestObject, responseObject) => {
   const { email } = requestObject.body;
   const exists = await User.findOne({ email: email });
@@ -631,7 +633,22 @@ const getOrderCheckout = asyncHandler(async (requestObject, responseObject) => {
       to: orderCheckedout.orderBy.email,
       subject: "Order sucessfully made",
     };
-    const assets = orderCheckedout.product.map((item) => {
+    const assets = {};
+    assets.orderBy = orderCheckedout.orderBy.firstname;
+    assets.shippingFee = orderCheckedout.shippingFee;
+    assets.deliveryDate = new Date(
+      orderCheckedout.deliveryDate
+    ).toLocaleDateString();
+    assets.amountPaid = await converter.convert(
+      (orderCheckedout.paymentIntent.amountPaid / 100).toFixed(2),
+      "USD",
+      "GHS"
+    );
+    assets.grandTotal = orderCheckedout.product.reduce(
+      (acc, val) => acc + val.product.price * val.quantity,
+      0
+    );
+    assets.products = orderCheckedout.product.map((item) => {
       return {
         title: item.product.title,
         brand: item.product.brand.name,

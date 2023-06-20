@@ -6,8 +6,11 @@
     <title>Document</title>
     <style>
       .heading { font-size: 22px; color: #a2ce2c;font-weight: 700; } .banner {
-      width: 300px; height: 80px; } .item-image { width: 90px; } .pad{padding:
-      8px;}
+      width: 300px; height: 80px; } .item-image { width: 110px; } .pad{padding:
+      4px 12px; } .greeting { color:#22aaf1; } .content{ color: #a44dee;
+      font-size: 17px; font-weight: 500; } .ddate{ font-weight: 600; } .fee{
+      font-weight: 600; } .tdata{ color:#a44dee; padding: 2px 7px; font-size:
+      15px;}
     </style>
   </head>
   <body>
@@ -17,6 +20,14 @@
         src="https://static.vecteezy.com/system/resources/thumbnails/005/021/047/small/illustration-land-or-ground-shipping-carrier-delivery-service-has-motorcycle-van-and-cargo-ship-yellow-or-orange-tones-design-for-banner-website-decorations-app-advertising-parcel-vector.jpg"
         alt="..."
       />
+      <h2 class="greeting">Hello {{name}},</h2>
+      <p class="content">On order is being processed and its scheduled to be
+        delivered on the
+        <span class="ddate">{{delivery}}</span></p>
+      <p class="content">You paid a shipping fee of
+        <span class="fee">{{shipping}}</span>
+        making your paid amount
+        <span class="fee">{{amount}}</span></p><br /><br />
       <table>
         <tr>
           <th class="pad">Image</th>
@@ -25,20 +36,21 @@
           <th class="pad">Quantity</th>
           <th class="pad">Unit Price</th>
         </tr>
-        {{#each assets}}
+        {{#each products}}
           <tr>
             {{#with this}}
               <td>
                 <img class="item-image" src={{this.image}} alt="..." />
               </td>
-              <td style="padding:0 5px;">{{this.brand}}</td>
-              <td style="padding:0 5px;">{{this.title}}</td>
-              <td style="padding:0 5px;">{{this.quantity}}</td>
-              <td style="padding:0 5px;">&#8373;{{this.price}}</td>
+              <td class="tdata">{{this.brand}}</td>
+              <td class="tdata">{{this.title}}</td>
+              <td class="tdata">{{this.quantity}}</td>
+              <td class="tdata">&#8373;{{this.price}}</td>
             {{/with}}
           </tr>
         {{/each}}
       </table>
+      <p class="content">The total is <span class="fee">{{total}}</span></p>
     </div>
   </body>
 </html>

@@ -74,7 +74,14 @@ const checkoutMailer = asyncHandler(
       to: data.to, // list of receivers
       subject: "Hello ✔ " + data.subject, // Subject line
       template: "order",
-      context: { assets },
+      context: {
+        name: assets.orderBy,
+        shipping: assets.shippingFee,
+        delivery: assets.deliveryDate,
+        amount: assets.amountPaid,
+        total: assets.grandTotal,
+        products: assets.products,
+      },
     };
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
