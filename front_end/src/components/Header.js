@@ -50,12 +50,12 @@ const Header = () => {
         <div className="container-xxl">
           <div className="row">
             <div className="col-6">
-              <p className="text-white mb-0">
+              <p className="text-white mb-0 top-text">
                 We Deliver to Over 40 countries across continents
               </p>
             </div>
             <div className="col-6">
-              <p className="text-end text-white mb-0">
+              <p className="text-end text-white mb-0 top-text">
                 Hotline
                 <a className="text-white" href="tel:+233 593754162">
                   +233 593754162
@@ -69,7 +69,7 @@ const Header = () => {
         <div className="container-xxl">
           <div className="row">
             <div className="col-2">
-              <h3>
+              <h3 className="store">
                 <Link className="text-white">Online Store</Link>
               </h3>
             </div>

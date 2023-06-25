@@ -1,6 +1,6 @@
 import React from "react";
 import { Rating } from "@smastrom/react-rating";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addWishlist, compareItem } from "../features/auth/authSlice";
 import { addProductToCart } from "../features/auth/authSlice";
@@ -17,7 +17,9 @@ const ProductCard = ({ grid, data = [] }) => {
         data.map((item, index) => (
           <div
             key={index}
-            className={location.pathname === "/store" ? `gr-${grid}` : "col-3"}
+            className={`${
+              location.pathname === "/store" ? `gr-${grid}` : "col-3"
+            } product-card-card`}
           >
             <div className="product-card position-relative">
               <div className="wishlist-icon position-absolute">
@@ -50,7 +52,11 @@ const ProductCard = ({ grid, data = [] }) => {
               </div>
               <div className="product-details">
                 <h6 className="brand">{item.brand.name}</h6>
-                <h5 className="product-title">{item.title}</h5>
+                <h5 className="product-title">
+                  <Link to={"/store/product-view/" + item._id}>
+                    {item.title}
+                  </Link>
+                </h5>
                 <Rating style={{ maxWidth: 90 }} value={item.totalRatings} />
                 <p
                   className={`description ${

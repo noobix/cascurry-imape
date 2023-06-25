@@ -11,7 +11,7 @@ const SpecialProducts = ({ data = [] }) => {
       {data &&
         data.length > 0 &&
         data.map((item, index) => (
-          <div key={index} className="col-6 mb-3">
+          <div key={index} className="col-6 mb-3 special-product-card-card">
             <div className="special-product-card">
               <div className="d-flex justify-content-between gap-5">
                 <div>

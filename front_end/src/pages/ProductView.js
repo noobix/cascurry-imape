@@ -129,7 +129,7 @@ const ProductView = () => {
                 <h3 className="title">{product?.title}</h3>
               </div>
               <div className="border-bottom py-3">
-                <p className="price">&#36;&nbsp;{product.price}</p>
+                <p className="price">&#8373;&nbsp;{product.price}</p>
                 <div className="d-flex align-items-center gap-10">
                   <Rating
                     style={{ maxWidth: 65 }}
@@ -202,7 +202,7 @@ const ProductView = () => {
                       className="form-control w-100"
                     />
                   </div>
-                  <div className="d-flex flex-row align-items-center gap-10">
+                  <div className="d-flex flex-row align-items-center gap-10 cart-actions">
                     <button
                       className="button-sm border-0 form-control text-nowrap"
                       type="button"
@@ -226,7 +226,7 @@ const ProductView = () => {
                     </button>
                     {!isCart && (
                       <button
-                        className="button-sm border-0 form-control"
+                        className="button-sm border-0 form-control text-nowrap"
                         role="a"
                         onClick={() => {
                           dispatch(

@@ -59,10 +59,10 @@ const Profile = () => {
     <React.Fragment>
       <MetaData title="Profile" />
       <BreadCrumb title="profile" />
-      <Container classProp="cart-wrapper home-wrapper-2 py-5">
+      <Container classProp="profile-wrapper home-wrapper-2 py-5">
         <div className="row">
           <div className="col-8">
-            <div className="d-flex gap-3">
+            <div className="d-flex gap-3 profile-head">
               <div>
                 {user && user.privileges === "admin" ? (
                   <React.Fragment>

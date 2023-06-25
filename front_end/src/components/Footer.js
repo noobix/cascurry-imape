@@ -15,11 +15,11 @@ const Footer = () => {
   const { user } = useSelector((state) => state.auth);
   return (
     <React.Fragment>
-      <footer className="py-3">
+      <footer className="py-3 footer-top">
         <div className="container-xxl">
-          <div className="row align-items-center">
+          <div className="row">
             <div className="col-5">
-              <div className="footer-top-data d-flex gap-30 align-items-center">
+              <div className="footer-top-data d-flex gap-3 align-items-center">
                 <img
                   className="icon"
                   src="/assets/images/newsletter.png"
@@ -29,7 +29,7 @@ const Footer = () => {
               </div>
             </div>
             <div className="col-7">
-              <div className="input-group">
+              <div className="input-group input-subscribe">
                 <input
                   type="text"
                   className="form-control py-1"
@@ -45,7 +45,7 @@ const Footer = () => {
           </div>
         </div>
       </footer>
-      <footer className="py-4">
+      <footer className="py-4 footer-main">
         <div className="container-xxl">
           <div className="row">
             <div className="col-4">
@@ -70,7 +70,7 @@ const Footer = () => {
                 >
                   sikabuilding@gmail.com
                 </a>
-                <div className="social-icons d-flex align-items-center gap-30 mt-3">
+                <div className="social-icons d-flex align-items-center gap-3 mt-3">
                   <a href="https://www.youtube.com">
                     <BsYoutube className="text-white fs-5" />
                   </a>

@@ -128,20 +128,20 @@ const Cart = () => {
                   </div>
                 </div>
               ))}
-            <div className="col-12 py-2 mt-3">
-              <div className="d-flex justify-content-between align-items-baseline">
-                <Link to="/store" className="button">
-                  Continue Shopping
+          </div>
+          <div className="col-12 py-2 mt-3">
+            <div className="d-flex justify-content-between align-items-baseline action-area">
+              <Link to="/store" className="button">
+                Continue Shopping
+              </Link>
+              <div className="d-flex flex-column align-items-end">
+                <h4 className="total">
+                  Total:&nbsp;&#8373;&nbsp;{cart?.cartTotal}
+                </h4>
+                <p>Taxes and shipping are calculated at checkout</p>
+                <Link to="/checkout" className="button">
+                  Checkout
                 </Link>
-                <div className="d-flex flex-column align-items-end">
-                  <h4 className="total">
-                    Total:&nbsp;&#8373;&nbsp;{cart?.cartTotal}
-                  </h4>
-                  <p>Taxes and shipping are calculated at checkout</p>
-                  <Link to="/checkout" className="button">
-                    Checkout
-                  </Link>
-                </div>
               </div>
             </div>
           </div>

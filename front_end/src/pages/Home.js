@@ -307,6 +307,7 @@ const Home = () => {
                 <img
                   src={process.env.PUBLIC_URL + "assets/images/service.png"}
                   alt="..."
+                  className="img-fluid"
                 />
                 <div>
                   <h6>Free Shipping</h6>
@@ -317,6 +318,7 @@ const Home = () => {
                 <img
                   src={process.env.PUBLIC_URL + "assets/images/service-02.png"}
                   alt="..."
+                  className="img-fluid"
                 />
                 <div>
                   <h6>Daily Suprise Offers</h6>
@@ -327,6 +329,7 @@ const Home = () => {
                 <img
                   src={process.env.PUBLIC_URL + "assets/images/service-03.png"}
                   alt="..."
+                  className="img-fluid"
                 />
                 <div>
                   <h6>24/7 Custmer Support</h6>
@@ -363,17 +366,12 @@ const Home = () => {
             <div className="cartegories d-flex flex-wrap align-items-center justify-content-between">
               {randomCategory &&
                 randomCategory.map((item, index) => (
-                  <div key={index} className="d-flex align-items-center gap-30">
+                  <div key={index} className="d-flex align-items-center gap-2">
                     <div>
                       <h6>{item.category}</h6>
                       <p>{item.itemCount}&nbsp;items</p>
                     </div>
-                    <img
-                      className="img-fluid"
-                      style={{ width: "85px" }}
-                      src={item.image}
-                      alt="..."
-                    />
+                    <img style={{ width: "85px" }} src={item.image} alt="..." />
                   </div>
                 ))}
             </div>
@@ -538,7 +536,7 @@ const Home = () => {
             <h4 className="section-heading">Our Latest Blogs</h4>
           </div>
           <div className="row">
-            <div className="col-3">
+            <div className="col-3 blog-card-card">
               {blogs &&
                 blogs.length > 0 &&
                 blogs.map((blog, index) => (

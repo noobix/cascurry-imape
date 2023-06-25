@@ -7,8 +7,8 @@ const About = () => {
   return (
     <React.Fragment>
       <MetaData title="About Us" />
-      <BreadCrumb title="Terms and Conditions" />
-      <Container className="policy-wrapper home-wrapper-2 py-5">
+      <BreadCrumb title="About-us" />
+      <Container classProp="about-wrapper home-wrapper-2 py-5">
         <div className="row">
           <div className="col-5">
             <img
