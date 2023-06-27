@@ -1326,6 +1326,57 @@ input[type="radio"] {
   .checkout-wrapper .row .col-5 {
     order: 0;
   }
+  .login-wrapper .row .col-12 {
+    width: 24rem;
+  }
+  .login-card {
+    width: 21.5rem;
+    margin: 0.3rem auto;
+  }
+  .login-card .form-control {
+    padding: 0.1rem 0.35rem;
+    font-size: 0.75rem;
+    height: 3rem;
+  }
+  .login-card form a {
+    font-size: 0.7rem;
+    margin-bottom: 3px;
+  }
+  .login-card form .button {
+    font-size: 1rem;
+    padding: 0.7rem 0.8rem;
+  }
+  .signup-wrapper .row .col-12 {
+    width: 24rem;
+  }
+  .signup-card {
+    width: 21.5rem;
+    margin: 0.3rem auto;
+  }
+  .signup-card .form-control {
+    padding: 0.1rem 0.35rem;
+    font-size: 0.75rem;
+    height: 3rem;
+  }
+  .signup-card form button {
+    font-size: 1rem;
+    padding: 0.7rem 0.8rem;
+  }
+  .signup-card form .button {
+    font-size: 1rem;
+    padding: 0.7rem 0.8rem;
+  }
+  .forgot-password-wrapper .row .col-12 {
+    width: 24rem;
+  }
+  .reset-card {
+    width: 21.5rem;
+    margin: 0.3rem auto;
+  }
+  .reset-card form .button {
+    font-size: 1rem;
+    padding: 0.7rem 0.8rem;
+  }
 }
 
 @media screen and (max-width: 768px) {

@@ -237,7 +237,6 @@ const updatePassword = asyncHandler(async (requestObject, responseObject) => {
 const forgotPasswordToken = asyncHandler(
   async (requestObject, responseObject) => {
     const email = requestObject.body.email;
-    console.log(email);
     const user = await User.findOne({ email: email });
     if (!user)
       throw new Error(
@@ -245,9 +244,9 @@ const forgotPasswordToken = asyncHandler(
       );
     const resetToken = await user.createPasswordResetToken();
     await user.save();
-    const resetUrl = `You are required to follow this link to reset your
+    const resetUrl = `<p>You are required to follow this link to reset your
     password, this link will be inactive in 10minutes only.
-    <a href="https://open-market-sv2.netlify.app/reset-password/${resetToken}">Click here</a>`;
+    <a href="https://open-market-sv2.netlify.app/reset-password/${resetToken}">Click here</a></p>`;
     const data = {
       to: email,
       subject: "Password reset link",

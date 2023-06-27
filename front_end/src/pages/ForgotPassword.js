@@ -11,7 +11,7 @@ import { forgotPassword } from "../features/auth/authSlice";
 
 const ForgotPassword = () => {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const { user, isError } = useSelector((state) => state.auth);
   let profileSchema = object({
     email: string().email().required(),
   });
@@ -23,7 +23,7 @@ const ForgotPassword = () => {
     onSubmit: (values) => {
       values = { data: values, token: user?.refreshToken };
       dispatch(forgotPassword(values));
-      setTimeout(() => formik.resetForm(), 150);
+      setTimeout(() => !isError && formik.resetForm(), 150);
     },
   });
   return (

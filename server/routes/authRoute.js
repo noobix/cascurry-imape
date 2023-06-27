@@ -55,7 +55,7 @@ router.get("/person/all_order_paginate", pagination);
 router.get("/person/logout", logout);
 router.get("/person/fetch_cookies", fetchRefreshToken);
 router.put("/person/update_password", approveAuth, updatePassword);
-router.post("/person/forgot_password_token/", forgotPasswordToken);
+router.post("/person/forgot_password_token", forgotPasswordToken);
 router.put("/person/reset_password/:token", resetPassword);
 router.delete("/person/", approveAuth, removeUser);
 router.put("/person/", approveAuth, updateUser);
