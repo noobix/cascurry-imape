@@ -103,7 +103,7 @@ const OurStore = () => {
   const handleSelect = (e) => {
     switch (e.target.value) {
       case "not-sorted":
-        setsortProductBy([]);
+        setsortProductBy(product);
         setcurrentSort("not-sorted");
         break;
       case "best-selling":
@@ -165,7 +165,7 @@ const OurStore = () => {
         <div className="row">
           <div className="col-3">
             <div className="filter-card mb-3">
-              <h3 className="filter-title">Shop By Cartegories</h3>
+              <h3 className="filter-title">Current Items Categories</h3>
               <div>
                 <ul className="ps-0">
                   <li
@@ -173,14 +173,17 @@ const OurStore = () => {
                       dispatch(
                         getproductsPaginated({
                           token: user?.refreshToken,
-                          page: 1,
+                          page: pagination.currentPage,
                           limit: pagination.itemCount,
                           skip: pagination.startIndex,
                         })
                       )
                     }
                   >
-                    All Items
+                    All Current Page Categories
+                    <span style={{ color: "#200f0a" }}>
+                      ({currentCategory.length})
+                    </span>
                   </li>
                   {currentCategory &&
                     currentCategory.length > 0 &&

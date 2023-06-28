@@ -253,10 +253,16 @@ const forgotPasswordToken = asyncHandler(
       html: resetUrl,
       text: "Hello. This message contains a link to assist you change your password",
     };
-
-    mailer(data, (status, message) => {
-      responseObject.status(status).json({ message: message });
+    await new Promise((resolve, reject) => {
+      mailer(data, (status, message) => {
+        if (status === 100) {
+          resolve(message);
+        } else {
+          reject(new Error(message));
+        }
+      });
     });
+    responseObject.status(200).json({ message: "Email sent successfully" });
   }
 );
 const resetPassword = asyncHandler(async (requestObject, responseObject) => {
@@ -659,7 +665,11 @@ const getOrderCheckout = asyncHandler(async (requestObject, responseObject) => {
     checkoutMailer(data, assets, (status, message) => {
       responseObject.status(status).json({ message: message });
     });
-    responseObject.status(200).json(orderCheckedout);
+    const orderFixedData = orderCheckedout.toObject({ getters: true });
+    const { amountPaid } = orderFixedData.paymentIntent;
+    const validPaid = await converter.convert(amountPaid, "USD", "GHS");
+    orderFixedData.paymentIntent.amountPaid = validPaid;
+    responseObject.status(200).json(orderFixedData);
   } else
     responseObject
       .status(404)
@@ -677,8 +687,13 @@ const fetchOrder = asyncHandler(async (requestObject, responseObject) => {
     })
     .populate("orderBy");
   // userOrder = { ...userOrder, color: userOrder.product[0].color };
-  if (userOrder) responseObject.status(200).json(userOrder);
-  else
+  if (userOrder) {
+    const userOrderFixed = userOrder.toObject({ getters: true });
+    const { amountPaid } = userOrderFixed.paymentIntent;
+    const fixedTotal = await converter.convert(amountPaid, "USD", "GHS");
+    userOrderFixed.paymentIntent.amountPaid = fixedTotal;
+    responseObject.status(200).json(userOrderFixed);
+  } else
     responseObject.status(400).json({
       message: "Could not find any matching orders, please try again.",
     });

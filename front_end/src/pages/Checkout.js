@@ -174,7 +174,7 @@ const Checkout = () => {
                       className="form-control"
                       id="floatingInputValue1"
                       name="firstname"
-                      placeholder="Kwesi"
+                      placeholder="Kwesi*"
                       onChange={formik.handleChange("firstname")}
                       value={formik.values.firstname}
                       onBlur={formik.handleBlur("firstname")}
@@ -193,7 +193,7 @@ const Checkout = () => {
                       type="text"
                       className="form-control"
                       id="floatingInputValue2"
-                      placeholder="Ofori"
+                      placeholder="Ofori*"
                       name="lastname"
                       onChange={formik.handleChange("lastname")}
                       value={formik.values.lastname}
@@ -213,7 +213,7 @@ const Checkout = () => {
                   <input
                     className="form-control"
                     type="text"
-                    placeholder="Address"
+                    placeholder="Address*"
                     aria-label="default input example"
                     name="addressLine1"
                     onChange={formik.handleChange("addressLine1")}
@@ -232,7 +232,7 @@ const Checkout = () => {
                   <input
                     className="form-control"
                     type="text"
-                    placeholder="Apartment, suit etc..."
+                    placeholder="Apartment, suit etc...*"
                     aria-label="default input example"
                     name="addressLine2"
                     onChange={formik.handleChange("addressLine2")}
@@ -251,7 +251,7 @@ const Checkout = () => {
                   <input
                     className="form-control"
                     type="text"
-                    placeholder="City"
+                    placeholder="City*"
                     aria-label="default input example"
                     name="city"
                     onChange={formik.handleChange("city")}

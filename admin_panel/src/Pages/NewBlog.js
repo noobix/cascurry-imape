@@ -156,7 +156,6 @@ const NewBlog = () => {
             theme="snow"
             value={formik.values.description}
             onChange={formik.handleChange("description")}
-            onBlur={formik.handleBlur("description")}
           />
           {formik.touched.description && formik.errors.description ? (
             <div className="mb-2 mt-0">{formik.errors.description}</div>

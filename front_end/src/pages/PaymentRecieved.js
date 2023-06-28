@@ -208,6 +208,7 @@ const PaymentRecieved = () => {
             <div className="d-flex gap-3 mb-1">
               <div>Amount:</div>
               <div>
+                &#8373;
                 {order.paymentIntent &&
                   (order?.paymentIntent?.amount).toFixed(2)}
                 &nbsp;
@@ -217,6 +218,7 @@ const PaymentRecieved = () => {
             <div className="d-flex gap-3 mb-1">
               <div>Amount Paid:</div>
               <div>
+                &#8373;
                 {order.paymentIntent &&
                   (order?.paymentIntent?.amountPaid / 100).toFixed(2)}
               </div>

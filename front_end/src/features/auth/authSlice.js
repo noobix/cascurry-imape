@@ -682,14 +682,14 @@ export const authSlice = createSlice({
         state.isSuccess = true;
         state.isLoading = false;
         state.message = action.payload;
-        toast.success(state.message);
+        toast.success("Email Sent Successfully");
       })
       .addCase(forgotPassword.rejected, (state, action) => {
         state.isError = true;
         state.isSuccess = false;
         state.isLoading = false;
         state.message = action.error;
-        toast.error(action.payload);
+        toast.error(action.payload || state.message);
       })
       .addCase(changePassword.pending, (state) => {
         state.isError = true;

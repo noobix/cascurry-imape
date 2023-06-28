@@ -1377,6 +1377,15 @@ input[type="radio"] {
     font-size: 1rem;
     padding: 0.7rem 0.8rem;
   }
+  .checkout-wrapper .row .col-4 {
+    width: 24rem;
+  }
+  .checkout-wrapper .row {
+    flex-direction: column;
+  }
+  .checkout-wrapper .row .col-4 > div {
+    border: none !important;
+  }
 }
 
 @media screen and (max-width: 768px) {
@@ -1475,6 +1484,15 @@ input[type="radio"] {
   }
   .blog-card-card {
     width: 48%;
+  }
+  .checkout-wrapper .row .col-4 {
+    width: 24rem;
+  }
+  .checkout-wrapper .row {
+    flex-direction: column;
+  }
+  .checkout-wrapper .row .col-4 > div {
+    border: none !important;
   }
 }
 

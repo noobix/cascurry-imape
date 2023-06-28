@@ -13,9 +13,7 @@ import {
   CodepenCircleOutlined,
   MacCommandOutlined,
   NotificationOutlined,
-  DatabaseOutlined,
   ProfileOutlined,
-  CompressOutlined,
   FundProjectionScreenOutlined,
   BellOutlined,
   SnippetsOutlined,
@@ -177,10 +175,10 @@ const MainLayout = () => {
               <BellOutlined className="fs-5 position-absolute" />
             </div>
             <img
-              src="https://images.pexels.com/photos/1310522/pexels-photo-1310522.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+              src="https://img.freepik.com/free-icon/user_318-462367.jpg?w=2000"
               alt="..."
-              className="img-fluid rounded-5"
-              style={{ width: "60px" }}
+              className="img-fluid rounded-3"
+              style={{ width: "30px" }}
             />
             <div
               className="dropdown-toggle"

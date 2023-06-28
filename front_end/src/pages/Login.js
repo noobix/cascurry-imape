@@ -15,7 +15,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { isError } = useSelector((state) => state.auth);
   let loginSchema = object({
-    email: string().required(),
+    email: string().email().required(),
     password: string().required(),
   });
   const formik = useFormik({
@@ -31,7 +31,7 @@ const Login = () => {
           formik.resetForm();
           navigate("/", { replace: true });
         }
-      }, 1800);
+      }, 2000);
     },
   });
   return (

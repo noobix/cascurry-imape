@@ -25,7 +25,7 @@ const listOrders = async (token) => {
   return response.data;
 };
 const getOrder = async ({ token, id }) => {
-  const response = await axios.get(`/api/users/person//get_user_order/${id}`, {
+  const response = await axios.get(`/api/users/person/get_user_order/${id}`, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,

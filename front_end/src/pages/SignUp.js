@@ -41,7 +41,7 @@ const SignUp = () => {
   let signUpSchema = object({
     firstname: string().required(),
     lastname: string().required(),
-    email: string().required(),
+    email: string().email().required(),
     country: string().required(),
     mobile: string().required(),
     addressLine1: string(),
@@ -64,7 +64,8 @@ const SignUp = () => {
     validationSchema: signUpSchema,
     onSubmit: (values) => {
       if (formik.values.password !== formik.values.repeatPassword)
-        return (formik.errors.repeatPassword = "Password is not a match");
+        return (formik.errors.repeatPassword =
+          "Passwords provided don't match");
       const valid = validate(formik.values.password, schema);
       if (!valid.valid)
         return (formik.errors.password = valid.errors.map((err) => {

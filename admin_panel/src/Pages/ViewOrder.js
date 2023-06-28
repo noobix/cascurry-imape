@@ -107,17 +107,17 @@ const ViewOrder = () => {
               <div className="d-flex gap-2">
                 <div className="text-warning mb-1">Total Bill:</div>
                 <div className="text-info">
-                  &#36;{order?.paymentIntent?.amount}
+                  &#8373;{order?.paymentIntent?.amount}
                 </div>
               </div>
               <div className="d-flex gap-2">
                 <div className="text-warning mb-1">Shipping:</div>
-                <div className="text-info">&#36;{order?.shippingFee}</div>
+                <div className="text-info">&#8373;{order?.shippingFee}</div>
               </div>
               <div className="d-flex gap-2">
                 <div className="text-warning mb-1">Amount Paid:</div>
                 <div className="text-info">
-                  &#36;{(order?.paymentIntent?.amountPaid / 100).toFixed(2)}
+                  &#8373;{(order?.paymentIntent?.amountPaid / 100).toFixed(2)}
                 </div>
               </div>
               <div className="d-flex gap-2">
