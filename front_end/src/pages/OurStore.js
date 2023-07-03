@@ -26,7 +26,7 @@ const OurStore = () => {
   const [productTags, setproductTags] = React.useState([]);
   const [randomProduct, setrandomProduct] = React.useState([]);
   const [sortProductBy, setsortProductBy] = React.useState([]);
-  const [currentSort, setcurrentSort] = React.useState("not-sorted");
+  const [currentSort, setcurrentSort] = React.useState("Not-Sorted");
   const dispatch = useDispatch();
   const { product = [], pagination } = useSelector((state) => state.item) ?? {};
   const { user } = useSelector((state) => state.auth);
@@ -104,7 +104,7 @@ const OurStore = () => {
     switch (e.target.value) {
       case "not-sorted":
         setsortProductBy(product);
-        setcurrentSort("not-sorted");
+        setcurrentSort("Not-Sorted");
         break;
       case "best-selling":
         const bestSales = product.slice().sort((a, b) => b.sold - a.sold);
@@ -439,6 +439,8 @@ const OurStore = () => {
                   data={
                     filteredbyPrice.length
                       ? filteredbyPrice
+                      : currentSort === "Not-Sorted"
+                      ? product
                       : sortProductBy.length
                       ? sortProductBy
                       : inStockCount.length
