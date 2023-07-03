@@ -19,10 +19,8 @@ const Header = () => {
   const { cart, user } = useSelector((state) => state.auth) ?? {};
   const { categories } = useSelector((state) => state.item) ?? {};
   React.useEffect(() => {
-    if (user?.refreshToken) {
-      dispatch(getCart(user?.refreshToken));
-      dispatch(getCartegories(user?.refreshToken));
-    }
+    dispatch(getCart(user?.refreshToken));
+    dispatch(getCartegories(user?.refreshToken));
   }, [dispatch, user]);
   React.useEffect(() => {
     if (query.length > 0) {
@@ -203,7 +201,7 @@ const Header = () => {
                           e.preventDefault();
                           dispatch(
                             getProducts({
-                              token: user.refreshToken,
+                              token: user?.refreshToken,
                             })
                           );
                         }}
@@ -229,7 +227,7 @@ const Header = () => {
                                 e.preventDefault();
                                 dispatch(
                                   fetchItemsCartegory({
-                                    token: user.refreshToken,
+                                    token: user?.refreshToken,
                                     str: category.description,
                                   })
                                 );
