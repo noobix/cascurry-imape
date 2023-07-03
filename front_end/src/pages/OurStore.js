@@ -192,7 +192,7 @@ const OurStore = () => {
                         onClick={() =>
                           dispatch(
                             fetchItemsCartegory({
-                              token: user.refreshToken,
+                              token: user?.refreshToken,
                               str: category,
                             })
                           )
@@ -278,7 +278,7 @@ const OurStore = () => {
                           onClick={() =>
                             dispatch(
                               searchProductByColor({
-                                token: user.refreshToken,
+                                token: user?.refreshToken,
                                 search: item,
                               })
                             )
